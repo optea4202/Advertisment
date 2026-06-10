@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { getAdById, updateAd } from '../api/ads.js';
+import { compressImage } from '../utils/imageCompressor.js';
 
 export const EditAdPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -196,8 +197,12 @@ export const EditAdPage: React.FC = () => {
       // Append existing images to keep
       formData.append('keep_images', JSON.stringify(existingImages));
 
-      // Append new file uploads
-      newFiles.forEach((file) => {
+      // Compress new images before uploading
+      const compressedFilesPromises = newFiles.map((file) => compressImage(file, 1200, 0.8));
+      const compressedFiles = await Promise.all(compressedFilesPromises);
+
+      // Append new compressed file uploads
+      compressedFiles.forEach((file) => {
         formData.append('images', file);
       });
 
@@ -439,7 +444,7 @@ export const EditAdPage: React.FC = () => {
                   className="w-full bg-primary text-on-primary font-label-md text-label-md px-xl py-md rounded-lg elevation-1 btn-primary-inner hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="material-symbols-outlined text-sm">save</span>
-                  {isSubmitting ? 'Saving changes...' : 'Save Changes'}
+                  {isSubmitting ? 'Optimizing & Saving...' : 'Save Changes'}
                 </button>
                 
                 <button

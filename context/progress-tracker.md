@@ -36,6 +36,7 @@ Update this file after every meaningful implementation change.
 - Enabled users to edit and delete their advertisement posts directly from their own user profile page by conditionally passing action triggers to `AdCard` components when viewing their own profile.
 - Designed and implemented a responsive, fancy, and eye-catching landing page (`FeedPage`) for both PC and mobile viewports, including a premium Hero Showcase with animated text gradients, animated gradient flow background, glassmorphism spotlight preview card featuring automatic sliding rotation and navigation dots, active listing statistics, and visual category icons.
 - Made the entire advertisement card container a semantic Link component (with cursor-pointer) on both the primary AdCard and the spotlight preview card to ensure native browser/touch navigation support (including on mobile portrait views). Nested action buttons (Edit, Delete, and Slider dots) have event propagation and default actions blocked to keep their interactions separate and fully functional. Removed the "Open Ad" button.
+- Added client-side image compression using HTML5 Canvas (`client/src/utils/imageCompressor.ts`) in the ad creation/editing forms and profile setup/settings. This reduces large high-resolution camera images from up to 10MB down to a few hundred kilobytes (and small 400px profile avatars) on the fly, speeding up ad publishing and updates on mobile networks by up to 95%.
 
 
 

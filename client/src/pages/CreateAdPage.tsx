@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { createAd } from '../api/ads.js';
+import { compressImage } from '../utils/imageCompressor.js';
 
 export const CreateAdPage: React.FC = () => {
   const navigate = useNavigate();
@@ -100,8 +101,12 @@ export const CreateAdPage: React.FC = () => {
       formData.append('location', location.trim());
       formData.append('contact_info', contactInfo.trim());
 
-      // Append all images
-      selectedFiles.forEach((file) => {
+      // Compress images before uploading
+      const compressedFilesPromises = selectedFiles.map((file) => compressImage(file, 1200, 0.8));
+      const compressedFiles = await Promise.all(compressedFilesPromises);
+
+      // Append all compressed images
+      compressedFiles.forEach((file) => {
         formData.append('images', file);
       });
 
@@ -334,7 +339,7 @@ export const CreateAdPage: React.FC = () => {
                 className="w-full bg-primary text-on-primary font-label-md text-label-md px-xl py-md rounded-lg elevation-1 btn-primary-inner hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="material-symbols-outlined text-sm">send</span>
-                {isSubmitting ? 'Publishing ad...' : 'Publish Advertisement'}
+                {isSubmitting ? 'Optimizing & Publishing...' : 'Publish Advertisement'}
               </button>
               
               <button

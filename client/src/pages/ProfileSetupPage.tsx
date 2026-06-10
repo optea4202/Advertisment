@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.js';
 import { updateProfile } from '../api/users.js';
+import { compressImage } from '../utils/imageCompressor.js';
 
 export const ProfileSetupPage: React.FC = () => {
   const { user, syncUser } = useAuth();
@@ -77,7 +78,8 @@ export const ProfileSetupPage: React.FC = () => {
       formData.append('bio', bio.trim());
       
       if (selectedFile) {
-        formData.append('photo', selectedFile);
+        const compressedFile = await compressImage(selectedFile, 400, 0.8);
+        formData.append('photo', compressedFile);
       }
 
       await updateProfile(formData);
