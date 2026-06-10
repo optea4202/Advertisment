@@ -255,6 +255,12 @@ export const DashboardPage: React.FC = () => {
           </div>
         </section>
       </main>
+
+      <footer className="bg-surface-container-lowest border-t border-outline-variant/30 py-md px-md text-center">
+        <p className="font-label-sm text-label-sm text-secondary">
+          Developed by <span className="font-bold text-primary">optea</span>
+        </p>
+      </footer>
     </div>
   );
 };

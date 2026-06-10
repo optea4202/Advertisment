@@ -120,6 +120,16 @@ export const Navbar: React.FC = () => {
               </button>
 
               <Link
+                to="/dashboard"
+                className={`md:hidden text-secondary hover:text-primary transition-colors p-xs flex items-center justify-center rounded-md ${
+                  isActive('/dashboard') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
+                }`}
+                title="About"
+              >
+                <span className="material-symbols-outlined text-[20px]">info</span>
+              </Link>
+
+              <Link
                 to="/settings"
                 className={`text-secondary hover:text-primary transition-colors p-xs flex items-center justify-center rounded-md ${
                   isActive('/settings') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'

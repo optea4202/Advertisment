@@ -32,6 +32,8 @@ Update this file after every meaningful implementation change.
 - Implemented Public User Profiles: created `GET /api/users/:id` backend endpoint returning a safe public profile (no email/phone/clerk_id), added `UserProfilePage` at `/profile/:id`, added "My Profile" nav link, made the avatar avatar and publisher cards on ad detail page clickable links to user profiles. Other users can browse any non-banned user's profile and their ads.
 - Implemented a mobile-friendly Floating Action Button (FAB) for posting advertisements on small viewports (`sm:hidden`), with interactive hover/click micro-interactions and custom entering bounce animation (`bounce-short`), ensuring visibility is gated to non-creation/edit routes.
 - Optimized page navigation and initial loading times by establishing database indexes on relational foreign keys (`ads.owner_id`, `ad_images.ad_id`, `reviews.ad_id`, `reviews.reviewer_id`), implementing client-side Stale-While-Revalidate (SWR) caching for ads, profiles, and feeds, caching database user profiles in `localStorage` in `AuthContext` to skip session loading screen wait times, and registering a centralized cache invalidation response interceptor on all write requests (`POST`, `PUT`, `DELETE`).
+- Added a mobile-only About (info) icon button to the header to enable access on portrait viewports, and added a footer credit saying "Developed by optea" to the About page.
+
 
 ## In Progress
 
