@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { SearchBar } from '../components/SearchBar.js';
 import { CategoryFilter } from '../components/CategoryFilter.js';
@@ -7,7 +7,6 @@ import { AdCard } from '../components/AdCard.js';
 import { useFeed } from '../hooks/useAds.js';
 
 export const FeedPage: React.FC = () => {
-  const navigate = useNavigate();
   const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
   const [spotlightIndex, setSpotlightIndex] = useState(0);
@@ -76,15 +75,9 @@ export const FeedPage: React.FC = () => {
             {/* Right Side: Interactive Spotlight / Card Preview */}
             <div className="lg:col-span-5 flex justify-center w-full">
               {spotlightAds.length > 0 && currentSpotlightAd ? (
-                <div 
-                  onClick={(e) => {
-                    const target = e.target as HTMLElement;
-                    if (target.closest('button') || target.closest('a')) {
-                      return;
-                    }
-                    navigate(`/ads/${currentSpotlightAd.id}`);
-                  }}
-                  className="cursor-pointer w-full max-w-[360px] glassmorphism rounded-2xl p-md shadow-xl border border-white/20 dark:border-white/10 hover:-translate-y-1 transition-all duration-300 relative flex flex-col gap-sm"
+                <Link 
+                  to={`/ads/${currentSpotlightAd.id}`}
+                  className="cursor-pointer w-full max-w-[360px] glassmorphism rounded-2xl p-md shadow-xl border border-white/20 dark:border-white/10 hover:-translate-y-1 transition-all duration-300 relative flex flex-col gap-sm no-underline text-inherit"
                 >
                   {/* Spotlight Image & Fade wrapper */}
                   <div className="relative aspect-video rounded-xl overflow-hidden mb-xs">
@@ -124,6 +117,7 @@ export const FeedPage: React.FC = () => {
                         <button
                           key={idx}
                           onClick={(e) => {
+                            e.preventDefault();
                             e.stopPropagation();
                             setSpotlightIndex(idx);
                           }}
@@ -137,7 +131,7 @@ export const FeedPage: React.FC = () => {
                       ))}
                     </div>
                   )}
-                </div>
+                </Link>
               ) : (
                 <div className="w-full max-w-[360px] glassmorphism rounded-2xl p-lg text-center flex flex-col items-center justify-center gap-sm min-h-[200px]">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">

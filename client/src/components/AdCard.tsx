@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { type Ad } from '../api/ads.js';
 
 interface AdCardProps {
@@ -15,26 +15,15 @@ export const AdCard: React.FC<AdCardProps> = ({
   onDeleteClick,
   onEditClick
 }) => {
-  const navigate = useNavigate();
-
   // Get cover image URL or a placeholder if none exists
   const coverImageUrl = ad.images && ad.images.length > 0 
     ? ad.images[0].cloudinary_url 
     : 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=600&auto=format&fit=crop';
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    // If the click originated from an interactive element (button or link), do not trigger navigation
-    const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('a')) {
-      return;
-    }
-    navigate(`/ads/${ad.id}`);
-  };
-
   return (
-    <div 
-      onClick={handleCardClick}
-      className="cursor-pointer bg-surface-container-lowest rounded-2xl elevation-1 border border-outline-variant/20 overflow-hidden flex flex-col h-full hover:elevation-2 hover:border-outline-variant/40 transition-all duration-200"
+    <Link 
+      to={`/ads/${ad.id}`}
+      className="cursor-pointer bg-surface-container-lowest rounded-2xl elevation-1 border border-outline-variant/20 overflow-hidden flex flex-col h-full hover:elevation-2 hover:border-outline-variant/40 transition-all duration-200 no-underline text-inherit"
     >
       
       {/* Ad Image Container */}
@@ -89,6 +78,7 @@ export const AdCard: React.FC<AdCardProps> = ({
             {onEditClick && (
               <button
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   onEditClick(ad.id);
                 }}
@@ -102,6 +92,7 @@ export const AdCard: React.FC<AdCardProps> = ({
             {onDeleteClick && (
               <button
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   onDeleteClick(ad.id);
                 }}
@@ -114,6 +105,6 @@ export const AdCard: React.FC<AdCardProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </Link>
   );
 };
