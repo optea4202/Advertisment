@@ -30,6 +30,7 @@ Update this file after every meaningful implementation change.
 - Implemented system-wide Dark Mode: added theme variables in `variables.css`, created `ThemeContext`, wrapped the application, and added a custom toggle button in the `Navbar`.
 - Implemented Profile Settings: created a dedicated `/settings` route/page allowing users to edit profile username, phone number, bio, and photo (with Cloudinary uploads), integrating form validation and error/success alerts.
 - Implemented Public User Profiles: created `GET /api/users/:id` backend endpoint returning a safe public profile (no email/phone/clerk_id), added `UserProfilePage` at `/profile/:id`, added "My Profile" nav link, made the avatar avatar and publisher cards on ad detail page clickable links to user profiles. Other users can browse any non-banned user's profile and their ads.
+- Implemented a mobile-friendly Floating Action Button (FAB) for posting advertisements on small viewports (`sm:hidden`), with interactive hover/click micro-interactions and custom entering bounce animation (`bounce-short`), ensuring visibility is gated to non-creation/edit routes.
 
 ## In Progress
 
