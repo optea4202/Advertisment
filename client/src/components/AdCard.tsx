@@ -36,7 +36,7 @@ export const AdCard: React.FC<AdCardProps> = ({
         
         {/* Price Tag Overlay */}
         <div className="absolute bottom-md left-md bg-primary text-on-primary font-label-md text-label-md px-md py-[6px] rounded-lg shadow-sm border-t border-white/20">
-          ${ad.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          ₹{ad.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
       </div>
 

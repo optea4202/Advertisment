@@ -207,7 +207,7 @@ export const AdminPage: React.FC = () => {
                                 <span className="block max-w-[200px] truncate">{ad.title}</span>
                               </td>
                               <td className="py-md text-secondary">{ad.category}</td>
-                              <td className="py-md font-semibold text-primary">${ad.price.toFixed(2)}</td>
+                              <td className="py-md font-semibold text-primary">₹{ad.price.toFixed(2)}</td>
                               <td className="py-md text-secondary">{ad.location}</td>
                               <td className="py-md text-right">
                                 <button

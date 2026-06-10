@@ -102,7 +102,7 @@ export const FeedPage: React.FC = () => {
                     <p className="text-secondary text-body-sm line-clamp-1">{currentSpotlightAd.description}</p>
                     
                     <div className="flex justify-between items-center mt-sm pt-xs border-t border-outline-variant/10">
-                      <span className="font-bold text-primary text-body-md">${currentSpotlightAd.price.toLocaleString()}</span>
+                      <span className="font-bold text-primary text-body-md">₹{currentSpotlightAd.price.toLocaleString()}</span>
                       <span className="text-secondary/70 text-label-sm flex items-center gap-[2px] truncate max-w-[150px]">
                         <span className="material-symbols-outlined text-[14px]">location_on</span>
                         {currentSpotlightAd.location}
