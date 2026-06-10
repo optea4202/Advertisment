@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AdHub - Feed</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#89f5e7",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed-dim": "#6bd8cb",
+                        "outline": "#6d7a77",
+                        "on-secondary-container": "#5c647a",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#dae2fd",
+                        "tertiary-fixed": "#e1e0ff",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#6bd8cb",
+                        "background": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#008378",
+                        "surface-bright": "#f8f9ff",
+                        "secondary": "#565e74",
+                        "on-surface-variant": "#3d4947",
+                        "primary": "#00685f",
+                        "surface-dim": "#cbdbf5",
+                        "on-primary-container": "#f4fffc",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-primary-fixed-variant": "#005049",
+                        "secondary-fixed": "#dae2fd",
+                        "surface-container": "#e5eeff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "outline-variant": "#bcc9c6",
+                        "tertiary-container": "#6063ee",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "surface-tint": "#006a61",
+                        "inverse-surface": "#213145",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "on-tertiary-fixed": "#07006c",
+                        "on-background": "#0b1c30",
+                        "tertiary": "#4648d4",
+                        "surface": "#f8f9ff",
+                        "on-secondary-fixed": "#131b2e",
+                        "on-tertiary-container": "#fffbff",
+                        "on-primary-fixed": "#00201d",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "inverse-on-surface": "#eaf1ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "lg": "24px",
+                        "xxl": "48px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F8FAFC; /* Level 0 Base */
+        }
+        .ad-card {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 10px 15px -5px rgba(0,0,0,0.02); /* Level 1 */
+            transition: all 0.3s ease;
+        }
+        .ad-card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); /* Level 2 Overlay */
+            transform: translateY(-4px);
+        }
+        .custom-input:focus {
+            border-color: #008378; /* Primary Container approx Teal */
+            box-shadow: 0 0 0 3px rgba(0, 131, 120, 0.1);
+        }
+        .custom-btn {
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface antialiased">
+<!-- TopNavBar -->
+<nav class="docked full-width top-0 sticky z-50 bg-surface-container-lowest border-b border-outline-variant shadow-sm transition-colors duration-200">
+<div class="flex justify-between items-center w-full px-lg py-md max-w-container-max mx-auto">
+<!-- Brand & Search -->
+<div class="flex items-center gap-xl flex-1">
+<a class="font-headline-md text-headline-md font-bold text-primary" href="#">AdHub</a>
+<div class="relative w-full max-w-md hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">search</span>
+<input class="w-full pl-10 pr-4 py-2 rounded-full border border-outline-variant bg-surface-container-low text-on-surface custom-input font-body-sm text-body-sm focus:outline-none transition-all duration-200" placeholder="Search advertisements..." type="text"/>
+</div>
+</div>
+<!-- Navigation Links -->
+<ul class="hidden md:flex items-center gap-lg">
+<li>
+<a class="font-label-md text-label-md text-primary border-b-2 border-primary pb-1 flex flex-col items-center hover:bg-surface-container-low transition-colors duration-200 active:scale-95 duration-150" href="#">
+                        Feed
+                    </a>
+</li>
+<li>
+<a class="font-label-md text-label-md text-secondary hover:text-primary hover:bg-surface-container-low transition-colors duration-200 px-2 py-1 rounded" href="#">
+                        Dashboard
+                    </a>
+</li>
+<li>
+<a class="font-label-md text-label-md text-secondary hover:text-primary hover:bg-surface-container-low transition-colors duration-200 px-2 py-1 rounded" href="#">
+                        Profile
+                    </a>
+</li>
+<li>
+<a class="font-label-md text-label-md text-secondary hover:text-primary hover:bg-surface-container-low transition-colors duration-200 px-2 py-1 rounded" href="#">
+                        Admin
+                    </a>
+</li>
+</ul>
+<!-- Profile Actions -->
+<div class="flex items-center gap-md ml-xl">
+<button class="md:hidden p-2 text-secondary hover:text-primary">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="custom-btn bg-primary-container text-on-primary-container font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-primary transition-colors duration-200 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span class="hidden sm:inline">Post Ad</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant cursor-pointer">
+<img alt="User avatar with dropdown menu" class="w-full h-full object-cover" data-alt="A close-up portrait of a professional man in a bright, modern office setting. The lighting is soft and natural, emphasizing a clean, approachable light-mode aesthetic. He wears a tailored navy shirt, contrasting with the soft, minimalist background of blurred white walls and subtle greenery." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHmPQDBQ6hMiuuV67pXwJpr8nP9N8Dpz5V9i4BBp0DlBbbY7iRpo0KVIs_Fl5pQPpM07r1VrM4rpubRQGXzT9MEwe-dJr7FJrAB0uWf99zSNbuuBdKQ6yI9zV9jY-p76dwHiKDZEEmnaoYVC3tTjfsYVHPnA9-VtGxcgUwEhROb7hrIQh-WxQWUl0Fv31EAC-4CubJaTU-LTYw4IrBCM_kbgvoMQGmd_UD9mJoKvsmqmKmmd0f6sI3ZyOrsHZFiy3bofuvtRSL-5A"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="max-w-container-max mx-auto px-md md:px-lg py-xl flex flex-col md:flex-row gap-gutter">
+<!-- Sidebar Filters (Web) / Top Row (Mobile handled via responsiveness) -->
+<aside class="w-full md:w-64 shrink-0 flex flex-col gap-lg">
+<div class="bg-surface-container-lowest rounded-xl p-md ad-card">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-md">Categories</h3>
+<ul class="flex flex-col gap-xs">
+<li>
+<button class="w-full text-left font-label-md text-label-md text-primary bg-surface-container-low px-3 py-2 rounded-lg flex items-center justify-between">
+<span>All Categories</span>
+<span class="bg-primary-container text-on-primary-container px-2 py-0.5 rounded-full text-[10px]">142</span>
+</button>
+</li>
+<li>
+<button class="w-full text-left font-label-md text-label-md text-secondary hover:bg-surface-container-low hover:text-primary px-3 py-2 rounded-lg transition-colors duration-200 flex items-center justify-between">
+<span>Electronics</span>
+<span class="bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded-full text-[10px]">45</span>
+</button>
+</li>
+<li>
+<button class="w-full text-left font-label-md text-label-md text-secondary hover:bg-surface-container-low hover:text-primary px-3 py-2 rounded-lg transition-colors duration-200 flex items-center justify-between">
+<span>Real Estate</span>
+<span class="bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded-full text-[10px]">28</span>
+</button>
+</li>
+<li>
+<button class="w-full text-left font-label-md text-label-md text-secondary hover:bg-surface-container-low hover:text-primary px-3 py-2 rounded-lg transition-colors duration-200 flex items-center justify-between">
+<span>Vehicles</span>
+<span class="bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded-full text-[10px]">31</span>
+</button>
+</li>
+<li>
+<button class="w-full text-left font-label-md text-label-md text-secondary hover:bg-surface-container-low hover:text-primary px-3 py-2 rounded-lg transition-colors duration-200 flex items-center justify-between">
+<span>Services</span>
+<span class="bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded-full text-[10px]">38</span>
+</button>
+</li>
+</ul>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-md ad-card">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-md">Price Range</h3>
+<div class="flex items-center gap-sm">
+<input class="w-full px-3 py-2 rounded-lg border border-outline-variant bg-surface-bright text-on-surface custom-input font-body-sm text-body-sm focus:outline-none" placeholder="Min" type="number"/>
+<span class="text-secondary">-</span>
+<input class="w-full px-3 py-2 rounded-lg border border-outline-variant bg-surface-bright text-on-surface custom-input font-body-sm text-body-sm focus:outline-none" placeholder="Max" type="number"/>
+</div>
+<button class="w-full mt-4 bg-surface-container-low text-primary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-variant transition-colors duration-200">
+                    Apply Filter
+                </button>
+</div>
+</aside>
+<!-- Feed Grid -->
+<div class="flex-1">
+<div class="flex justify-between items-center mb-md">
+<h2 class="font-headline-lg text-headline-lg text-on-surface hidden md:block">Recommended For You</h2>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface md:hidden">Recommended For You</h2>
+<div class="flex items-center gap-sm">
+<span class="font-label-md text-label-md text-secondary">Sort by:</span>
+<select class="bg-surface-container-lowest border-none font-label-md text-label-md text-on-surface focus:ring-0 cursor-pointer">
+<option>Newest First</option>
+<option>Price: Low to High</option>
+<option>Price: High to Low</option>
+<option>Highest Rated</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Ad Card 1 -->
+<article class="bg-surface-container-lowest rounded-[24px] overflow-hidden ad-card group cursor-pointer flex flex-col">
+<div class="relative h-48 w-full bg-surface-variant">
+<img alt="Product cover" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="A sleek, bright red modern sports shoe displayed against a clean, minimalist studio background. The lighting is high-key and pristine, highlighting the textured fabrics and dynamic curves of the shoe. The overall aesthetic is professional, crisp, and high-end, fitting a premium digital marketplace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDB6nRzsyswwWlOOb-ifUcFlr2rvsRM9ZH43JF3j40JQaIpwBJGlz0g-_JT1Dl60L9B8QAeuUC_XqkQgfvKbZPfOA226HEMo-6ea6NCIvf6ARAJsGOAmaCFwN49hOS5uhbnk1AWPBDKcYzptM1qggj_iP9XQRbt0kcBxz1tThwlm94ixCCnybNkzz9aTFYHlTkud2fIuXUpgh7Pe3QNVyk1yAGR0R1EoXtnYl9JWvWQb_oJSq6v6ZL4_DnxDjL_Tac1rZdHtduMiLs"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-1 rounded-full font-label-sm text-label-sm text-primary flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">sell</span> Active
+                        </div>
+</div>
+<div class="p-md flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-sm text-label-sm text-primary-container bg-surface-container-high px-2 py-0.5 rounded-full">Electronics</span>
+<span class="font-headline-md text-headline-md text-primary">$129.99</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-sm line-clamp-2 leading-tight">Premium Wireless Noise-Cancelling Headphones</h3>
+<div class="mt-auto pt-sm border-t border-surface-variant flex flex-col gap-xs">
+<div class="flex items-center text-secondary font-body-sm text-body-sm gap-1">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span>San Francisco, CA</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-variant overflow-hidden">
+<img alt="Seller avatar" class="w-full h-full object-cover" data-alt="A small circular portrait of a smiling young woman with short dark hair, standing outdoors in soft natural daylight. The background is a pleasantly blurred urban scene. The image serves as a professional seller avatar in a clean, modern UI context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaS01SWa-Jn4hvAZ9BuYE1Li1G7oyk-onZKaUqlubuJHXBwx7_kJXVzpFVJQ5I4l_-kqZN99zrFJxQsVP5vATgt9PZ0073GiBS87sBQWou4rwJjILK2oGuMFphKwMrYNDQz0PPQIlVnZcwadWMD93l1P4C3iyD68Y5HVHea-Z8WeIxOmYxHa89Kod3nRnemXzcVkQHrDoplHZYLTKyPtUcRcDgpR7gmNOSdf-v-vXHm91_jfImPnNPpE4nrlus2JOfdWiasjg494g"/>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">TechGear Pro</span>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-sm text-label-sm">4.9</span>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- Ad Card 2 -->
+<article class="bg-surface-container-lowest rounded-[24px] overflow-hidden ad-card group cursor-pointer flex flex-col">
+<div class="relative h-48 w-full bg-surface-variant">
+<img alt="Product cover" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="A minimalist living room interior showcasing a modern, mid-century style green velvet sofa. The space is flooded with soft, natural sunlight coming from large unseen windows, casting gentle shadows on a light oak wooden floor. The setting conveys a premium, airy, and inviting residential real estate or furniture aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvzn46KdbTU-kFsvnbbt-7A-neiJMUZdcwSHQfRyziqL126n4wXd-lYumRQ9iqF_25hwVsrP2vWet9cnfRJBuMjEuMNzhCSNFAaDmue-tzmeTwDlsFdbL09efw4jIblEtfhEW7p6kLLjJdBGHde2kefHjkgzRdg7REVx3EL-KZznn22kSIOH4EdqUlS0I-8KQlGXB2mrARwHH1Sf95sXkxW8iAJV4ytF_v03IC5THqD1iToK2fDJ1ygegZCKdoIrh42Ys7mFzpqXw"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-1 rounded-full font-label-sm text-label-sm text-primary flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">sell</span> Active
+                        </div>
+</div>
+<div class="p-md flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-sm text-label-sm text-primary-container bg-surface-container-high px-2 py-0.5 rounded-full">Furniture</span>
+<span class="font-headline-md text-headline-md text-primary">$850.00</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-sm line-clamp-2 leading-tight">Mid-Century Modern Velvet Sofa - Excellent Condition</h3>
+<div class="mt-auto pt-sm border-t border-surface-variant flex flex-col gap-xs">
+<div class="flex items-center text-secondary font-body-sm text-body-sm gap-1">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span>Austin, TX</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-variant overflow-hidden">
+<div class="w-full h-full bg-secondary flex items-center justify-center text-white text-xs font-bold">JD</div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">John Doe</span>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-sm text-label-sm">5.0</span>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- Ad Card 3 -->
+<article class="bg-surface-container-lowest rounded-[24px] overflow-hidden ad-card group cursor-pointer flex flex-col">
+<div class="relative h-48 w-full bg-surface-variant">
+<img alt="Product cover" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="A sleek, dark grey sports sedan parked on a clean concrete surface in front of a modern architectural backdrop. The lighting is dramatic but clean, highlighting the glossy finish and sharp lines of the vehicle. The scene is professional and high-end, suitable for a premium automotive marketplace listing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZPdpSuxyden4sVboUYd7iseKGEUsosyRHh-p0zE1_Y8ieNz1nH271MdWQwWdcFRtweIJ1jqHQvYxfoTQTnmiz18Ze67qOn2QAB8z3z6hRaeksAsyfPt5FvzeI9xJIPXjAhgVKN8L8GWc2s_1apEpM_0I8dh4YhssMnZ9GLclheqqLw2L5t-tUxQg55SNIdWLPZfqccJCSDlzXbic63BAGrIjgnVjqOG3kABBd78tSno85WZOdKMA46VhSRPN5dRWgEpLmmlXY0Fs"/>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-1 rounded-full font-label-sm text-label-sm text-primary flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">sell</span> Active
+                        </div>
+</div>
+<div class="p-md flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-sm text-label-sm text-primary-container bg-surface-container-high px-2 py-0.5 rounded-full">Vehicles</span>
+<span class="font-headline-md text-headline-md text-primary">$32,500</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-sm line-clamp-2 leading-tight">2021 Luxury Sedan - Low Mileage, Single Owner</h3>
+<div class="mt-auto pt-sm border-t border-surface-variant flex flex-col gap-xs">
+<div class="flex items-center text-secondary font-body-sm text-body-sm gap-1">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span>Miami, FL</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-variant overflow-hidden">
+<img alt="Seller avatar" class="w-full h-full object-cover" data-alt="A small circular portrait of a friendly man with a neat beard, wearing a casual light blue button-down shirt. The background is a clean, bright out-of-focus office environment. The image functions as a trustworthy seller profile picture in a professional marketplace UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC33HCIIkW0vIVwvFlfs-awPn7cl1hOMWJcPur3F5vR5mAHq6KoMEQUhCu5ItwNhl3cBPtacPeprCeu2KQUJ2kKI4AhI1ql8j0DeuBQ2A2qiHKNHsU8laPVcyEW5AefznRp8CDw_8LtreA7T3ZSVLkrRZt66JssWiE9gruBDIk8o_6A2P-sWkfH7f4AZHubDSDsaxZuKcuh6HYREpsi4rXG1f0jgKhIpilzi9rMcYwkeqwQfWXrlhLjG61OrrZ2x2dNkO0dydM5TDQ"/>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">AutoElite Motors</span>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-sm text-label-sm">4.7</span>
+</div>
+</div>
+</div>
+</div>
+</article>
+</div>
+<!-- Load More -->
+<div class="mt-xl flex justify-center">
+<button class="bg-surface-container-low text-primary font-label-md text-label-md px-6 py-3 rounded-full hover:bg-surface-container-high transition-colors duration-200 border border-outline-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">refresh</span> Load More Listings
+                </button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xl border-t border-outline-variant bg-surface-container-lowest flat no shadows mt-xxl">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-lg max-w-container-max mx-auto gap-md">
+<span class="font-headline-md text-headline-md font-bold text-primary">AdHub</span>
+<div class="flex gap-lg">
+<a class="font-label-sm text-label-sm text-secondary hover:text-primary hover:underline transition-all duration-200 opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-secondary hover:text-primary hover:underline transition-all duration-200 opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+</div>
+<span class="font-body-sm text-body-sm text-secondary">© 2024 AdHub Marketplace. All rights reserved.</span>
+</div>
+</footer>
+</body></html>

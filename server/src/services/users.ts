@@ -1,0 +1,67 @@
+import { clerkClient } from '@clerk/clerk-sdk-node';
+import { getUserByClerkId, createUser, updateUser, getPublicUserById, type DbUser, type PublicUser } from '../db/users.js';
+import { getAdsByOwner } from '../db/ads.js';
+import type { DbAd } from '../db/ads.js';
+
+/**
+ * Gets the local database user by Clerk ID. If the user does not exist yet,
+ * retrieves their information from Clerk and creates a new local database record.
+ */
+export const getOrCreateUser = async (clerkId: string): Promise<DbUser> => {
+  const existingUser = await getUserByClerkId(clerkId);
+  if (existingUser) {
+    return existingUser;
+  }
+
+  // Fetch user details from Clerk SDK
+  console.log(`👤 User ${clerkId} not found in database. Fetching profile from Clerk...`);
+  const clerkUser = await clerkClient.users.getUser(clerkId);
+  
+  const email = clerkUser.emailAddresses[0]?.emailAddress;
+  if (!email) {
+    throw new Error(`User ${clerkId} has no email address associated in Clerk.`);
+  }
+
+  // Create a default username if not set on Clerk
+  const username = 
+    clerkUser.username || 
+    (clerkUser.firstName ? `${clerkUser.firstName.toLowerCase()}_${Math.floor(1000 + Math.random() * 9000)}` : `user_${clerkId.substring(5, 13)}`);
+  
+  const photoUrl = clerkUser.imageUrl || null;
+
+  const newUser = await createUser(clerkId, username, email, photoUrl, null, null);
+  console.log(`✅ Created database record for user: ${username} (${email})`);
+  return newUser;
+};
+
+/**
+ * Updates the local database user profile.
+ */
+export const updateProfile = async (
+  userId: number,
+  updates: {
+    username: string;
+    photo_url?: string | null;
+    phone?: string | null;
+    bio?: string | null;
+  }
+): Promise<DbUser> => {
+  return await updateUser(userId, updates);
+};
+
+export interface PublicProfileResult {
+  user: PublicUser;
+  ads: DbAd[];
+}
+
+/**
+ * Retrieves a non-sensitive public profile for any user by their numeric database ID.
+ * Returns null if the user is not found or is banned.
+ */
+export const getPublicProfile = async (userId: number): Promise<PublicProfileResult | null> => {
+  const user = await getPublicUserById(userId);
+  if (!user) return null;
+
+  const ads = await getAdsByOwner(userId);
+  return { user, ads };
+};

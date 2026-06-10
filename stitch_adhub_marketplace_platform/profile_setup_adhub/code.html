@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AdHub - Profile Setup</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-error-container": "#93000a",
+                      "on-surface": "#0b1c30",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#2f2ebe",
+                      "on-secondary-fixed-variant": "#3f465c",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-dim": "#cbdbf5",
+                      "surface-tint": "#006a61",
+                      "primary-fixed-dim": "#6bd8cb",
+                      "on-secondary-container": "#5c647a",
+                      "primary": "#00685f",
+                      "outline-variant": "#bcc9c6",
+                      "surface-container": "#e5eeff",
+                      "on-primary-fixed": "#00201d",
+                      "on-primary-container": "#f4fffc",
+                      "surface-container-high": "#dce9ff",
+                      "surface-bright": "#f8f9ff",
+                      "on-primary": "#ffffff",
+                      "secondary": "#565e74",
+                      "on-tertiary-container": "#fffbff",
+                      "error": "#ba1a1a",
+                      "inverse-surface": "#213145",
+                      "surface-container-highest": "#d3e4fe",
+                      "tertiary-container": "#6063ee",
+                      "secondary-fixed": "#dae2fd",
+                      "tertiary-fixed-dim": "#c0c1ff",
+                      "surface": "#f8f9ff",
+                      "on-tertiary": "#ffffff",
+                      "tertiary": "#4648d4",
+                      "on-tertiary-fixed": "#07006c",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "surface-variant": "#d3e4fe",
+                      "background": "#f8f9ff",
+                      "tertiary-fixed": "#e1e0ff",
+                      "outline": "#6d7a77",
+                      "surface-container-low": "#eff4ff",
+                      "secondary-fixed-dim": "#bec6e0",
+                      "on-background": "#0b1c30",
+                      "secondary-container": "#dae2fd",
+                      "inverse-primary": "#6bd8cb",
+                      "primary-container": "#008378",
+                      "error-container": "#ffdad6",
+                      "primary-fixed": "#89f5e7",
+                      "on-surface-variant": "#3d4947",
+                      "on-primary-fixed-variant": "#005049",
+                      "on-secondary-fixed": "#131b2e"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "xl": "32px",
+                      "base": "4px",
+                      "container-max": "1280px",
+                      "sm": "8px",
+                      "xxl": "48px",
+                      "gutter": "24px",
+                      "xs": "4px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for textarea */
+        textarea::-webkit-scrollbar {
+            width: 6px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background-color: #bcc9c6;
+            border-radius: 20px;
+        }
+      </style>
+</head>
+<body class="bg-background min-h-screen flex items-center justify-center p-md md:p-xl relative overflow-hidden">
+<!-- Ambient Background Element -->
+<div class="absolute top-0 left-0 w-full h-[409px] bg-gradient-to-b from-surface-container-low to-background -z-10"></div>
+<div class="absolute -top-[20%] -right-[10%] w-[50vw] h-[50vw] rounded-full bg-primary/5 blur-[100px] -z-10 pointer-events-none"></div>
+<!-- Main Container -->
+<main class="w-full max-w-[600px] bg-surface-container-lowest rounded-[24px] shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_15px_-5px_rgba(0,0,0,0.02)] p-lg md:p-xl flex flex-col relative z-10 border border-outline-variant/30">
+<!-- Header Section -->
+<header class="flex flex-col items-center mb-xl">
+<!-- Brand -->
+<div class="mb-lg">
+<span class="font-headline-md text-headline-md font-bold text-primary tracking-tight">AdHub</span>
+</div>
+<!-- Progress Indicator -->
+<div class="w-full max-w-[300px] mb-lg">
+<div class="flex justify-between items-center mb-sm">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Profile Setup</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">Step 1 of 2</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="w-1/2 h-full bg-primary rounded-full transition-all duration-500 ease-out"></div>
+</div>
+</div>
+<!-- Titles -->
+<div class="text-center">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-xs">Personal Details</h1>
+<p class="font-body-md text-body-md text-secondary">Let's build your identity on the marketplace.</p>
+</div>
+</header>
+<!-- Form Section -->
+<form class="flex flex-col gap-lg">
+<!-- Profile Photo Upload -->
+<div class="flex flex-col items-center justify-center gap-sm mb-md">
+<div class="relative group cursor-pointer">
+<div class="w-24 h-24 rounded-full bg-surface-container border-2 border-dashed border-outline-variant flex items-center justify-center overflow-hidden transition-all duration-200 group-hover:border-primary group-hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-secondary group-hover:text-primary text-[32px] transition-colors">add_a_photo</span>
+</div>
+<!-- Hover overlay -->
+<div class="absolute inset-0 rounded-full bg-primary/0 group-hover:bg-primary/5 transition-colors duration-200 pointer-events-none"></div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary group-hover:text-primary transition-colors">Upload Photo</span>
+</div>
+<!-- Inputs Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Username -->
+<div class="flex flex-col gap-xs md:col-span-2">
+<label class="font-label-md text-label-md text-on-surface" for="username">Username</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md text-on-surface placeholder:text-secondary-fixed-dim focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 transition-all duration-200" id="username" placeholder="e.g. ad_maverick" type="text"/>
+</div>
+<!-- Email -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="email">Email Address</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md text-on-surface placeholder:text-secondary-fixed-dim focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 transition-all duration-200" id="email" placeholder="name@company.com" type="email"/>
+</div>
+<!-- Phone Number -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="phone">Phone Number</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md text-on-surface placeholder:text-secondary-fixed-dim focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 transition-all duration-200" id="phone" placeholder="+1 (555) 000-0000" type="tel"/>
+</div>
+<!-- Short Bio -->
+<div class="flex flex-col gap-xs md:col-span-2">
+<label class="font-label-md text-label-md text-on-surface flex justify-between" for="bio">
+<span>Short Bio</span>
+<span class="text-secondary font-normal font-body-sm text-body-sm">Optional</span>
+</label>
+<textarea class="w-full h-24 resize-none bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md text-on-surface placeholder:text-secondary-fixed-dim focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 transition-all duration-200" id="bio" placeholder="Tell us a brief story about your advertising focus..."></textarea>
+</div>
+</div>
+<!-- Action Button -->
+<div class="mt-md pt-lg border-t border-surface-container flex justify-end">
+<button class="w-full md:w-auto bg-primary text-on-primary border-t border-white/20 rounded-lg px-xl py-sm font-label-md text-label-md shadow-sm hover:bg-primary-container hover:text-on-primary-container transition-all duration-200 flex items-center justify-center gap-sm" type="button">
+<span>Continue to Step 2</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</form>
+</main>
+</body></html>

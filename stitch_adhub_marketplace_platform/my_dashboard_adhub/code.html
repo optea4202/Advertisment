@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Dashboard - AdHub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#89f5e7",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed-dim": "#6bd8cb",
+                        "outline": "#6d7a77",
+                        "on-secondary-container": "#5c647a",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#dae2fd",
+                        "tertiary-fixed": "#e1e0ff",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#6bd8cb",
+                        "background": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#008378",
+                        "surface-bright": "#f8f9ff",
+                        "secondary": "#565e74",
+                        "on-surface-variant": "#3d4947",
+                        "primary": "#00685f",
+                        "surface-dim": "#cbdbf5",
+                        "on-primary-container": "#f4fffc",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-primary-fixed-variant": "#005049",
+                        "secondary-fixed": "#dae2fd",
+                        "surface-container": "#e5eeff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "outline-variant": "#bcc9c6",
+                        "tertiary-container": "#6063ee",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "surface-tint": "#006a61",
+                        "inverse-surface": "#213145",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "on-tertiary-fixed": "#07006c",
+                        "on-background": "#0b1c30",
+                        "tertiary": "#4648d4",
+                        "surface": "#f8f9ff",
+                        "on-secondary-fixed": "#131b2e",
+                        "on-tertiary-container": "#fffbff",
+                        "on-primary-fixed": "#00201d",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "inverse-on-surface": "#eaf1ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "lg": "24px",
+                        "xxl": "48px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F8FAFC; /* Light mode base level 0 */
+        }
+        .shadow-level-1 {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 10px 15px -5px rgba(0,0,0,0.02);
+        }
+        .shadow-level-2 {
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+        }
+        .btn-primary {
+            background-color: #00685f; /* Teal / primary */
+            color: #ffffff;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        .input-glow:focus {
+            border-color: #00685f;
+            box-shadow: 0 0 0 3px rgba(0, 104, 95, 0.1);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md text-on-surface bg-background min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="bg-surface-container-lowest dark:bg-surface-container-lowest docked full-width top-0 sticky z-50 border-b border-outline-variant dark:border-outline shadow-sm">
+<div class="flex justify-between items-center w-full px-lg py-md max-w-container-max mx-auto">
+<!-- Brand -->
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">AdHub</span>
+</div>
+<!-- Navigation Links (Desktop) -->
+<div class="hidden md:flex items-center gap-lg">
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors duration-200 px-sm py-xs rounded font-label-md text-label-md" href="#">Feed</a>
+<a class="text-primary dark:text-primary-fixed-dim border-b-2 border-primary dark:border-primary-fixed-dim pb-1 font-label-md text-label-md px-sm py-xs" href="#">Dashboard</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors duration-200 px-sm py-xs rounded font-label-md text-label-md" href="#">Profile</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors duration-200 px-sm py-xs rounded font-label-md text-label-md" href="#">Admin</a>
+</div>
+<!-- Profile & Search Actions -->
+<div class="flex items-center gap-md">
+<button class="p-xs text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant cursor-pointer">
+<img alt="User avatar with dropdown menu" class="w-full h-full object-cover" data-alt="A professional headshot of a smiling person, used as a user profile avatar. Clean, bright lighting, high quality, conveying trust and professionalism within a modern SaaS platform aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcRdD_j6PgwUbL6IZtYxfLa7zOZrYsEZUDvXQEbwWeEWdF_-KKkElI2ChXTAS4R9Hlww8lqGMXzoLbn3Hfqa1LzQ-5i2frCzhWBdqShlVfguu8KEK-WtBPocf3kFbRtvsPTBkAS_Kh0dtWJMOs8U1cBdmbnNUFaM2lZbUq4Abg_7xwaI4w2np6CUAYugxBrhRhfvM6i808k8Bfh8IXQxhcCyPyzpXJTOBy9wS6CxdJ2Rl5cOydE2PkzQEEYhM4w0gg-VlmvjlNdBw"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-md md:px-lg py-xl flex flex-col gap-xl">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Welcome back, Alex</h1>
+<p class="font-body-md text-body-md text-secondary mt-xs">Here's a quick overview of your ad performance.</p>
+</div>
+<button class="btn-primary flex items-center gap-sm px-md py-sm rounded-lg font-label-md text-label-md shadow-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+                Post New Ad
+            </button>
+</header>
+<!-- Stats Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- Stat Card 1 -->
+<div class="bg-surface-container-lowest rounded-[24px] p-xl shadow-level-1 flex flex-col gap-sm">
+<div class="flex justify-between items-center text-secondary">
+<span class="font-label-md text-label-md">Total Ads</span>
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+</div>
+<div class="font-display-lg text-display-lg text-on-surface">12</div>
+<div class="font-label-sm text-label-sm text-primary">+2 this week</div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface-container-lowest rounded-[24px] p-xl shadow-level-1 flex flex-col gap-sm">
+<div class="flex justify-between items-center text-secondary">
+<span class="font-label-md text-label-md">Total Reviews</span>
+<span class="material-symbols-outlined" data-icon="reviews">reviews</span>
+</div>
+<div class="font-display-lg text-display-lg text-on-surface">48</div>
+<div class="font-label-sm text-label-sm text-primary">+15 new reviews</div>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-surface-container-lowest rounded-[24px] p-xl shadow-level-1 flex flex-col gap-sm">
+<div class="flex justify-between items-center text-secondary">
+<span class="font-label-md text-label-md">Avg. Rating</span>
+<span class="material-symbols-outlined" data-icon="star_rate">star_rate</span>
+</div>
+<div class="font-display-lg text-display-lg text-on-surface">4.8</div>
+<div class="font-label-sm text-label-sm text-secondary">Across all active ads</div>
+</div>
+</section>
+<!-- Active Ads Section -->
+<section class="flex flex-col gap-md mt-lg">
+<div class="flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md text-on-surface">Active Campaigns</h2>
+<button class="text-primary font-label-md text-label-md hover:underline">View All</button>
+</div>
+<!-- Ads List (Unboxed Style) -->
+<div class="bg-surface-container-lowest rounded-[24px] shadow-level-1 overflow-hidden">
+<div class="flex flex-col">
+<!-- Ad Item 1 -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center p-lg border-b border-[#F1F5F9] gap-md hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-md w-full md:w-auto">
+<div class="w-16 h-16 rounded-lg overflow-hidden bg-surface-container flex-shrink-0">
+<img alt="Ad Image" class="w-full h-full object-cover" data-alt="A clean, well-lit photograph of modern minimalist kitchenware, used as a product image for an advertisement. High contrast, bright lighting, suitable for a premium marketplace listing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrGDz3UxQOZVKILKTUJHu1U0pDQVYFaLLaZCjZKoLylwRA0AYGvZiLBBgIFRHckHoG17ut9GS2fPYiVCYs5Mek0AkMC390CgyFIQS5trmOIczvHV9ACjuic5wXgLKwMsbRQHPjACX_YY1EWXHYqAD8VX2uZr_2_UDp5edc7eawLnwVuUl-dV7e9w_W1uytqmWpp2lklu8FK2nX5c3olNLsrpmRXow6Bykrmwz1VbsM6T4JO4svZOkezS1WG3DkiYnGKEfNmp_maPc"/>
+</div>
+<div class="flex flex-col gap-xs">
+<span class="font-headline-md text-headline-md text-on-surface text-[18px] leading-tight">Premium Coffee Maker</span>
+<span class="font-body-sm text-body-sm text-secondary">Posted 2 days ago • 15 views</span>
+</div>
+</div>
+<div class="flex items-center gap-lg w-full md:w-auto justify-between md:justify-end">
+<span class="px-sm py-xs bg-surface-container-high text-primary rounded-full font-label-sm text-label-sm">Active</span>
+<div class="flex gap-sm opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-xs text-secondary hover:text-primary rounded" title="Edit">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+<button class="p-xs text-secondary hover:text-error rounded" title="Delete">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Ad Item 2 -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center p-lg border-b border-[#F1F5F9] gap-md hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-md w-full md:w-auto">
+<div class="w-16 h-16 rounded-lg overflow-hidden bg-surface-container flex-shrink-0">
+<img alt="Ad Image" class="w-full h-full object-cover" data-alt="A top-down view of a modern smartwatch on a clean white surface, soft shadows, minimalist aesthetic, professional product photography for an ad." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkRwqqCg4DUtywI_tYwV1Wz_XaU-q_Soex5CgpYAwUL_vcxaoHtlymuizRmOkMhsUr1F9AYQeJqz47wBZ0-8XFRsfc-1daB3pkP_Dl-xtBs1y9ePv5OQlkaudn4TAo3zIKm72qUXLjcBvHUW_i57O7sk0oHLOQNJ_NUY6ouflYyOv4uRgVhpmnz0AvJlS1o8nDLlKJjzu1zbfsA1hkJ_ntkqhjGWFxlTu3GdM65wHc65PfqC35LXRNmRoVX-3oyKz6shAlYhFxa3c"/>
+</div>
+<div class="flex flex-col gap-xs">
+<span class="font-headline-md text-headline-md text-on-surface text-[18px] leading-tight">Smartwatch Pro</span>
+<span class="font-body-sm text-body-sm text-secondary">Posted 1 week ago • 89 views</span>
+</div>
+</div>
+<div class="flex items-center gap-lg w-full md:w-auto justify-between md:justify-end">
+<span class="px-sm py-xs bg-surface-container-high text-primary rounded-full font-label-sm text-label-sm">Active</span>
+<div class="flex gap-sm opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-xs text-secondary hover:text-primary rounded" title="Edit">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+<button class="p-xs text-secondary hover:text-error rounded" title="Delete">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xl border-t border-outline-variant dark:border-outline bg-surface-container-lowest dark:bg-surface-container-lowest mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-lg max-w-container-max mx-auto gap-md">
+<span class="font-body-sm text-body-sm text-secondary dark:text-secondary-fixed-dim">© 2024 AdHub Marketplace. All rights reserved.</span>
+<div class="flex gap-md">
+<a class="font-label-sm text-label-sm text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed-dim hover:underline transition-all duration-200" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed-dim hover:underline transition-all duration-200" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+</body></html>

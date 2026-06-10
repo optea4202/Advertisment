@@ -1,0 +1,35 @@
+import { Router } from 'express';
+import multer from 'multer';
+import { handleCreateAd, handleGetMyAds, handleGetAdById, handleUpdateAd, handleDeleteAd, handleGetAds } from '../controllers/ads.js';
+import { requireAuth } from '../middleware/requireAuth.js';
+import { requireNotBanned } from '../middleware/requireNotBanned.js';
+
+const router = Router();
+
+// Configure multer memory storage
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit per image
+  }
+});
+
+// POST /api/ads - Create a new advertisement (supports up to 5 images)
+router.post('/', requireAuth, requireNotBanned, upload.array('images', 10), handleCreateAd);
+
+// GET /api/ads - Retrieve all ads matching optional search and category filters
+router.get('/', requireAuth, requireNotBanned, handleGetAds);
+
+// GET /api/ads/mine - Retrieve all ads owned by the current authenticated user
+router.get('/mine', requireAuth, requireNotBanned, handleGetMyAds);
+
+// GET /api/ads/:id - Retrieve details of a single advertisement
+router.get('/:id', requireAuth, requireNotBanned, handleGetAdById);
+
+// PUT /api/ads/:id - Update advertisement details and images
+router.put('/:id', requireAuth, requireNotBanned, upload.array('images', 10), handleUpdateAd);
+
+// DELETE /api/ads/:id - Delete an advertisement and cleanup assets
+router.delete('/:id', requireAuth, requireNotBanned, handleDeleteAd);
+
+export default router;

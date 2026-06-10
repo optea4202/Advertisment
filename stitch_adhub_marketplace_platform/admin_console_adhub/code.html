@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AdHub - Admin Console</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#89f5e7",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed-dim": "#6bd8cb",
+                        "outline": "#6d7a77",
+                        "on-secondary-container": "#5c647a",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#dae2fd",
+                        "tertiary-fixed": "#e1e0ff",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#6bd8cb",
+                        "background": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#008378",
+                        "surface-bright": "#f8f9ff",
+                        "secondary": "#565e74",
+                        "on-surface-variant": "#3d4947",
+                        "primary": "#00685f",
+                        "surface-dim": "#cbdbf5",
+                        "on-primary-container": "#f4fffc",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-primary-fixed-variant": "#005049",
+                        "secondary-fixed": "#dae2fd",
+                        "surface-container": "#e5eeff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "outline-variant": "#bcc9c6",
+                        "tertiary-container": "#6063ee",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "surface-tint": "#006a61",
+                        "inverse-surface": "#213145",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "on-tertiary-fixed": "#07006c",
+                        "on-background": "#0b1c30",
+                        "tertiary": "#4648d4",
+                        "surface": "#f8f9ff",
+                        "on-secondary-fixed": "#131b2e",
+                        "on-tertiary-container": "#fffbff",
+                        "on-primary-fixed": "#00201d",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "inverse-on-surface": "#eaf1ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "lg": "24px",
+                        "xxl": "48px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .shadow-level-1 { box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 10px 15px -5px rgba(0,0,0,0.02); }
+        .shadow-level-2 { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); }
+        .input-glow:focus-within {
+            border-color: #00685f;
+            box-shadow: 0 0 0 3px rgba(0, 104, 95, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased min-h-screen flex">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-background border-r border-outline-variant dark:border-outline hidden md:flex flex-col z-40">
+<div class="flex flex-col gap-sm p-md h-full">
+<div class="flex items-center gap-md mb-xl p-sm">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">admin_panel_settings</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">Admin Console</h1>
+<p class="font-body-sm text-body-sm text-secondary">Marketplace Control</p>
+</div>
+</div>
+<nav class="flex flex-col gap-sm flex-1">
+<a class="flex items-center gap-md bg-secondary-container dark:bg-primary-container text-on-secondary-container dark:text-on-primary-container rounded-lg px-md py-sm transition-transform duration-200 translate-x-1" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Overview</span>
+</a>
+<a class="flex items-center gap-md text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg px-md py-sm hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined">ads_click</span>
+<span class="font-label-md text-label-md">Advertisements</span>
+</a>
+<a class="flex items-center gap-md text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg px-md py-sm hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined">rate_review</span>
+<span class="font-label-md text-label-md">Reviews</span>
+</a>
+<a class="flex items-center gap-md text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg px-md py-sm hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md">Users</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-outline-variant pt-md">
+<a class="flex items-center gap-md text-secondary hover:bg-surface-container-high rounded-lg px-md py-sm transition-all duration-200" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Sign Out</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-1 md:ml-64 p-md md:p-xl max-w-container-max mx-auto w-full flex flex-col gap-xl">
+<!-- Header -->
+<header class="flex justify-between items-center w-full">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Overview</h2>
+<p class="font-body-md text-body-md text-secondary mt-xs">System status and key metrics.</p>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative input-glow bg-surface-container-lowest border border-outline-variant rounded-full flex items-center px-md py-sm shadow-level-1 transition-all duration-200">
+<span class="material-symbols-outlined text-secondary mr-sm">search</span>
+<input class="bg-transparent border-none outline-none font-body-sm text-body-sm w-48 placeholder:text-outline focus:ring-0 p-0" placeholder="Search ID or Keyword..." type="text"/>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container-lowest border border-outline-variant flex items-center justify-center shadow-level-1 hover:bg-surface-container-low transition-colors text-secondary">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<!-- Stats Grid (Bento style) -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg">
+<!-- Stat Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-level-1 border border-surface-container relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-md opacity-20 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-4xl text-primary">group</span>
+</div>
+<p class="font-label-md text-label-md text-secondary mb-sm">Total Active Users</p>
+<div class="flex items-end gap-sm">
+<h3 class="font-display-lg text-display-lg text-on-surface">24.5k</h3>
+<span class="font-label-sm text-label-sm text-primary flex items-center mb-sm bg-primary-container/10 px-2 py-1 rounded-full"><span class="material-symbols-outlined text-[14px] mr-1">trending_up</span>+12%</span>
+</div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-level-1 border border-surface-container relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-md opacity-20 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-4xl text-tertiary">ads_click</span>
+</div>
+<p class="font-label-md text-label-md text-secondary mb-sm">Active Advertisements</p>
+<div class="flex items-end gap-sm">
+<h3 class="font-display-lg text-display-lg text-on-surface">8,204</h3>
+<span class="font-label-sm text-label-sm text-primary flex items-center mb-sm bg-primary-container/10 px-2 py-1 rounded-full"><span class="material-symbols-outlined text-[14px] mr-1">trending_up</span>+5%</span>
+</div>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-level-1 border border-surface-container relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-md opacity-20 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-4xl text-error">gavel</span>
+</div>
+<p class="font-label-md text-label-md text-secondary mb-sm">Flagged Reviews</p>
+<div class="flex items-end gap-sm">
+<h3 class="font-display-lg text-display-lg text-on-surface">142</h3>
+<span class="font-label-sm text-label-sm text-error flex items-center mb-sm bg-error-container/50 px-2 py-1 rounded-full"><span class="material-symbols-outlined text-[14px] mr-1">warning</span>Requires Action</span>
+</div>
+</div>
+<!-- Stat Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-level-1 border border-surface-container relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-md opacity-20 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-4xl text-secondary">block</span>
+</div>
+<p class="font-label-md text-label-md text-secondary mb-sm">Banned Accounts</p>
+<div class="flex items-end gap-sm">
+<h3 class="font-display-lg text-display-lg text-on-surface">38</h3>
+<span class="font-label-sm text-label-sm text-secondary flex items-center mb-sm bg-surface-container-high px-2 py-1 rounded-full">Past 30 Days</span>
+</div>
+</div>
+</section>
+<!-- Management Table Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-level-1 border border-surface-container overflow-hidden flex flex-col flex-1">
+<div class="p-lg border-b border-surface-container flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Recent Advertisements</h3>
+<p class="font-body-sm text-body-sm text-secondary">Manage and moderate active listings.</p>
+</div>
+<div class="flex gap-sm">
+<button class="bg-surface-container-lowest border border-outline-variant text-secondary font-label-md text-label-md px-md py-sm rounded-lg hover:bg-surface-container-low transition-colors flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">filter_list</span> Filter
+                    </button>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-md py-sm rounded-lg hover:bg-surface-tint transition-colors shadow-level-1 flex items-center gap-sm" style="border-top: 1px solid rgba(255,255,255,0.2);">
+<span class="material-symbols-outlined text-[18px]">add</span> Create Ad
+                    </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="p-md font-label-sm text-label-sm text-secondary font-semibold uppercase tracking-wider">Ad Title</th>
+<th class="p-md font-label-sm text-label-sm text-secondary font-semibold uppercase tracking-wider">Advertiser</th>
+<th class="p-md font-label-sm text-label-sm text-secondary font-semibold uppercase tracking-wider">Status</th>
+<th class="p-md font-label-sm text-label-sm text-secondary font-semibold uppercase tracking-wider">Impressions</th>
+<th class="p-md font-label-sm text-label-sm text-secondary font-semibold uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm divide-y divide-surface-container">
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="p-md">
+<div class="font-medium text-on-surface">Summer Sale 2024 Campaign</div>
+<div class="text-secondary text-xs mt-1">ID: #AD-8924</div>
+</td>
+<td class="p-md text-on-surface-variant flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-primary font-bold text-xs">RT</div>
+                                RetailCorp Inc.
+                            </td>
+<td class="p-md">
+<span class="bg-primary-container/10 text-primary font-label-sm text-label-sm px-3 py-1 rounded-full border border-primary/20">Active</span>
+</td>
+<td class="p-md text-on-surface-variant">1.2M</td>
+<td class="p-md text-right">
+<button class="text-secondary hover:text-primary p-1 rounded transition-colors" title="Edit">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="text-secondary hover:text-error p-1 rounded transition-colors ml-sm" title="Delete">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="p-md">
+<div class="font-medium text-on-surface">New Software Launch</div>
+<div class="text-secondary text-xs mt-1">ID: #AD-8923</div>
+</td>
+<td class="p-md text-on-surface-variant flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-tertiary font-bold text-xs">TS</div>
+                                TechSolutions LLC
+                            </td>
+<td class="p-md">
+<span class="bg-surface-container-high text-secondary font-label-sm text-label-sm px-3 py-1 rounded-full border border-outline-variant/50">Paused</span>
+</td>
+<td class="p-md text-on-surface-variant">450K</td>
+<td class="p-md text-right">
+<button class="text-secondary hover:text-primary p-1 rounded transition-colors" title="Edit">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="text-secondary hover:text-error p-1 rounded transition-colors ml-sm" title="Delete">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="p-md">
+<div class="font-medium text-on-surface">Crypto Wallet Promo</div>
+<div class="text-secondary text-xs mt-1">ID: #AD-8921</div>
+</td>
+<td class="p-md text-on-surface-variant flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-error font-bold text-xs">CX</div>
+                                CoinXchange
+                            </td>
+<td class="p-md">
+<span class="bg-error-container/30 text-error font-label-sm text-label-sm px-3 py-1 rounded-full border border-error/20">Flagged</span>
+</td>
+<td class="p-md text-on-surface-variant">89K</td>
+<td class="p-md text-right">
+<button class="text-secondary hover:text-primary p-1 rounded transition-colors" title="Review">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="text-secondary hover:text-error p-1 rounded transition-colors ml-sm" title="Delete">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-md border-t border-surface-container flex justify-between items-center text-secondary font-body-sm text-body-sm">
+<span>Showing 1 to 3 of 8,204 entries</span>
+<div class="flex gap-sm">
+<button class="px-sm py-xs border border-outline-variant rounded hover:bg-surface-container-low disabled:opacity-50" disabled="">Prev</button>
+<button class="px-sm py-xs border border-outline-variant rounded hover:bg-surface-container-low">Next</button>
+</div>
+</div>
+</section>
+</main>
+</body></html>

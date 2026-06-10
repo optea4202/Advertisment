@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AdHub - Advertisement Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#89f5e7",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed-dim": "#6bd8cb",
+                        "outline": "#6d7a77",
+                        "on-secondary-container": "#5c647a",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#dae2fd",
+                        "tertiary-fixed": "#e1e0ff",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#6bd8cb",
+                        "background": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#008378",
+                        "surface-bright": "#f8f9ff",
+                        "secondary": "#565e74",
+                        "on-surface-variant": "#3d4947",
+                        "primary": "#00685f",
+                        "surface-dim": "#cbdbf5",
+                        "on-primary-container": "#f4fffc",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-primary-fixed-variant": "#005049",
+                        "secondary-fixed": "#dae2fd",
+                        "surface-container": "#e5eeff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "outline-variant": "#bcc9c6",
+                        "tertiary-container": "#6063ee",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "surface-tint": "#006a61",
+                        "inverse-surface": "#213145",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "on-tertiary-fixed": "#07006c",
+                        "on-background": "#0b1c30",
+                        "tertiary": "#4648d4",
+                        "surface": "#f8f9ff",
+                        "on-secondary-fixed": "#131b2e",
+                        "on-tertiary-container": "#fffbff",
+                        "on-primary-fixed": "#00201d",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "inverse-on-surface": "#eaf1ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "lg": "24px",
+                        "xxl": "48px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
+        .ambient-shadow-1 { box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 10px 15px -5px rgba(0,0,0,0.02); }
+        .ambient-shadow-2 { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); }
+        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col">
+<!-- TopNavBar (Shared Component) -->
+<nav class="bg-surface-container-lowest border-b border-outline-variant docked full-width top-0 sticky z-50 shadow-sm transition-colors duration-200">
+<div class="flex justify-between items-center w-full px-lg py-md max-w-container-max mx-auto">
+<!-- Brand -->
+<div class="flex items-center gap-md">
+<a class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+                    AdHub
+                </a>
+<!-- Search (on_left) -->
+<div class="hidden md:flex items-center ml-lg bg-surface rounded-full px-md py-sm border border-outline-variant focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all">
+<span class="material-symbols-outlined text-secondary" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm font-body-sm text-on-surface ml-sm w-64 placeholder-secondary" placeholder="Search marketplace..." type="text"/>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="hidden md:flex items-center gap-lg">
+<a class="font-label-md text-label-md text-secondary hover:text-primary transition-colors duration-200" href="#">Feed</a>
+<a class="font-label-md text-label-md text-secondary hover:text-primary transition-colors duration-200" href="#">Dashboard</a>
+<a class="font-label-md text-label-md text-primary border-b-2 border-primary pb-1" href="#">Profile</a>
+<a class="font-label-md text-label-md text-secondary hover:text-primary transition-colors duration-200" href="#">Admin</a>
+</div>
+<!-- Profile & Actions -->
+<div class="flex items-center gap-md">
+<button class="md:hidden text-secondary hover:text-primary transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<div class="relative cursor-pointer hover:opacity-80 transition-opacity">
+<img alt="User avatar with dropdown menu" class="w-10 h-10 rounded-full object-cover border border-outline-variant" data-alt="A close-up portrait of a professional individual looking directly at the camera with a subtle, confident smile. The lighting is soft and studio-quality, creating a high-end, clean light-mode aesthetic suitable for a modern SaaS platform user profile. The background is a very light, neutral gray to ensure the subject stands out clearly without distraction." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGqRnDd8tenc2RRvJyV3k3DPX6R9AeNtmOHm-etdZAd2c_gO-ptcvUtWNLhQzIy2BeFDjkURJnSjD6dfQNGz6Q1mOv8r5TQJq3dXIs-rYqNlUS1FuQgjGD6oXFCe4_JeBnvRxldfttJiSBPBT2ydcuWr6AwC0Jcq16c73C697vPnSXypEw4lIPLlo8Cu9KT38_FUFK9P6ZFq65D25Kl3XnM-ujaQgo2L69_vMUZtD0DgEfrBOZKUAX6DZyEB6J8FHRwPV_3HYop8I"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-md md:px-lg py-xl flex flex-col gap-xxl">
+<!-- Breadcrumbs & Actions -->
+<div class="flex justify-between items-center w-full">
+<div class="flex items-center gap-sm text-secondary font-label-sm text-label-sm">
+<a class="hover:text-primary transition-colors" href="#">Home</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Electronics</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<span class="text-on-surface">Laptops</span>
+</div>
+<div class="flex gap-md">
+<button class="flex items-center gap-xs text-secondary hover:text-primary font-label-md text-label-md transition-colors">
+<span class="material-symbols-outlined" data-icon="share">share</span> Share
+                </button>
+<button class="flex items-center gap-xs text-secondary hover:text-error font-label-md text-label-md transition-colors">
+<span class="material-symbols-outlined" data-icon="favorite_border">favorite_border</span> Save
+                </button>
+</div>
+</div>
+<!-- Bento Grid Layout for Primary Details -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Gallery (Spans 7 cols) -->
+<div class="lg:col-span-7 flex flex-col gap-md">
+<!-- Main Image -->
+<div class="w-full aspect-[4/3] rounded-xl overflow-hidden ambient-shadow-1 relative group bg-surface-container-lowest">
+<img alt="MacBook Pro" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="A sleek, modern laptop open on a clean, minimalist desk surface. The scene is brightly lit with natural light, emphasizing the metallic finish of the device and a professional, uncluttered light-mode workspace. The color palette features cool grays, bright whites, and subtle teal accents in the background to match a high-end tech marketplace aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBg7GkeZEqg-_YljK0cXKExr83x2ka_4M_5KsDVjBAbKbKTEXa88CVH5pQkUZjazg4St9G0pyknAAoHKZ766FOoFv3ik-RxGLnNoDOXRdyiDY9xAbKgN-m_hdhh6fEjio_hLaiyH8qNunmgnQF7VMerzlJnJIJoqUZAkpVjRdizSf6hlnTbLfpZasSgzFzyKSSYzN9tFFV8OpgDNYu8oIzB55RfThCH7em1wxv8wvn5CwwCirowhheDxq37FpFsr1PKuxiDkJuwynE"/>
+<!-- Floating Chips -->
+<div class="absolute top-md left-md flex gap-sm z-10">
+<span class="bg-primary-container/90 text-on-primary-container font-label-sm text-label-sm px-sm py-xs rounded-full backdrop-blur-sm">Featured</span>
+<span class="bg-surface-container-lowest/90 text-on-surface font-label-sm text-label-sm px-sm py-xs rounded-full border border-outline-variant backdrop-blur-sm">Condition: Like New</span>
+</div>
+<!-- Navigation Arrows (Hidden by default, shown on hover) -->
+<button class="absolute left-sm top-1/2 -translate-y-1/2 w-10 h-10 bg-surface-container-lowest/80 rounded-full flex items-center justify-center text-on-surface opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm hover:bg-surface-container-lowest">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="absolute right-sm top-1/2 -translate-y-1/2 w-10 h-10 bg-surface-container-lowest/80 rounded-full flex items-center justify-center text-on-surface opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm hover:bg-surface-container-lowest">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<!-- Thumbnail Carousel -->
+<div class="flex gap-md overflow-x-auto pb-sm scrollbar-hide">
+<button class="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border-2 border-primary ambient-shadow-1">
+<img alt="Thumb 1" class="w-full h-full object-cover" data-alt="Thumbnail view of a sleek, modern laptop open on a clean desk. Bright natural light highlights the metallic finish in a professional light-mode setting with subtle teal background accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtRIUroNRW2m2XrENrfJ_9plLRhPWrzzyOaR7zajaLVhufgeRTwSJFuKUr-5IAZ4pH2RHUCr1KkUCU4eo-2LfGkQ9bsCtyDwH9l7EKqSfjJbBcgUjJm-ZG6CYVsNjVr14s4dgPIxENYfTfyQI2lHmGzMDYtZiRdubz65lu0sbaELNup46rGSAZPPy_pZ9n8ndofpPnbdN9SE3OUcU2NJVLylJGiRUThRoCWzeaDaiShvHnJSM9gWBi2AgpMhQYEhyqT0OMm3yftlM"/>
+</button>
+<button class="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border border-outline-variant opacity-70 hover:opacity-100 transition-opacity">
+<img alt="Thumb 2" class="w-full h-full object-cover" data-alt="Close-up thumbnail of a laptop keyboard and trackpad. Crisp focus on the keys with soft, diffused lighting typical of a high-end tech product shot in a bright, modern environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfYT6MxJ7sldNlOOMpIK4WSmpUIpfzhardIiDDnrJ4UoS3AwJekS9vDrwTj00nEeFNQuc3I-HJkhYb9LrqGntAzypk3-hZv3pEUQwY8UHLhcHCdunHM5C9d1QmmzWcbwIc4LvqBw8z9muH2UHJal65ADKPJxK78VpQB8JLBmnE0aMIC-8muqdt6rJnx7G2AjrXp8fIrZRJuEVzjlKOYDES-1WIyObiwoMZ9ZT_T4uvaNTPlvDjJsbR89iOL_Itr7HTRtGBLX-8wm4"/>
+</button>
+<button class="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border border-outline-variant opacity-70 hover:opacity-100 transition-opacity">
+<img alt="Thumb 3" class="w-full h-full object-cover" data-alt="Thumbnail view showing the side profile of a thin, modern laptop, emphasizing its slim design and ports. Photographed against a clean, light gray background with sharp, professional lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiXGIRfvwvZnemozSf0CSnX0vAxWgvwZLXCDd2IiujbjL6JeUVZ4mjr3ICT95WTX-n9smvBrBW2puq6kX6WnbAIhZlzh_N6Wb7REdFVmpfWTUYi3Ut80IJjbL-PZI4yLhCpT_NRfMHeWyko0GLLuSnF5QCzsZGHROLd92zPDjvipM8nxn_doffcA5NriaxyZY8ezo0h7-jL28euAnVJybn7UN28fgPJESmvhdge5jVBTM2b5JXfS6zHKUposkEym26KRr3Q0g-J9s"/>
+</button>
+<button class="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border border-outline-variant opacity-70 hover:opacity-100 transition-opacity flex items-center justify-center bg-surface-container">
+<span class="material-symbols-outlined text-secondary" data-icon="add_photo_alternate">add_photo_alternate</span>
+<span class="text-secondary font-label-sm text-label-sm ml-xs">+3</span>
+</button>
+</div>
+</div>
+<!-- Right Column: Details & Actions (Spans 5 cols) -->
+<div class="lg:col-span-5 flex flex-col gap-lg">
+<!-- Main Info Card -->
+<div class="bg-surface-container-lowest rounded-xl p-xl ambient-shadow-1 flex flex-col gap-md">
+<div>
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-xs">MacBook Pro 16" M2 Max (2023) - 32GB RAM, 1TB SSD</h1>
+<p class="font-body-md text-body-md text-secondary">Posted 2 hours ago in Electronics &gt; Laptops</p>
+</div>
+<div class="flex items-end gap-sm py-sm border-b border-outline-variant">
+<span class="font-display-lg text-display-lg text-primary">$2,499</span>
+<span class="font-body-md text-body-md text-secondary mb-2 line-through">$2,800</span>
+</div>
+<div class="flex flex-col gap-sm py-sm">
+<div class="flex items-center gap-md text-on-surface font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="location_on">location_on</span>
+<span>San Francisco, CA (Local Pickup Only)</span>
+</div>
+<div class="flex items-center gap-md text-on-surface font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="shield">shield</span>
+<span>AdHub Buyer Protection Eligible</span>
+</div>
+</div>
+<div class="flex flex-col gap-sm mt-md">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-lg flex items-center justify-center gap-sm hover:bg-surface-tint transition-colors relative overflow-hidden group">
+<div class="absolute inset-0 bg-white opacity-20 border-t border-white pointer-events-none group-hover:opacity-30 transition-opacity"></div>
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+                            Contact Seller
+                        </button>
+<button class="w-full bg-surface-container text-on-surface font-label-md text-label-md py-md rounded-lg flex items-center justify-center gap-sm hover:bg-surface-container-high transition-colors border border-outline-variant">
+                            Make an Offer
+                        </button>
+</div>
+</div>
+<!-- Seller Summary Card (Glassmorphism inspired) -->
+<div class="glass-panel rounded-xl p-xl ambient-shadow-1 flex flex-col gap-md">
+<h3 class="font-headline-md text-headline-md text-on-surface">About the Seller</h3>
+<div class="flex items-center gap-md">
+<img alt="Seller Avatar" class="w-16 h-16 rounded-full object-cover border-2 border-surface-container-lowest" data-alt="Portrait of a friendly, professional man looking slightly off-camera. The lighting is warm and inviting, set against a bright, airy background typical of a modern SaaS user profile photo." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPa-qfBu1fNdGCgN7OMGCNGlHMh2cHT1_woWzdOsm5IaN_e4XZONbN6RwAxYKdpy45EM37nwxPSglcSMqT3YjrsEsql49804DtEwlzEjulDOIADk8fdySffSnmbEDf3zigvrQnYiuWpsxzj8fRtTaaniqFvvzmzyUe61wL5-g8UaBkZ6rXArCjNAJclsBPH_IvN1gEmcPN6hv4DLmi2u5Ybn_i_km5iyzvwzHLofCKWxuOgeRx8tnfT08wcpEdewiAr2j6Uq5nrtA"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface flex items-center gap-xs">
+                                Alex Johnson 
+                                <span class="material-symbols-outlined text-primary text-[16px]" data-icon="verified">verified</span>
+</span>
+<span class="font-body-sm text-body-sm text-secondary">Member since Jan 2021</span>
+<div class="flex items-center gap-xs mt-xs text-primary">
+<span class="material-symbols-outlined text-[16px]" data-icon="star">star</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="star">star</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="star">star</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="star">star</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="star_half">star_half</span>
+<span class="font-label-sm text-label-sm text-on-surface ml-xs">4.8 (124 reviews)</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-sm mt-sm">
+<div class="bg-surface-container-low rounded-lg p-sm text-center border border-outline-variant">
+<span class="block font-headline-md text-headline-md text-on-surface">15</span>
+<span class="block font-label-sm text-label-sm text-secondary">Active Ads</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-sm text-center border border-outline-variant">
+<span class="block font-headline-md text-headline-md text-on-surface">&lt; 1h</span>
+<span class="block font-label-sm text-label-sm text-secondary">Avg. Response</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Description & Specifications (Below Fold layout) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter mt-xl">
+<div class="lg:col-span-8 flex flex-col gap-xl">
+<!-- Description -->
+<div class="bg-surface-container-lowest rounded-xl p-xl ambient-shadow-1">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-md">Description</h2>
+<div class="prose prose-sm max-w-none text-body-lg font-body-lg text-on-surface-variant space-y-md">
+<p>Selling my MacBook Pro 16-inch (2023 model) with the M2 Max chip. This machine is an absolute beast for video editing, software development, and 3D rendering. It's in pristine condition—no scratches, dents, or screen defects. It has lived its entire life on a desk connected to an external monitor.</p>
+<p><strong>Key Specs:</strong></p>
+<ul class="list-disc pl-md space-y-xs">
+<li>Apple M2 Max chip with 12-core CPU and 38-core GPU</li>
+<li>32GB unified memory</li>
+<li>1TB SSD storage</li>
+<li>16.2-inch Liquid Retina XDR display</li>
+<li>Three Thunderbolt 4 ports, HDMI port, SDXC card slot</li>
+</ul>
+<p>Battery health is at 98% with only 45 cycle counts. Comes with the original box, 140W USB-C Power Adapter, and USB-C to MagSafe 3 Cable. Reason for selling: My company just provided me with a similar machine, so I no longer need this personal one.</p>
+<p>Local pickup in SF preferred. I can meet at a public coffee shop or bank lobby for safety. Cash or verified electronic transfer only.</p>
+</div>
+</div>
+<!-- Reviews Section -->
+<div class="bg-surface-container-lowest rounded-xl p-xl ambient-shadow-1 flex flex-col gap-lg">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Seller Reviews</h2>
+<!-- Breakdown Chart -->
+<div class="flex flex-col md:flex-row gap-lg items-center border-b border-outline-variant pb-lg">
+<div class="flex flex-col items-center justify-center">
+<span class="font-display-lg text-display-lg text-on-surface">4.8</span>
+<div class="flex items-center gap-xs text-primary mb-xs">
+<span class="material-symbols-outlined" data-icon="star">star</span>
+<span class="material-symbols-outlined" data-icon="star">star</span>
+<span class="material-symbols-outlined" data-icon="star">star</span>
+<span class="material-symbols-outlined" data-icon="star">star</span>
+<span class="material-symbols-outlined" data-icon="star_half">star_half</span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary">Based on 124 reviews</span>
+</div>
+<div class="flex-grow w-full max-w-sm flex flex-col gap-xs">
+<!-- 5 Star -->
+<div class="flex items-center gap-sm">
+<span class="font-label-sm text-label-sm text-secondary w-8 text-right">5</span>
+<span class="material-symbols-outlined text-[12px] text-secondary" data-icon="star">star</span>
+<div class="flex-grow h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[85%] rounded-full"></div>
+</div>
+<span class="font-body-sm text-body-sm text-secondary w-8">105</span>
+</div>
+<!-- 4 Star -->
+<div class="flex items-center gap-sm">
+<span class="font-label-sm text-label-sm text-secondary w-8 text-right">4</span>
+<span class="material-symbols-outlined text-[12px] text-secondary" data-icon="star">star</span>
+<div class="flex-grow h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[10%] rounded-full"></div>
+</div>
+<span class="font-body-sm text-body-sm text-secondary w-8">12</span>
+</div>
+<!-- 3 Star -->
+<div class="flex items-center gap-sm">
+<span class="font-label-sm text-label-sm text-secondary w-8 text-right">3</span>
+<span class="material-symbols-outlined text-[12px] text-secondary" data-icon="star">star</span>
+<div class="flex-grow h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[3%] rounded-full"></div>
+</div>
+<span class="font-body-sm text-body-sm text-secondary w-8">4</span>
+</div>
+<!-- 2 Star -->
+<div class="flex items-center gap-sm">
+<span class="font-label-sm text-label-sm text-secondary w-8 text-right">2</span>
+<span class="material-symbols-outlined text-[12px] text-secondary" data-icon="star">star</span>
+<div class="flex-grow h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[1%] rounded-full"></div>
+</div>
+<span class="font-body-sm text-body-sm text-secondary w-8">2</span>
+</div>
+<!-- 1 Star -->
+<div class="flex items-center gap-sm">
+<span class="font-label-sm text-label-sm text-secondary w-8 text-right">1</span>
+<span class="material-symbols-outlined text-[12px] text-secondary" data-icon="star">star</span>
+<div class="flex-grow h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[1%] rounded-full"></div>
+</div>
+<span class="font-body-sm text-body-sm text-secondary w-8">1</span>
+</div>
+</div>
+</div>
+<!-- Review Cards List -->
+<div class="flex flex-col gap-md">
+<!-- Card 1 -->
+<div class="py-md border-b border-outline-variant last:border-0 flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center font-headline-md text-headline-md text-primary">M</div>
+<div>
+<span class="block font-label-md text-label-md text-on-surface">Michael T.</span>
+<span class="block font-body-sm text-body-sm text-secondary">Bought an iPad Pro • 2 weeks ago</span>
+</div>
+</div>
+<div class="flex items-center text-primary">
+<span class="material-symbols-outlined text-[16px]" data-icon="star">star</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="star">star</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="star">star</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="star">star</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="star">star</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Great communication and the item was exactly as described. Met up promptly. Would definitely buy from Alex again!</p>
+</div>
+<!-- Card 2 -->
+<div class="py-md border-b border-outline-variant last:border-0 flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center font-headline-md text-headline-md text-primary">S</div>
+<div>
+<span class="block font-label-md text-label-md text-on-surface">Sarah W.</span>
+<span class="block font-body-sm text-body-sm text-secondary">Bought Sony A7IV • 1 month ago</span>
+</div>
+</div>
+<div class="flex items-center text-primary">
+<span class="material-symbols-outlined text-[16px]" data-icon="star">star</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="star">star</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="star">star</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="star">star</span>
+<span class="material-symbols-outlined text-[16px] text-outline-variant" data-icon="star">star</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Very smooth transaction. The camera lens had a tiny scratch not mentioned in the ad, but Alex was very reasonable and adjusted the price slightly on the spot. Fair seller.</p>
+</div>
+</div>
+<button class="text-primary font-label-md text-label-md self-start hover:underline transition-all">View all 124 reviews</button>
+</div>
+</div>
+<!-- Sticky Sidebar for Safe Buying Tips -->
+<div class="hidden lg:flex lg:col-span-4 flex-col gap-md h-min sticky top-32">
+<div class="bg-surface-container-low rounded-xl p-lg border border-outline-variant">
+<div class="flex items-center gap-sm mb-md text-primary">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+<h3 class="font-headline-md text-headline-md">Safe Buying Tips</h3>
+</div>
+<ul class="flex flex-col gap-sm font-body-sm text-body-sm text-on-surface-variant">
+<li class="flex gap-xs items-start">
+<span class="material-symbols-outlined text-[16px] mt-[2px]" data-icon="check_circle">check_circle</span>
+                            Meet in a public place, preferably during daylight.
+                        </li>
+<li class="flex gap-xs items-start">
+<span class="material-symbols-outlined text-[16px] mt-[2px]" data-icon="check_circle">check_circle</span>
+                            Inspect the item thoroughly before paying.
+                        </li>
+<li class="flex gap-xs items-start">
+<span class="material-symbols-outlined text-[16px] mt-[2px]" data-icon="check_circle">check_circle</span>
+                            Use AdHub's in-app messaging; avoid giving out your personal phone number early on.
+                        </li>
+<li class="flex gap-xs items-start">
+<span class="material-symbols-outlined text-[16px] mt-[2px]" data-icon="check_circle">check_circle</span>
+                            Beware of unusually low prices or requests for wire transfers.
+                        </li>
+</ul>
+<a class="block mt-md text-primary font-label-sm text-label-sm hover:underline" href="#">Read our full safety guide</a>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant w-full py-xl mt-xxl">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-lg max-w-container-max mx-auto gap-md">
+<div class="flex items-center gap-sm text-primary font-headline-md text-headline-md font-bold">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+                AdHub
+            </div>
+<div class="text-secondary font-body-sm text-body-sm">
+                © 2024 AdHub Marketplace. All rights reserved.
+            </div>
+<div class="flex items-center gap-md font-label-sm text-label-sm">
+<a class="text-secondary hover:text-primary hover:underline transition-all duration-200" href="#">Privacy Policy</a>
+<a class="text-secondary hover:text-primary hover:underline transition-all duration-200" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+<script>
+        // Simple script to handle thumbnail clicks for the image gallery
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainImage = document.querySelector('.lg\\:col-span-7 .w-full.aspect-\\[4\\/3\\] img');
+            const thumbnails = document.querySelectorAll('.lg\\:col-span-7 .overflow-x-auto button img');
+            
+            thumbnails.forEach(thumb => {
+                thumb.parentElement.addEventListener('click', () => {
+                    // Swap src and alt attributes
+                    const newSrc = thumb.src;
+                    const newAlt = thumb.alt;
+                    const newDataAlt = thumb.getAttribute('data-alt');
+
+                    // Add a subtle fade effect
+                    mainImage.style.opacity = 0;
+                    setTimeout(() => {
+                        mainImage.src = newSrc;
+                        mainImage.alt = newAlt;
+                        if(newDataAlt) mainImage.setAttribute('data-alt', newDataAlt);
+                        mainImage.style.opacity = 1;
+                    }, 150);
+
+                    // Update active state on thumbnails
+                    document.querySelectorAll('.lg\\:col-span-7 .overflow-x-auto button').forEach(btn => {
+                        btn.classList.remove('border-2', 'border-primary', 'ambient-shadow-1');
+                        btn.classList.add('border', 'border-outline-variant', 'opacity-70');
+                    });
+                    
+                    thumb.parentElement.classList.remove('border', 'border-outline-variant', 'opacity-70');
+                    thumb.parentElement.classList.add('border-2', 'border-primary', 'ambient-shadow-1');
+                });
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS reviews (
+    id SERIAL PRIMARY KEY,
+    ad_id INTEGER REFERENCES ads(id) ON DELETE CASCADE NOT NULL,
+    reviewer_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+    star_rating INTEGER NOT NULL CHECK (star_rating >= 1 AND star_rating <= 5),
+    review_text TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

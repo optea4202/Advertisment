@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AdHub - Create Advertisement</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "on-surface": "#0b1c30",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#cbdbf5",
+                        "surface-tint": "#006a61",
+                        "primary-fixed-dim": "#6bd8cb",
+                        "on-secondary-container": "#5c647a",
+                        "primary": "#00685f",
+                        "outline-variant": "#bcc9c6",
+                        "surface-container": "#e5eeff",
+                        "on-primary-fixed": "#00201d",
+                        "on-primary-container": "#f4fffc",
+                        "surface-container-high": "#dce9ff",
+                        "surface-bright": "#f8f9ff",
+                        "on-primary": "#ffffff",
+                        "secondary": "#565e74",
+                        "on-tertiary-container": "#fffbff",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#213145",
+                        "surface-container-highest": "#d3e4fe",
+                        "tertiary-container": "#6063ee",
+                        "secondary-fixed": "#dae2fd",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "surface": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#4648d4",
+                        "on-tertiary-fixed": "#07006c",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-variant": "#d3e4fe",
+                        "background": "#f8f9ff",
+                        "tertiary-fixed": "#e1e0ff",
+                        "outline": "#6d7a77",
+                        "surface-container-low": "#eff4ff",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "on-background": "#0b1c30",
+                        "secondary-container": "#dae2fd",
+                        "inverse-primary": "#6bd8cb",
+                        "primary-container": "#008378",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#89f5e7",
+                        "on-surface-variant": "#3d4947",
+                        "on-primary-fixed-variant": "#005049",
+                        "on-secondary-fixed": "#131b2e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xl": "32px",
+                        "base": "4px",
+                        "container-max": "1280px",
+                        "sm": "8px",
+                        "xxl": "48px",
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; } /* Base level 0 fallback */
+        .elevation-1 { box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 10px 15px -5px rgba(0,0,0,0.02); }
+        .elevation-2 { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); }
+        .input-glow:focus-within { box-shadow: 0 0 0 3px rgba(0, 104, 95, 0.1); }
+        .btn-primary-inner { border-top: 1px solid rgba(255,255,255,0.2); }
+        
+        /* Custom scrollbar for textareas */
+        textarea::-webkit-scrollbar { width: 8px; }
+        textarea::-webkit-scrollbar-track { background: transparent; }
+        textarea::-webkit-scrollbar-thumb { background-color: #bcc9c6; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface-container-lowest dark:bg-surface-container-lowest border-b border-outline-variant dark:border-outline docked full-width top-0 sticky z-50 shadow-sm">
+<div class="flex justify-between items-center w-full px-lg py-md max-w-container-max mx-auto">
+<!-- Brand/Logo -->
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" data-icon="campaign" data-weight="fill" style="font-variation-settings: 'FILL' 1;">campaign</span>
+</div>
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim tracking-tight">AdHub</span>
+</div>
+<!-- Navigation Links (Web) -->
+<nav class="hidden md:flex items-center gap-xl">
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors duration-200 px-sm py-xs rounded-md font-label-md text-label-md" href="#">Feed</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors duration-200 px-sm py-xs rounded-md font-label-md text-label-md" href="#">Dashboard</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors duration-200 px-sm py-xs rounded-md font-label-md text-label-md" href="#">Profile</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors duration-200 px-sm py-xs rounded-md font-label-md text-label-md" href="#">Admin</a>
+</nav>
+<!-- Search & Profile -->
+<div class="flex items-center gap-md">
+<div class="hidden md:flex items-center bg-surface-container-low rounded-full px-md py-xs border border-outline-variant focus-within:border-primary transition-colors">
+<span class="material-symbols-outlined text-secondary text-sm mr-sm" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 font-body-sm text-body-sm text-on-surface placeholder:text-secondary outline-none w-48" placeholder="Search..." type="text"/>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden hover:opacity-90 transition-opacity">
+<img alt="User avatar with dropdown menu" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBf8VxrZbJoIiiALc2YfGEka9fJMjx3rQxDI524oSDePFwkkVApjlD-Bp3wItIsoi6-TbiusW_trmRc7j2aMVbyp637E9k377sNtjWkxTQWG_NfwV80O05_2qtIFt26KiiXEWyxlUI7SMegF5sjt08DR7ItXOTB2LrxBaV0Jm_r0RQgCuaYr3J3PJ3rxtW7TJaJZyQPVM_Vxb-Y7z74wLZADcNGLrfBcn02pGoWvoCnhHo1EbzCky1a_XJUKIPB-qL9Y2p5CKIl9TA"/>
+</button>
+<button class="md:hidden text-on-surface">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-md md:px-xl py-xl md:py-xxl flex flex-col gap-xl">
+<!-- Page Header -->
+<div class="flex flex-col gap-xs">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Create Advertisement</h1>
+<p class="font-body-md text-body-md text-secondary">Fill in the details below to publish a new advertisement to the marketplace.</p>
+</div>
+<!-- Bento Grid Form Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Left Column: Primary Details (8 cols) -->
+<div class="lg:col-span-7 flex flex-col gap-xl">
+<div class="bg-surface-container-lowest rounded-[24px] elevation-1 p-xl flex flex-col gap-lg border border-outline-variant/30">
+<!-- Title -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface" for="ad-title">Advertisement Title</label>
+<div class="relative input-glow rounded-md transition-shadow duration-200">
+<input class="w-full bg-surface-bright border border-outline-variant rounded-md px-md py-[10px] font-body-md text-body-md text-on-surface placeholder:text-secondary/60 focus:border-primary focus:outline-none transition-colors" id="ad-title" placeholder="e.g. Vintage Leather Sofa" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Category Dropdown -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface" for="ad-category">Category</label>
+<div class="relative input-glow rounded-md transition-shadow duration-200">
+<select class="w-full bg-surface-bright border border-outline-variant rounded-md px-md py-[10px] font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none transition-colors appearance-none cursor-pointer" id="ad-category">
+<option disabled="" selected="" value="">Select a category...</option>
+<option value="electronics">Electronics</option>
+<option value="furniture">Furniture</option>
+<option value="vehicles">Vehicles</option>
+<option value="services">Services</option>
+</select>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-secondary pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- Price -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface" for="ad-price">Price</label>
+<div class="relative input-glow rounded-md transition-shadow duration-200 flex items-center bg-surface-bright border border-outline-variant focus-within:border-primary overflow-hidden">
+<span class="pl-md pr-sm font-body-md text-body-md text-secondary border-r border-outline-variant/50 bg-surface-container-low h-full flex items-center">$</span>
+<input class="w-full bg-transparent border-none px-sm py-[10px] font-body-md text-body-md text-on-surface placeholder:text-secondary/60 focus:ring-0 focus:outline-none" id="ad-price" placeholder="0.00" type="number"/>
+</div>
+</div>
+</div>
+<!-- Location -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface" for="ad-location">Location</label>
+<div class="relative input-glow rounded-md transition-shadow duration-200">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-secondary" data-icon="location_on">location_on</span>
+<input class="w-full bg-surface-bright border border-outline-variant rounded-md pl-[44px] pr-md py-[10px] font-body-md text-body-md text-on-surface placeholder:text-secondary/60 focus:border-primary focus:outline-none transition-colors" id="ad-location" placeholder="City, Neighborhood, or Zip Code" type="text"/>
+</div>
+</div>
+<!-- Description -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface" for="ad-desc">Description</label>
+<div class="relative input-glow rounded-md transition-shadow duration-200">
+<textarea class="w-full bg-surface-bright border border-outline-variant rounded-md px-md py-sm font-body-md text-body-md text-on-surface placeholder:text-secondary/60 focus:border-primary focus:outline-none transition-colors resize-y" id="ad-desc" placeholder="Provide detailed information about your item or service..." rows="6"></textarea>
+</div>
+<span class="text-right font-body-sm text-body-sm text-secondary">0 / 2000 characters</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Media & Actions (4 cols) -->
+<div class="lg:col-span-5 flex flex-col gap-xl">
+<!-- Image Upload Area -->
+<div class="bg-surface-container-lowest rounded-[24px] elevation-1 p-xl flex flex-col gap-md border border-outline-variant/30">
+<div class="flex justify-between items-center">
+<h2 class="font-headline-md text-[20px] leading-tight font-semibold text-on-surface">Media</h2>
+<span class="font-label-sm text-label-sm text-secondary bg-surface-container-low px-sm py-xs rounded-full">0/5</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary">Upload up to 5 high-quality images. The first image will be the cover.</p>
+<!-- Drag & Drop Zone -->
+<div class="mt-sm border-2 border-dashed border-outline-variant rounded-xl p-xl flex flex-col items-center justify-center text-center gap-md bg-surface-bright hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[28px]" data-icon="cloud_upload">cloud_upload</span>
+</div>
+<div>
+<span class="font-label-md text-label-md text-primary font-semibold">Click to upload</span>
+<span class="font-body-md text-body-md text-secondary"> or drag and drop</span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary/70">PNG, JPG, WEBP up to 10MB</span>
+</div>
+<!-- Image Slots (Bento style) -->
+<div class="grid grid-cols-4 gap-sm mt-sm">
+<!-- Slot 1 (Cover - takes 2x2 if we wanted, but let's stick to simple grid, maybe first is larger) -->
+<div class="col-span-2 row-span-2 aspect-square rounded-lg border border-outline-variant bg-surface-container-lowest flex items-center justify-center relative overflow-hidden group">
+<span class="material-symbols-outlined text-secondary/40 text-[32px]" data-icon="image">image</span>
+<div class="absolute bottom-sm left-sm bg-surface-container-highest/80 backdrop-blur-sm px-xs py-[2px] rounded text-[10px] font-semibold text-on-surface uppercase tracking-wider">Cover</div>
+</div>
+<!-- Slot 2 -->
+<div class="aspect-square rounded-lg border border-outline-variant bg-surface-container-lowest flex items-center justify-center text-secondary/40">
+<span class="material-symbols-outlined" data-icon="add_photo_alternate">add_photo_alternate</span>
+</div>
+<!-- Slot 3 -->
+<div class="aspect-square rounded-lg border border-outline-variant bg-surface-container-lowest flex items-center justify-center text-secondary/40">
+<span class="material-symbols-outlined" data-icon="add_photo_alternate">add_photo_alternate</span>
+</div>
+<!-- Slot 4 -->
+<div class="aspect-square rounded-lg border border-outline-variant bg-surface-container-lowest flex items-center justify-center text-secondary/40">
+<span class="material-symbols-outlined" data-icon="add_photo_alternate">add_photo_alternate</span>
+</div>
+<!-- Slot 5 -->
+<div class="aspect-square rounded-lg border border-outline-variant bg-surface-container-lowest flex items-center justify-center text-secondary/40">
+<span class="material-symbols-outlined" data-icon="add_photo_alternate">add_photo_alternate</span>
+</div>
+</div>
+</div>
+<!-- Publish Action Card -->
+<div class="bg-surface-container-lowest rounded-[24px] elevation-1 p-xl border border-outline-variant/30 flex flex-col gap-md sticky top-[100px]">
+<div class="flex items-center gap-sm text-on-surface">
+<span class="material-symbols-outlined text-primary" data-icon="visibility">visibility</span>
+<span class="font-label-md text-label-md">Visibility: Public</span>
+</div>
+<div class="flex items-center gap-sm text-on-surface mb-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="schedule">schedule</span>
+<span class="font-label-md text-label-md text-secondary">Status: Draft</span>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md px-xl py-md rounded-lg elevation-1 btn-primary-inner hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined text-sm" data-icon="send">send</span>
+                        Publish Advertisement
+                    </button>
+<button class="w-full bg-surface-bright text-secondary border border-outline-variant font-label-md text-label-md px-xl py-md rounded-lg hover:bg-surface-container-low active:scale-[0.98] transition-all">
+                        Save as Draft
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline-variant dark:border-outline w-full py-xl mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-lg max-w-container-max mx-auto gap-md">
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">AdHub</span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary dark:text-secondary-fixed-dim">
+                © 2024 AdHub Marketplace. All rights reserved.
+            </span>
+<div class="flex items-center gap-md">
+<a class="font-label-sm text-label-sm text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed-dim hover:underline transition-all duration-200" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed-dim hover:underline transition-all duration-200" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+</body></html>
