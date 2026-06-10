@@ -1,17 +1,35 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { AdCard } from '../components/AdCard.js';
 import { usePublicProfile } from '../hooks/useUsers.js';
 import { useAuth } from '../context/AuthContext.js';
+import { deleteAd } from '../api/ads.js';
 
 export const UserProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const numericId = Number(id);
-  const { profile, loading, error } = usePublicProfile(numericId);
+  const { profile, loading, error, refresh } = usePublicProfile(numericId);
   const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
 
   const isOwnProfile = currentUser?.id === numericId;
+
+  const handleEditClick = (adId: number) => {
+    navigate(`/ads/edit/${adId}`);
+  };
+
+  const handleDeleteClick = async (adId: number) => {
+    if (window.confirm('Are you sure you want to delete this advertisement?')) {
+      try {
+        await deleteAd(adId);
+        await refresh();
+      } catch (err) {
+        console.error('Failed to delete ad:', err);
+        alert('Failed to delete advertisement. Please try again.');
+      }
+    }
+  };
 
   const joinedDate = profile?.user.created_at
     ? new Date(profile.user.created_at).toLocaleDateString(undefined, {
@@ -160,7 +178,13 @@ export const UserProfilePage: React.FC = () => {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
                   {profile.ads.map((ad) => (
-                    <AdCard key={ad.id} ad={ad} />
+                    <AdCard
+                      key={ad.id}
+                      ad={ad}
+                      showActions={isOwnProfile}
+                      onEditClick={handleEditClick}
+                      onDeleteClick={handleDeleteClick}
+                    />
                   ))}
                 </div>
               )}
