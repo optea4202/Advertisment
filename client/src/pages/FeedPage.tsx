@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { SearchBar } from '../components/SearchBar.js';
 import { CategoryFilter } from '../components/CategoryFilter.js';
@@ -6,6 +7,7 @@ import { AdCard } from '../components/AdCard.js';
 import { useFeed } from '../hooks/useAds.js';
 
 export const FeedPage: React.FC = () => {
+  const navigate = useNavigate();
   const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
   const [spotlightIndex, setSpotlightIndex] = useState(0);
@@ -74,7 +76,16 @@ export const FeedPage: React.FC = () => {
             {/* Right Side: Interactive Spotlight / Card Preview */}
             <div className="lg:col-span-5 flex justify-center w-full">
               {spotlightAds.length > 0 && currentSpotlightAd ? (
-                <div className="w-full max-w-[360px] glassmorphism rounded-2xl p-md shadow-xl border border-white/20 dark:border-white/10 hover:-translate-y-1 transition-all duration-300 relative flex flex-col gap-sm">
+                <div 
+                  onClick={(e) => {
+                    const target = e.target as HTMLElement;
+                    if (target.closest('button') || target.closest('a')) {
+                      return;
+                    }
+                    navigate(`/ads/${currentSpotlightAd.id}`);
+                  }}
+                  className="cursor-pointer w-full max-w-[360px] glassmorphism rounded-2xl p-md shadow-xl border border-white/20 dark:border-white/10 hover:-translate-y-1 transition-all duration-300 relative flex flex-col gap-sm"
+                >
                   {/* Spotlight Image & Fade wrapper */}
                   <div className="relative aspect-video rounded-xl overflow-hidden mb-xs">
                     <img 
@@ -93,9 +104,7 @@ export const FeedPage: React.FC = () => {
                   <div key={`info-${currentSpotlightAd.id}`} className="flex flex-col gap-xs animate-fade-in">
                     <span className="text-primary font-bold text-label-sm uppercase tracking-wider">{currentSpotlightAd.category}</span>
                     <h3 className="font-semibold text-on-surface truncate text-body-lg">
-                      <a href={`/ads/${currentSpotlightAd.id}`} className="hover:text-primary transition-colors">
-                        {currentSpotlightAd.title}
-                      </a>
+                      {currentSpotlightAd.title}
                     </h3>
                     <p className="text-secondary text-body-sm line-clamp-1">{currentSpotlightAd.description}</p>
                     
@@ -114,7 +123,10 @@ export const FeedPage: React.FC = () => {
                       {spotlightAds.map((_, idx) => (
                         <button
                           key={idx}
-                          onClick={() => setSpotlightIndex(idx)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSpotlightIndex(idx);
+                          }}
                           className={`w-2 h-2 rounded-full transition-all duration-300 ${
                             spotlightIndex === idx 
                               ? 'bg-primary w-4' 

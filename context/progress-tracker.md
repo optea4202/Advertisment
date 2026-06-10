@@ -35,6 +35,7 @@ Update this file after every meaningful implementation change.
 - Added a mobile-only About (info) icon button to the header to enable access on portrait viewports, and added a footer credit saying "Developed by optea" to the About page.
 - Enabled users to edit and delete their advertisement posts directly from their own user profile page by conditionally passing action triggers to `AdCard` components when viewing their own profile.
 - Designed and implemented a responsive, fancy, and eye-catching landing page (`FeedPage`) for both PC and mobile viewports, including a premium Hero Showcase with animated text gradients, animated gradient flow background, glassmorphism spotlight preview card featuring automatic sliding rotation and navigation dots, active listing statistics, and visual category icons.
+- Made the entire advertisement card container clickable (with cursor-pointer) on both the primary AdCard and the spotlight preview card, routing to the ad detail page when clicked. Nested interactive elements (Edit, Delete buttons, and Slider indicators) have event propagation blocked and click target filtering applied to keep actions functional without triggering detail navigation. Removed the "Open Ad" button.
 
 
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { type Ad } from '../api/ads.js';
 
 interface AdCardProps {
@@ -15,13 +15,27 @@ export const AdCard: React.FC<AdCardProps> = ({
   onDeleteClick,
   onEditClick
 }) => {
+  const navigate = useNavigate();
+
   // Get cover image URL or a placeholder if none exists
   const coverImageUrl = ad.images && ad.images.length > 0 
     ? ad.images[0].cloudinary_url 
     : 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=600&auto=format&fit=crop';
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // If the click originated from an interactive element (button or link), do not trigger navigation
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a')) {
+      return;
+    }
+    navigate(`/ads/${ad.id}`);
+  };
+
   return (
-    <div className="bg-surface-container-lowest rounded-2xl elevation-1 border border-outline-variant/20 overflow-hidden flex flex-col h-full hover:elevation-2 hover:border-outline-variant/40 transition-all duration-200">
+    <div 
+      onClick={handleCardClick}
+      className="cursor-pointer bg-surface-container-lowest rounded-2xl elevation-1 border border-outline-variant/20 overflow-hidden flex flex-col h-full hover:elevation-2 hover:border-outline-variant/40 transition-all duration-200"
+    >
       
       {/* Ad Image Container */}
       <div className="relative aspect-video w-full bg-surface-container-low overflow-hidden">
@@ -49,9 +63,7 @@ export const AdCard: React.FC<AdCardProps> = ({
 
         {/* Title */}
         <h3 className="font-headline-md text-headline-md text-on-surface line-clamp-1">
-          <Link to={`/ads/${ad.id}`} className="hover:text-primary transition-colors">
-            {ad.title}
-          </Link>
+          {ad.title}
         </h3>
 
         {/* Description Snippet */}
@@ -76,7 +88,10 @@ export const AdCard: React.FC<AdCardProps> = ({
           <div className="flex gap-sm mt-md border-t border-outline-variant/10 pt-md">
             {onEditClick && (
               <button
-                onClick={() => onEditClick(ad.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditClick(ad.id);
+                }}
                 className="flex-1 py-xs bg-surface-bright border border-outline-variant text-on-surface hover:bg-surface-container-low font-label-md text-label-md rounded-lg transition-colors flex items-center justify-center gap-sm"
               >
                 <span className="material-symbols-outlined text-[18px]">edit</span>
@@ -86,7 +101,10 @@ export const AdCard: React.FC<AdCardProps> = ({
             
             {onDeleteClick && (
               <button
-                onClick={() => onDeleteClick(ad.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteClick(ad.id);
+                }}
                 className="flex-1 py-xs bg-error-container text-on-error-container hover:bg-error-container/85 border border-error/10 font-label-md text-label-md rounded-lg transition-colors flex items-center justify-center gap-sm"
               >
                 <span className="material-symbols-outlined text-[18px]">delete</span>
