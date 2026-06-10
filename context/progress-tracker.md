@@ -34,6 +34,8 @@ Update this file after every meaningful implementation change.
 - Optimized page navigation and initial loading times by establishing database indexes on relational foreign keys (`ads.owner_id`, `ad_images.ad_id`, `reviews.ad_id`, `reviews.reviewer_id`), implementing client-side Stale-While-Revalidate (SWR) caching for ads, profiles, and feeds, caching database user profiles in `localStorage` in `AuthContext` to skip session loading screen wait times, and registering a centralized cache invalidation response interceptor on all write requests (`POST`, `PUT`, `DELETE`).
 - Added a mobile-only About (info) icon button to the header to enable access on portrait viewports, and added a footer credit saying "Developed by optea" to the About page.
 - Enabled users to edit and delete their advertisement posts directly from their own user profile page by conditionally passing action triggers to `AdCard` components when viewing their own profile.
+- Designed and implemented a responsive, fancy, and eye-catching landing page (`FeedPage`) for both PC and mobile viewports, including a premium Hero Showcase with animated text gradients, animated gradient flow background, glassmorphism spotlight preview card featuring automatic sliding rotation and navigation dots, active listing statistics, and visual category icons.
+
 
 
 

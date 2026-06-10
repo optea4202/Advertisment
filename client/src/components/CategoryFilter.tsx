@@ -7,6 +7,15 @@ interface CategoryFilterProps {
 
 const CATEGORIES = ['All', 'Electronics', 'Furniture', 'Vehicles', 'Services', 'Other'];
 
+const CATEGORY_ICONS: Record<string, string> = {
+  'All': 'grid_view',
+  'Electronics': 'devices',
+  'Furniture': 'chair',
+  'Vehicles': 'directions_car',
+  'Services': 'build',
+  'Other': 'category',
+};
+
 export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   selectedCategory,
   onSelectCategory,
@@ -22,18 +31,22 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
         {CATEGORIES.map((category) => {
           const categoryValue = category === 'All' ? '' : category;
           const isSelected = selectedCategory === categoryValue;
+          const icon = CATEGORY_ICONS[category] || 'category';
           
           return (
             <button
               key={category}
               onClick={() => onSelectCategory(categoryValue)}
-              className={`whitespace-nowrap px-md py-[10px] rounded-lg font-label-md text-label-md transition-all duration-200 text-center md:text-left ${
+              className={`flex items-center gap-sm whitespace-nowrap px-md py-[10px] rounded-lg font-label-md text-label-md transition-all duration-200 text-center md:text-left hover:scale-[1.02] active:scale-[0.98] ${
                 isSelected
-                  ? 'bg-primary-fixed text-primary font-semibold shadow-sm'
+                  ? 'bg-primary text-on-primary font-semibold shadow-md'
                   : 'text-secondary bg-surface-container-low/50 md:bg-transparent hover:text-on-surface hover:bg-surface-container-low'
               }`}
             >
-              {category}
+              <span className={`material-symbols-outlined text-[18px] ${isSelected ? 'text-on-primary' : 'text-secondary/70'}`}>
+                {icon}
+              </span>
+              <span>{category}</span>
             </button>
           );
         })}
@@ -41,3 +54,4 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     </div>
   );
 };
+
