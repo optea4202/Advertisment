@@ -29,9 +29,9 @@ export const Navbar: React.FC = () => {
           <nav className="hidden md:flex items-center gap-md">
             <Link 
               to="/" 
-              className={`transition-colors duration-200 px-sm py-xs rounded-md font-label-md text-label-md ${
+              className={`transition-all duration-200 px-md py-xs rounded-md text-body-md font-bold tracking-widest uppercase ${
                 isActive('/') 
-                  ? 'bg-primary-fixed text-primary' 
+                  ? 'bg-primary-fixed text-primary drop-shadow-sm' 
                   : 'text-secondary hover:text-primary hover:bg-surface-container-low'
               }`}
             >
@@ -40,9 +40,9 @@ export const Navbar: React.FC = () => {
             {user && (
               <Link 
                 to={`/profile/${user.id}`}
-                className={`transition-colors duration-200 px-sm py-xs rounded-md font-label-md text-label-md ${
+                className={`transition-all duration-200 px-md py-xs rounded-md text-body-md font-bold tracking-widest uppercase ${
                   location.pathname === `/profile/${user.id}`
-                    ? 'bg-primary-fixed text-primary' 
+                    ? 'bg-primary-fixed text-primary drop-shadow-sm' 
                     : 'text-secondary hover:text-primary hover:bg-surface-container-low'
                 }`}
               >
@@ -51,9 +51,9 @@ export const Navbar: React.FC = () => {
             )}
             <Link 
               to="/dashboard" 
-              className={`transition-colors duration-200 px-sm py-xs rounded-md font-label-md text-label-md ${
+              className={`transition-all duration-200 px-md py-xs rounded-md text-body-md font-bold tracking-widest uppercase ${
                 isActive('/dashboard') 
-                  ? 'bg-primary-fixed text-primary' 
+                  ? 'bg-primary-fixed text-primary drop-shadow-sm' 
                   : 'text-secondary hover:text-primary hover:bg-surface-container-low'
               }`}
             >
