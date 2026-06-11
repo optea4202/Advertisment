@@ -26,8 +26,11 @@ export const InboxPage: React.FC = () => {
   );
   const [showMobileList, setShowMobileList] = useState(!initialChatId);
   const [inputText, setInputText] = useState('');
+  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   // Store the last known details of the active conversation to prevent auto-hiding during reload/polling
   const [lastActiveConversation, setLastActiveConversation] = useState<Conversation | null>(
@@ -111,11 +114,29 @@ export const InboxPage: React.FC = () => {
     setShowMobileList(false);
   };
 
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedPhoto(file);
+      setPhotoPreviewUrl(URL.createObjectURL(file));
+    }
+    // Reset input so same file can be re-selected
+    e.target.value = '';
+  };
+
+  const handleRemovePhoto = () => {
+    setSelectedPhoto(null);
+    if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+    setPhotoPreviewUrl(null);
+  };
+
   const handleSend = async () => {
-    if (!inputText.trim() || sending) return;
+    if ((!inputText.trim() && !selectedPhoto) || sending) return;
     const text = inputText;
+    const photo = selectedPhoto;
     setInputText('');
-    await send(text);
+    handleRemovePhoto();
+    await send(text, photo);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -341,13 +362,28 @@ export const InboxPage: React.FC = () => {
 
                     {/* Bubble */}
                     <div className={`flex flex-col gap-[2px] max-w-[75%] ${isMe ? 'items-end' : 'items-start'}`}>
-                      <div className={`px-md py-sm rounded-2xl font-body-sm text-body-sm leading-relaxed ${
-                        isMe
-                          ? 'bg-primary text-on-primary rounded-br-sm'
-                          : 'bg-surface-container text-on-surface rounded-bl-sm'
-                      }`}>
-                        {msg.message_text}
-                      </div>
+                      {/* Image attachment */}
+                      {msg.image_url && (
+                        <a href={msg.image_url} target="_blank" rel="noopener noreferrer" className="block">
+                          <img
+                            src={msg.image_url}
+                            alt="Chat image"
+                            className={`max-w-[220px] max-h-[220px] w-auto h-auto rounded-2xl object-cover border border-outline-variant/20 cursor-zoom-in hover:opacity-90 transition-opacity ${
+                              isMe ? 'rounded-br-sm' : 'rounded-bl-sm'
+                            }`}
+                          />
+                        </a>
+                      )}
+                      {/* Text bubble (only if there is text) */}
+                      {msg.message_text && (
+                        <div className={`px-md py-sm rounded-2xl font-body-sm text-body-sm leading-relaxed ${
+                          isMe
+                            ? 'bg-primary text-on-primary rounded-br-sm'
+                            : 'bg-surface-container text-on-surface rounded-bl-sm'
+                        }`}>
+                          {msg.message_text}
+                        </div>
+                      )}
                       <span className="font-label-sm text-[11px] text-on-surface-variant px-xs">
                         {formatTime(msg.created_at)}
                       </span>
@@ -360,31 +396,74 @@ export const InboxPage: React.FC = () => {
 
             {/* Input Area — locked to bottom, never scrolls */}
             {activeConvId && (
-              <div className="flex items-end gap-sm px-lg py-md border-t border-outline-variant/20 bg-surface-container-lowest flex-shrink-0 z-10">
-                <textarea
-                  ref={inputRef}
-                  id="chat-input"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type a message… (Enter to send)"
-                  rows={1}
-                  className="flex-grow resize-none bg-surface-container border border-outline-variant rounded-xl px-md py-sm font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
-                  style={{ maxHeight: '120px', overflowY: 'auto' }}
-                />
-                <button
-                  id="chat-send-btn"
-                  onClick={handleSend}
-                  disabled={!inputText.trim() || sending}
-                  className="w-10 h-10 bg-primary text-on-primary rounded-full flex items-center justify-center flex-shrink-0 hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                  title="Send message"
-                >
-                  {sending ? (
-                    <div className="w-4 h-4 border-2 border-on-primary/30 border-t-on-primary rounded-full animate-spin" />
-                  ) : (
-                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
-                  )}
-                </button>
+              <div className="flex flex-col border-t border-outline-variant/20 bg-surface-container-lowest flex-shrink-0 z-10">
+                {/* Photo preview strip */}
+                {photoPreviewUrl && (
+                  <div className="flex items-center gap-sm px-lg pt-sm pb-xs">
+                    <div className="relative inline-block">
+                      <img
+                        src={photoPreviewUrl}
+                        alt="Photo preview"
+                        className="h-16 w-16 object-cover rounded-xl border border-outline-variant/30"
+                      />
+                      <button
+                        onClick={handleRemovePhoto}
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-error text-on-error rounded-full flex items-center justify-center hover:brightness-110 transition-all"
+                        title="Remove photo"
+                      >
+                        <span className="material-symbols-outlined text-[13px]">close</span>
+                      </button>
+                    </div>
+                    <span className="font-label-sm text-label-sm text-on-surface-variant">{selectedPhoto?.name}</span>
+                  </div>
+                )}
+
+                {/* Input row */}
+                <div className="flex items-end gap-sm px-lg py-md">
+                  {/* Hidden file input */}
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoSelect}
+                  />
+                  {/* Photo attach button */}
+                  <button
+                    id="chat-photo-btn"
+                    onClick={() => photoInputRef.current?.click()}
+                    className="w-10 h-10 flex items-center justify-center rounded-full text-secondary hover:text-primary hover:bg-surface-container transition-all flex-shrink-0"
+                    title="Attach photo"
+                    type="button"
+                  >
+                    <span className="material-symbols-outlined text-[22px]">add_photo_alternate</span>
+                  </button>
+
+                  <textarea
+                    ref={inputRef}
+                    id="chat-input"
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Type a message… (Enter to send)"
+                    rows={1}
+                    className="flex-grow resize-none bg-surface-container border border-outline-variant rounded-xl px-md py-sm font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
+                    style={{ maxHeight: '120px', overflowY: 'auto' }}
+                  />
+                  <button
+                    id="chat-send-btn"
+                    onClick={handleSend}
+                    disabled={(!inputText.trim() && !selectedPhoto) || sending}
+                    className="w-10 h-10 bg-primary text-on-primary rounded-full flex items-center justify-center flex-shrink-0 hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    title="Send message"
+                  >
+                    {sending ? (
+                      <div className="w-4 h-4 border-2 border-on-primary/30 border-t-on-primary rounded-full animate-spin" />
+                    ) : (
+                      <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
+                    )}
+                  </button>
+                </div>
               </div>
             )}
           </div>

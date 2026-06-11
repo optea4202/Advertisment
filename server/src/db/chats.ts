@@ -21,6 +21,7 @@ export interface DbMessage {
   conversation_id: number;
   sender_id: number;
   message_text: string;
+  image_url: string | null;
   created_at: Date;
   // Joined fields
   sender_name?: string;
@@ -88,7 +89,12 @@ export const getConversationsForUser = async (userId: number): Promise<DbConvers
 export const getMessagesForConversation = async (conversationId: number): Promise<DbMessage[]> => {
   const sql = `
     SELECT
-      m.*,
+      m.id,
+      m.conversation_id,
+      m.sender_id,
+      m.message_text,
+      m.image_url,
+      m.created_at,
       u.username AS sender_name,
       u.photo_url AS sender_photo
     FROM messages m
@@ -103,14 +109,15 @@ export const getMessagesForConversation = async (conversationId: number): Promis
 export const insertMessage = async (
   conversationId: number,
   senderId: number,
-  messageText: string
+  messageText: string,
+  imageUrl?: string | null
 ): Promise<DbMessage> => {
   const sql = `
-    INSERT INTO messages (conversation_id, sender_id, message_text)
-    VALUES ($1, $2, $3)
+    INSERT INTO messages (conversation_id, sender_id, message_text, image_url)
+    VALUES ($1, $2, $3, $4)
     RETURNING *
   `;
-  const res = await query(sql, [conversationId, senderId, messageText]);
+  const res = await query(sql, [conversationId, senderId, messageText, imageUrl ?? null]);
   return res.rows[0];
 };
 

@@ -24,8 +24,20 @@ export const getMessages = async (conversationId: number): Promise<Message[]> =>
 
 export const sendMessage = async (
   conversationId: number,
-  messageText: string
+  messageText: string,
+  photo?: File | null
 ): Promise<Message> => {
+  if (photo) {
+    const formData = new FormData();
+    if (messageText.trim()) {
+      formData.append('message_text', messageText.trim());
+    }
+    formData.append('photo', photo);
+    const res = await api.post<{ data: Message }>(`/api/chats/${conversationId}/messages`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data.data;
+  }
   const res = await api.post<{ data: Message }>(`/api/chats/${conversationId}/messages`, {
     message_text: messageText,
   });

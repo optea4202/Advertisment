@@ -62,7 +62,8 @@ export const fetchMessages = async (
 export const sendMessage = async (
   conversationId: number,
   senderId: number,
-  messageText: string
+  messageText: string,
+  imageUrl?: string | null
 ): Promise<DbMessage> => {
   // Verify the sender is a participant of this conversation
   const conversation = await getConversationById(conversationId);
@@ -78,5 +79,5 @@ export const sendMessage = async (
     throw error;
   }
 
-  return insertMessage(conversationId, senderId, messageText);
+  return insertMessage(conversationId, senderId, messageText, imageUrl);
 };

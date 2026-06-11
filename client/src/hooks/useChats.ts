@@ -64,11 +64,11 @@ export const useMessages = (conversationId: number | null) => {
     };
   }, [conversationId, fetchMessages]);
 
-  const send = async (text: string) => {
-    if (!conversationId || !text.trim()) return;
+  const send = async (text: string, photo?: File | null) => {
+    if (!conversationId || (!text.trim() && !photo)) return;
     setSending(true);
     try {
-      const newMsg = await sendMessageApi(conversationId, text.trim());
+      const newMsg = await sendMessageApi(conversationId, text.trim(), photo);
       setMessages((prev) => [...prev, newMsg]);
     } finally {
       setSending(false);

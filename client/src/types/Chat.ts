@@ -18,6 +18,7 @@ export interface Message {
   conversation_id: number;
   sender_id: number;
   message_text: string;
+  image_url: string | null;
   created_at: string;
   sender_name: string;
   sender_photo: string | null;

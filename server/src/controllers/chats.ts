@@ -6,6 +6,7 @@ import {
   fetchMessages,
   sendMessage,
 } from '../services/chats.js';
+import { uploadImage } from '../utils/cloudinary.js';
 
 const startConversationSchema = z.object({
   seller_id: z.coerce.number().positive({ message: 'seller_id must be a positive number' }),
@@ -15,8 +16,9 @@ const startConversationSchema = z.object({
 const sendMessageSchema = z.object({
   message_text: z
     .string()
-    .min(1, { message: 'message_text cannot be empty' })
-    .max(2000, { message: 'message_text cannot exceed 2000 characters' }),
+    .max(2000, { message: 'message_text cannot exceed 2000 characters' })
+    .optional()
+    .default(''),
 });
 
 const conversationIdSchema = z.object({
@@ -122,10 +124,34 @@ export const handleSendMessage = async (req: Request, res: Response, next: NextF
       });
     }
 
+    const messageText = bodyResult.data.message_text ?? '';
+    const file = req.file as Express.Multer.File | undefined;
+
+    // At least one of text or image must be present
+    if (!messageText.trim() && !file) {
+      return res.status(400).json({
+        error: { message: 'A message must contain text or an image.', code: 'EMPTY_MESSAGE' },
+      });
+    }
+
+    // Upload photo to Cloudinary if provided
+    let imageUrl: string | null = null;
+    if (file) {
+      try {
+        imageUrl = await uploadImage(file.buffer, 'chat_images');
+      } catch (uploadErr) {
+        console.error('Failed to upload chat image to Cloudinary:', uploadErr);
+        return res.status(500).json({
+          error: { message: 'Failed to upload image. Please try again.', code: 'UPLOAD_ERROR' },
+        });
+      }
+    }
+
     const message = await sendMessage(
       paramsResult.data.id,
       req.user.id,
-      bodyResult.data.message_text
+      messageText,
+      imageUrl
     );
 
     return res.status(201).json({ data: message });

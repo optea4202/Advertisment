@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { AdCard } from '../components/AdCard.js';
 import { usePublicProfile } from '../hooks/useUsers.js';
 import { useAuth } from '../context/AuthContext.js';
 import { deleteAd } from '../api/ads.js';
+import { startConversation } from '../api/chats.js';
 
 export const UserProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +15,27 @@ export const UserProfilePage: React.FC = () => {
   const navigate = useNavigate();
 
   const isOwnProfile = currentUser?.id === numericId;
+  const [startingChat, setStartingChat] = useState(false);
+
+  const handleMessageUser = async () => {
+    if (!profile) return;
+    setStartingChat(true);
+    try {
+      const conv = await startConversation(profile.user.id, null);
+      navigate(`/inbox?chatId=${conv.id}`, {
+        state: {
+          other_user_id: profile.user.id,
+          other_user_name: profile.user.username,
+          other_user_photo: profile.user.photo_url ?? null,
+          ad_title: null,
+        }
+      });
+    } catch {
+      // silently fail
+    } finally {
+      setStartingChat(false);
+    }
+  };
 
   const handleEditClick = (adId: number) => {
     navigate(`/ads/edit/${adId}`);
@@ -106,6 +128,20 @@ export const UserProfilePage: React.FC = () => {
                         <span className="material-symbols-outlined text-[16px]">edit</span>
                         Edit Profile
                       </Link>
+                    )}
+                    {!isOwnProfile && currentUser && (
+                      <button
+                        onClick={handleMessageUser}
+                        disabled={startingChat}
+                        className="flex items-center gap-xs bg-primary text-on-primary font-label-md text-label-md px-md py-xs rounded-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {startingChat ? (
+                          <div className="w-4 h-4 border-2 border-on-primary/30 border-t-on-primary rounded-full animate-spin" />
+                        ) : (
+                          <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span>
+                        )}
+                        {startingChat ? 'Opening…' : 'Message'}
+                      </button>
                     )}
                   </div>
                 </div>
