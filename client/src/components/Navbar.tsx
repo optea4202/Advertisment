@@ -15,21 +15,21 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <header className="bg-surface-container-lowest border-b border-outline-variant full-width top-0 sticky z-50 shadow-sm">
-        <div className="flex justify-between items-center w-full px-lg py-md max-w-container-max mx-auto">
+        <div className="flex justify-between items-center w-full px-sm py-xs md:px-md lg:px-lg md:py-md max-w-container-max mx-auto">
           
           {/* Brand / Logo */}
-          <Link to="/" className="flex items-center gap-sm">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-on-primary">
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
+          <Link to="/" className="flex items-center gap-xs md:gap-sm">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-lg flex items-center justify-center text-on-primary">
+              <span className="material-symbols-outlined text-[18px] md:text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
             </div>
-            <span className="font-headline-md text-headline-md font-bold text-primary tracking-tight">AdHub</span>
+            <span className="text-body-lg md:text-headline-md font-bold text-primary tracking-tight">AdHub</span>
           </Link>
 
           {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-md">
+          <nav className="hidden md:flex items-center gap-xs lg:gap-md">
             <Link 
               to="/" 
-              className={`transition-all duration-200 px-md py-xs rounded-md text-body-md font-bold tracking-widest uppercase ${
+              className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase ${
                 isActive('/') 
                   ? 'bg-primary-fixed text-primary drop-shadow-sm' 
                   : 'text-secondary hover:text-primary hover:bg-surface-container-low'
@@ -40,7 +40,7 @@ export const Navbar: React.FC = () => {
             {user && (
               <Link 
                 to={`/profile/${user.id}`}
-                className={`transition-all duration-200 px-md py-xs rounded-md text-body-md font-bold tracking-widest uppercase ${
+                className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase ${
                   location.pathname === `/profile/${user.id}`
                     ? 'bg-primary-fixed text-primary drop-shadow-sm' 
                     : 'text-secondary hover:text-primary hover:bg-surface-container-low'
@@ -51,7 +51,7 @@ export const Navbar: React.FC = () => {
             )}
             <Link 
               to="/dashboard" 
-              className={`transition-all duration-200 px-md py-xs rounded-md text-body-md font-bold tracking-widest uppercase ${
+              className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase ${
                 isActive('/dashboard') 
                   ? 'bg-primary-fixed text-primary drop-shadow-sm' 
                   : 'text-secondary hover:text-primary hover:bg-surface-container-low'
@@ -62,9 +62,9 @@ export const Navbar: React.FC = () => {
             {user?.is_admin && (
               <Link 
                 to="/admin" 
-                className={`transition-colors duration-200 px-sm py-xs rounded-md font-label-md text-label-md ${
+                className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase ${
                   isActive('/admin') 
-                    ? 'bg-primary-fixed text-primary' 
+                    ? 'bg-primary-fixed text-primary drop-shadow-sm' 
                     : 'text-secondary hover:text-primary hover:bg-surface-container-low'
                 }`}
               >
@@ -74,7 +74,7 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* User Info / Actions */}
-          <div className="flex items-center gap-md">
+          <div className="flex items-center gap-xs md:gap-md">
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
