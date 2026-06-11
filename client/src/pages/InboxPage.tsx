@@ -66,10 +66,10 @@ export const InboxPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-surface text-on-surface min-h-screen flex flex-col">
+    <div className="bg-surface text-on-surface flex flex-col h-[100dvh] overflow-hidden md:min-h-screen md:h-auto md:overflow-visible">
       <Navbar />
 
-      <main className="flex-grow w-full max-w-container-max mx-auto px-0 md:px-md lg:px-xl py-0 md:py-xl flex flex-col">
+      <main className="flex-grow w-full max-w-container-max mx-auto px-0 md:px-md lg:px-xl py-0 md:py-xl flex flex-col overflow-hidden md:overflow-visible">
         {/* Page header — desktop only */}
         <div className="hidden md:flex items-center gap-sm mb-lg px-0">
           <span className="material-symbols-outlined text-primary text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>inbox</span>
@@ -77,7 +77,7 @@ export const InboxPage: React.FC = () => {
         </div>
 
         {/* Main Panel */}
-        <div className="flex flex-grow bg-surface-container-lowest md:rounded-2xl md:border md:border-outline-variant/20 md:shadow-1 overflow-hidden h-[calc(100dvh-56px)] min-h-[calc(100dvh-56px)] max-h-[calc(100dvh-56px)] md:h-[calc(100vh-200px)] md:min-h-[calc(100vh-200px)] md:max-h-[calc(100vh-200px)]">
+        <div className="flex flex-1 overflow-hidden bg-surface-container-lowest md:rounded-2xl md:border md:border-outline-variant/20 md:shadow-1 md:h-[calc(100vh-200px)] md:min-h-[calc(100vh-200px)] md:max-h-[calc(100vh-200px)]">
 
           {/* ─── Left Panel: Conversation List ─── */}
           <div className={`
@@ -155,11 +155,11 @@ export const InboxPage: React.FC = () => {
           </div>
 
           {/* ─── Right Panel: Active Chat ─── */}
-          <div className={`flex flex-col flex-grow ${!showMobileList ? 'flex' : 'hidden'} md:flex`}>
+          <div className={`flex flex-col flex-grow overflow-hidden ${!showMobileList ? 'flex' : 'hidden'} md:flex`}>
 
-            {/* Chat Header */}
+            {/* Chat Header — sticky, never scrolls */}
             {activeConversation ? (
-              <div className="flex items-center gap-md px-lg py-md border-b border-outline-variant/20 bg-surface-container-lowest flex-shrink-0">
+              <div className="flex items-center gap-md px-lg py-md border-b border-outline-variant/20 bg-surface-container-lowest flex-shrink-0 z-10">
                 {/* Mobile back button */}
                 <button
                   className="md:hidden text-secondary hover:text-primary transition-colors"
@@ -194,7 +194,7 @@ export const InboxPage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-md px-lg py-md border-b border-outline-variant/20 bg-surface-container-lowest flex-shrink-0">
+              <div className="flex items-center gap-md px-lg py-md border-b border-outline-variant/20 bg-surface-container-lowest flex-shrink-0 z-10">
                 {/* Mobile back button when no conversation selected */}
                 <button
                   className="md:hidden text-secondary hover:text-primary transition-colors"
@@ -267,9 +267,9 @@ export const InboxPage: React.FC = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area */}
+            {/* Input Area — locked to bottom, never scrolls */}
             {activeConvId && (
-              <div className="flex items-end gap-sm px-lg py-md border-t border-outline-variant/20 bg-surface-container-lowest flex-shrink-0">
+              <div className="flex items-end gap-sm px-lg py-md border-t border-outline-variant/20 bg-surface-container-lowest flex-shrink-0 z-10">
                 <textarea
                   ref={inputRef}
                   id="chat-input"
