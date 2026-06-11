@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { getConversations, getMessages, sendMessage as sendMessageApi } from '../api/chats.js';
+import {
+  getConversations,
+  getMessages,
+  sendMessage as sendMessageApi,
+  editMessage as editMessageApi,
+  deleteMessage as deleteMessageApi,
+} from '../api/chats.js';
 import type { Conversation, Message } from '../types/Chat.js';
 
 const POLL_INTERVAL_MS = 3500;
@@ -75,5 +81,19 @@ export const useMessages = (conversationId: number | null) => {
     }
   };
 
-  return { messages, loading, error, sending, send, refresh: fetchMessages };
+  const editMsg = async (messageId: number, newText: string) => {
+    const updated = await editMessageApi(messageId, newText);
+    setMessages((prev) =>
+      prev.map((m) => (m.id === messageId ? updated : m))
+    );
+  };
+
+  const deleteMsg = async (messageId: number) => {
+    await deleteMessageApi(messageId);
+    setMessages((prev) => prev.filter((m) => m.id !== messageId));
+  };
+
+  return { messages, loading, error, sending, send, editMsg, deleteMsg, refresh: fetchMessages };
 };
+
+

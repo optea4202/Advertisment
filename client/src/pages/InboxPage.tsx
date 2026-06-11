@@ -4,6 +4,7 @@ import { Navbar } from '../components/Navbar.js';
 import { useAuth } from '../context/AuthContext.js';
 import { useMessages } from '../hooks/useChats.js';
 import { useChat } from '../context/ChatContext.js';
+import { deleteConversation as deleteConversationApi } from '../api/chats.js';
 import type { Conversation } from '../types/Chat.js';
 
 export const InboxPage: React.FC = () => {
@@ -20,7 +21,7 @@ export const InboxPage: React.FC = () => {
     ad_title: string;
   } | null;
 
-  const { conversations, loadingConvs, markAsRead } = useChat();
+  const { conversations, loadingConvs, markAsRead, refreshConversations } = useChat();
   const [activeConvId, setActiveConvId] = useState<number | null>(
     initialChatId ? parseInt(initialChatId) : null
   );
@@ -45,7 +46,19 @@ export const InboxPage: React.FC = () => {
     } as any as Conversation : null
   );
 
-  const { messages, loading: loadingMsgs, sending, send } = useMessages(activeConvId);
+  // Inline message edit state
+  const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
+  const [editingText, setEditingText] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  // Per-message delete confirmation
+  const [deletingMessageId, setDeletingMessageId] = useState<number | null>(null);
+
+  // Delete conversation confirmation modal
+  const [showDeleteConvModal, setShowDeleteConvModal] = useState(false);
+  const [deletingConv, setDeletingConv] = useState(false);
+
+  const { messages, loading: loadingMsgs, sending, send, editMsg, deleteMsg } = useMessages(activeConvId);
 
   // Monitor visual viewport to handle mobile keyboards without shifting page or scroll issues
   const [viewportHeight, setViewportHeight] = useState<number>(window.innerHeight);
@@ -109,6 +122,13 @@ export const InboxPage: React.FC = () => {
     }
   }, [activeConvId, setSearchParams]);
 
+  // Clear edit/delete state when switching conversations
+  useEffect(() => {
+    setEditingMessageId(null);
+    setEditingText('');
+    setDeletingMessageId(null);
+  }, [activeConvId]);
+
   const handleSelectConversation = (conv: Conversation) => {
     setActiveConvId(conv.id);
     setShowMobileList(false);
@@ -120,7 +140,6 @@ export const InboxPage: React.FC = () => {
       setSelectedPhoto(file);
       setPhotoPreviewUrl(URL.createObjectURL(file));
     }
-    // Reset input so same file can be re-selected
     e.target.value = '';
   };
 
@@ -146,6 +165,62 @@ export const InboxPage: React.FC = () => {
     }
   };
 
+  // ── Edit handlers ──────────────────────────────────────────────
+  const startEditing = (messageId: number, currentText: string) => {
+    setEditingMessageId(messageId);
+    setEditingText(currentText);
+    setDeletingMessageId(null);
+  };
+
+  const cancelEditing = () => {
+    setEditingMessageId(null);
+    setEditingText('');
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingMessageId || !editingText.trim() || savingEdit) return;
+    setSavingEdit(true);
+    try {
+      await editMsg(editingMessageId, editingText.trim());
+      setEditingMessageId(null);
+      setEditingText('');
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const handleEditKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSaveEdit();
+    }
+    if (e.key === 'Escape') {
+      cancelEditing();
+    }
+  };
+
+  // ── Delete message handlers ────────────────────────────────────
+  const handleConfirmDeleteMessage = async (messageId: number) => {
+    await deleteMsg(messageId);
+    setDeletingMessageId(null);
+  };
+
+  // ── Delete conversation handlers ───────────────────────────────
+  const handleDeleteConversation = async () => {
+    if (!activeConvId || deletingConv) return;
+    setDeletingConv(true);
+    try {
+      await deleteConversationApi(activeConvId);
+      await refreshConversations();
+      setActiveConvId(null);
+      setLastActiveConversation(null);
+      setShowMobileList(true);
+      setShowDeleteConvModal(false);
+    } finally {
+      setDeletingConv(false);
+    }
+  };
+
   const activeConversation = conversations.find((c) => c.id === activeConvId) ?? lastActiveConversation;
 
   const formatTime = (ts: string) => {
@@ -158,7 +233,7 @@ export const InboxPage: React.FC = () => {
   };
 
   return (
-    <div 
+    <div
       className="bg-surface text-on-surface flex flex-col overflow-hidden md:min-h-screen md:h-auto md:overflow-visible"
       style={{
         height: window.innerWidth < 768 ? `${viewportHeight}px` : 'auto'
@@ -289,6 +364,16 @@ export const InboxPage: React.FC = () => {
                     </span>
                   )}
                 </div>
+
+                {/* Delete conversation button */}
+                <button
+                  id="delete-conv-btn"
+                  onClick={() => setShowDeleteConvModal(true)}
+                  className="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-error hover:bg-error-container transition-all flex-shrink-0"
+                  title="Delete conversation"
+                >
+                  <span className="material-symbols-outlined text-[20px]">delete</span>
+                </button>
               </div>
             ) : activeConvId ? (
               <div className="flex items-center gap-md px-lg py-md border-b border-outline-variant/20 bg-surface-container-lowest flex-shrink-0 z-10">
@@ -307,7 +392,6 @@ export const InboxPage: React.FC = () => {
               </div>
             ) : (
               <div className="flex items-center gap-md px-lg py-md border-b border-outline-variant/20 bg-surface-container-lowest flex-shrink-0 z-10">
-                {/* Mobile back button when no conversation selected */}
                 <button
                   className="md:hidden text-secondary hover:text-primary transition-colors"
                   onClick={() => setShowMobileList(true)}
@@ -345,9 +429,13 @@ export const InboxPage: React.FC = () => {
 
               {messages.map((msg) => {
                 const isMe = msg.sender_id === user?.id;
+                const isEditing = editingMessageId === msg.id;
+                const isConfirmingDelete = deletingMessageId === msg.id;
+                const canEdit = isMe && !!msg.message_text;
+
                 return (
-                  <div key={msg.id} className={`flex items-end gap-sm ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-                    {/* Avatar */}
+                  <div key={msg.id} className={`group flex items-end gap-sm ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                    {/* Avatar — other user only */}
                     {!isMe && (
                       <div className="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center overflow-hidden flex-shrink-0">
                         {msg.sender_photo ? (
@@ -360,33 +448,125 @@ export const InboxPage: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Bubble */}
+                    {/* Bubble column */}
                     <div className={`flex flex-col gap-[2px] max-w-[75%] ${isMe ? 'items-end' : 'items-start'}`}>
-                      {/* Image attachment */}
-                      {msg.image_url && (
-                        <a href={msg.image_url} target="_blank" rel="noopener noreferrer" className="block">
-                          <img
-                            src={msg.image_url}
-                            alt="Chat image"
-                            className={`max-w-[220px] max-h-[220px] w-auto h-auto rounded-2xl object-cover border border-outline-variant/20 cursor-zoom-in hover:opacity-90 transition-opacity ${
-                              isMe ? 'rounded-br-sm' : 'rounded-bl-sm'
-                            }`}
+
+                      {/* Inline edit mode */}
+                      {isEditing ? (
+                        <div className="flex flex-col gap-xs w-full min-w-[200px] max-w-[340px]">
+                          <textarea
+                            id={`edit-input-${msg.id}`}
+                            value={editingText}
+                            onChange={(e) => setEditingText(e.target.value)}
+                            onKeyDown={handleEditKeyDown}
+                            rows={2}
+                            autoFocus
+                            className="w-full resize-none bg-surface-container border border-primary rounded-xl px-md py-sm font-body-sm text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+                            style={{ maxHeight: '120px', overflowY: 'auto' }}
                           />
-                        </a>
+                          <div className="flex items-center gap-xs justify-end">
+                            <button
+                              onClick={cancelEditing}
+                              className="px-sm py-xs rounded-lg font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container transition-all"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              id={`save-edit-${msg.id}`}
+                              onClick={handleSaveEdit}
+                              disabled={!editingText.trim() || savingEdit}
+                              className="px-sm py-xs rounded-lg font-label-sm text-label-sm bg-primary text-on-primary hover:brightness-110 active:scale-95 transition-all disabled:opacity-40"
+                            >
+                              {savingEdit ? 'Saving…' : 'Save'}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          {/* Image attachment */}
+                          {msg.image_url && (
+                            <a href={msg.image_url} target="_blank" rel="noopener noreferrer" className="block">
+                              <img
+                                src={msg.image_url}
+                                alt="Chat image"
+                                className={`max-w-[220px] max-h-[220px] w-auto h-auto rounded-2xl object-cover border border-outline-variant/20 cursor-zoom-in hover:opacity-90 transition-opacity ${
+                                  isMe ? 'rounded-br-sm' : 'rounded-bl-sm'
+                                }`}
+                              />
+                            </a>
+                          )}
+                          {/* Text bubble (only if there is text) */}
+                          {msg.message_text && (
+                            <div className={`px-md py-sm rounded-2xl font-body-sm text-body-sm leading-relaxed ${
+                              isMe
+                                ? 'bg-primary text-on-primary rounded-br-sm'
+                                : 'bg-surface-container text-on-surface rounded-bl-sm'
+                            }`}>
+                              {msg.message_text}
+                            </div>
+                          )}
+                        </>
                       )}
-                      {/* Text bubble (only if there is text) */}
-                      {msg.message_text && (
-                        <div className={`px-md py-sm rounded-2xl font-body-sm text-body-sm leading-relaxed ${
-                          isMe
-                            ? 'bg-primary text-on-primary rounded-br-sm'
-                            : 'bg-surface-container text-on-surface rounded-bl-sm'
-                        }`}>
-                          {msg.message_text}
+
+                      {/* Timestamp row + edited label */}
+                      {!isEditing && (
+                        <div className={`flex items-center gap-xs ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                          <span className="font-label-sm text-[11px] text-on-surface-variant px-xs">
+                            {formatTime(msg.created_at)}
+                          </span>
+                          {msg.is_edited && (
+                            <span className="font-label-sm text-[10px] text-on-surface-variant/60 italic">
+                              (edited)
+                            </span>
+                          )}
                         </div>
                       )}
-                      <span className="font-label-sm text-[11px] text-on-surface-variant px-xs">
-                        {formatTime(msg.created_at)}
-                      </span>
+
+                      {/* Action buttons — own messages only, shown on hover (desktop) or always (mobile) */}
+                      {isMe && !isEditing && (
+                        <div className={`flex items-center gap-[2px] opacity-0 group-hover:opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity ${isMe ? 'flex-row-reverse' : 'flex-row'}`}
+                          style={{ opacity: isConfirmingDelete ? 1 : undefined }}>
+                          {/* Edit button — only if message has text */}
+                          {canEdit && (
+                            <button
+                              id={`edit-msg-${msg.id}`}
+                              onClick={() => startEditing(msg.id, msg.message_text)}
+                              className="w-7 h-7 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all"
+                              title="Edit message"
+                            >
+                              <span className="material-symbols-outlined text-[15px]">edit</span>
+                            </button>
+                          )}
+                          {/* Delete button */}
+                          {!isConfirmingDelete ? (
+                            <button
+                              id={`delete-msg-${msg.id}`}
+                              onClick={() => { setDeletingMessageId(msg.id); setEditingMessageId(null); }}
+                              className="w-7 h-7 flex items-center justify-center rounded-full text-on-surface-variant hover:text-error hover:bg-error-container transition-all"
+                              title="Delete message"
+                            >
+                              <span className="material-symbols-outlined text-[15px]">delete</span>
+                            </button>
+                          ) : (
+                            <div className="flex items-center gap-xs bg-error-container rounded-xl px-sm py-xs">
+                              <span className="font-label-sm text-[11px] text-on-error-container">Delete?</span>
+                              <button
+                                id={`confirm-delete-msg-${msg.id}`}
+                                onClick={() => handleConfirmDeleteMessage(msg.id)}
+                                className="font-label-sm text-[11px] text-error font-semibold hover:underline"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                onClick={() => setDeletingMessageId(null)}
+                                className="font-label-sm text-[11px] text-on-surface-variant hover:underline"
+                              >
+                                No
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -469,6 +649,55 @@ export const InboxPage: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {/* ─── Delete Conversation Confirmation Modal ─── */}
+      {showDeleteConvModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-inverse-surface/50 backdrop-blur-sm px-md"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowDeleteConvModal(false); }}
+        >
+          <div className="bg-surface-container-lowest rounded-2xl shadow-2 p-lg w-full max-w-sm flex flex-col gap-md animate-fade-in">
+            <div className="flex items-center gap-sm">
+              <div className="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0">
+                <span className="material-symbols-outlined text-error text-[20px]">delete_forever</span>
+              </div>
+              <div>
+                <h2 className="font-headline-md text-[18px] font-semibold text-on-surface">Delete conversation?</h2>
+                <p className="font-body-sm text-body-sm text-on-surface-variant mt-[2px]">
+                  This will permanently delete all messages. This cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-sm justify-end mt-xs">
+              <button
+                onClick={() => setShowDeleteConvModal(false)}
+                disabled={deletingConv}
+                className="px-md py-sm rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-all disabled:opacity-40"
+              >
+                Cancel
+              </button>
+              <button
+                id="confirm-delete-conv-btn"
+                onClick={handleDeleteConversation}
+                disabled={deletingConv}
+                className="px-md py-sm rounded-xl font-label-md text-label-md bg-error text-on-error hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-xs"
+              >
+                {deletingConv ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-on-error/30 border-t-on-error rounded-full animate-spin" />
+                    Deleting…
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[16px]">delete</span>
+                    Delete
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

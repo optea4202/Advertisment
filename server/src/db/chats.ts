@@ -22,6 +22,7 @@ export interface DbMessage {
   sender_id: number;
   message_text: string;
   image_url: string | null;
+  is_edited: boolean;
   created_at: Date;
   // Joined fields
   sender_name?: string;
@@ -94,6 +95,7 @@ export const getMessagesForConversation = async (conversationId: number): Promis
       m.sender_id,
       m.message_text,
       m.image_url,
+      m.is_edited,
       m.created_at,
       u.username AS sender_name,
       u.photo_url AS sender_photo
@@ -125,4 +127,43 @@ export const getConversationById = async (conversationId: number): Promise<DbCon
   const sql = `SELECT * FROM conversations WHERE id = $1`;
   const res = await query(sql, [conversationId]);
   return res.rows[0] || null;
+};
+
+export const getMessageById = async (messageId: number): Promise<DbMessage | null> => {
+  const sql = `SELECT * FROM messages WHERE id = $1`;
+  const res = await query(sql, [messageId]);
+  return res.rows[0] || null;
+};
+
+export const updateMessageText = async (
+  messageId: number,
+  newText: string
+): Promise<DbMessage> => {
+  const sql = `
+    UPDATE messages
+    SET message_text = $1, is_edited = TRUE
+    WHERE id = $2
+    RETURNING *
+  `;
+  const res = await query(sql, [newText, messageId]);
+  return res.rows[0];
+};
+
+export const deleteMessageById = async (messageId: number): Promise<void> => {
+  const sql = `DELETE FROM messages WHERE id = $1`;
+  await query(sql, [messageId]);
+};
+
+export const getMessageImageUrlsForConversation = async (
+  conversationId: number
+): Promise<string[]> => {
+  const sql = `SELECT image_url FROM messages WHERE conversation_id = $1 AND image_url IS NOT NULL`;
+  const res = await query(sql, [conversationId]);
+  return res.rows.map((r: { image_url: string }) => r.image_url);
+};
+
+export const deleteConversationById = async (conversationId: number): Promise<void> => {
+  // Messages cascade-delete via ON DELETE CASCADE defined in migration 006
+  const sql = `DELETE FROM conversations WHERE id = $1`;
+  await query(sql, [conversationId]);
 };

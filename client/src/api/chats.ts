@@ -43,3 +43,19 @@ export const sendMessage = async (
   });
   return res.data.data;
 };
+
+export const editMessage = async (messageId: number, newText: string): Promise<Message> => {
+  const res = await api.put<{ data: Message }>(`/api/chats/messages/${messageId}`, {
+    message_text: newText,
+  });
+  return res.data.data;
+};
+
+export const deleteMessage = async (messageId: number): Promise<void> => {
+  await api.delete(`/api/chats/messages/${messageId}`);
+};
+
+export const deleteConversation = async (conversationId: number): Promise<void> => {
+  await api.delete(`/api/chats/${conversationId}`);
+};
+

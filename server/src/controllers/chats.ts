@@ -5,6 +5,9 @@ import {
   fetchConversationsForUser,
   fetchMessages,
   sendMessage,
+  editMessage,
+  removeMessage,
+  removeConversation,
 } from '../services/chats.js';
 import { uploadImage } from '../utils/cloudinary.js';
 
@@ -165,3 +168,114 @@ export const handleSendMessage = async (req: Request, res: Response, next: NextF
     next(error);
   }
 };
+
+const messageIdSchema = z.object({
+  messageId: z.coerce.number().positive({ message: 'messageId must be a positive number' }),
+});
+
+const editMessageSchema = z.object({
+  message_text: z
+    .string()
+    .min(1, { message: 'Edited message cannot be empty' })
+    .max(2000, { message: 'message_text cannot exceed 2000 characters' }),
+});
+
+export const handleEditMessage = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        error: { message: 'Unauthorized: Complete profile setup first.', code: 'UNAUTHORIZED' },
+      });
+    }
+
+    const paramsResult = messageIdSchema.safeParse(req.params);
+    if (!paramsResult.success) {
+      return res.status(400).json({
+        error: { message: 'Invalid message id.', details: paramsResult.error.format() },
+      });
+    }
+
+    const bodyResult = editMessageSchema.safeParse(req.body);
+    if (!bodyResult.success) {
+      return res.status(400).json({
+        error: { message: 'Invalid edit payload.', details: bodyResult.error.format() },
+      });
+    }
+
+    const updated = await editMessage(
+      paramsResult.data.messageId,
+      req.user.id,
+      bodyResult.data.message_text
+    );
+
+    return res.status(200).json({ data: updated });
+  } catch (error: any) {
+    if (error.code === 'NOT_FOUND') {
+      return res.status(404).json({ error: { message: error.message, code: 'NOT_FOUND' } });
+    }
+    if (error.code === 'FORBIDDEN') {
+      return res.status(403).json({ error: { message: error.message, code: 'FORBIDDEN' } });
+    }
+    if (error.code === 'BAD_REQUEST') {
+      return res.status(400).json({ error: { message: error.message, code: 'BAD_REQUEST' } });
+    }
+    next(error);
+  }
+};
+
+export const handleDeleteMessage = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        error: { message: 'Unauthorized: Complete profile setup first.', code: 'UNAUTHORIZED' },
+      });
+    }
+
+    const paramsResult = messageIdSchema.safeParse(req.params);
+    if (!paramsResult.success) {
+      return res.status(400).json({
+        error: { message: 'Invalid message id.', details: paramsResult.error.format() },
+      });
+    }
+
+    await removeMessage(paramsResult.data.messageId, req.user.id);
+    return res.status(200).json({ data: { deleted: true } });
+  } catch (error: any) {
+    if (error.code === 'NOT_FOUND') {
+      return res.status(404).json({ error: { message: error.message, code: 'NOT_FOUND' } });
+    }
+    if (error.code === 'FORBIDDEN') {
+      return res.status(403).json({ error: { message: error.message, code: 'FORBIDDEN' } });
+    }
+    next(error);
+  }
+};
+
+export const handleDeleteConversation = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        error: { message: 'Unauthorized: Complete profile setup first.', code: 'UNAUTHORIZED' },
+      });
+    }
+
+    const paramsResult = conversationIdSchema.safeParse(req.params);
+    if (!paramsResult.success) {
+      return res.status(400).json({
+        error: { message: 'Invalid conversation id.', details: paramsResult.error.format() },
+      });
+    }
+
+    await removeConversation(paramsResult.data.id, req.user.id);
+    return res.status(200).json({ data: { deleted: true } });
+  } catch (error: any) {
+    if (error.code === 'NOT_FOUND') {
+      return res.status(404).json({ error: { message: error.message, code: 'NOT_FOUND' } });
+    }
+    if (error.code === 'FORBIDDEN') {
+      return res.status(403).json({ error: { message: error.message, code: 'FORBIDDEN' } });
+    }
+    next(error);
+  }
+};
+

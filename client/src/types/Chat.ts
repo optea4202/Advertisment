@@ -19,7 +19,9 @@ export interface Message {
   sender_id: number;
   message_text: string;
   image_url: string | null;
+  is_edited: boolean;
   created_at: string;
   sender_name: string;
   sender_photo: string | null;
 }
+
