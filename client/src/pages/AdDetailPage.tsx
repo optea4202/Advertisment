@@ -8,6 +8,7 @@ import { useReviews } from '../hooks/useReviews.js';
 import { ReviewForm } from '../components/ReviewForm.js';
 import { ReviewList } from '../components/ReviewList.js';
 import { startConversation } from '../api/chats.js';
+import { useWishlist } from '../context/WishlistContext.js';
 
 export const AdDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,11 +17,13 @@ export const AdDetailPage: React.FC = () => {
   const { user } = useAuth();
   const { ad, loading, error, refresh } = useAd(adId);
   const { reviews, loading: loadingReviews, error: errorReviews, addReview } = useReviews(adId);
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
   const navigate = useNavigate();
   const [startingChat, setStartingChat] = useState(false);
 
   const isOwner = user?.id === ad?.owner_id;
+  const isWishlisted = ad ? isInWishlist(ad.id) : false;
 
   const handleChatWithSeller = async () => {
     if (!ad) return;
@@ -107,12 +110,26 @@ export const AdDetailPage: React.FC = () => {
                 {/* Meta details card */}
                 <div className="bg-surface-container-lowest rounded-2xl elevation-1 border border-outline-variant/20 p-xl flex flex-col gap-lg">
                   
-                  {/* Category & Title */}
+                  {/* Category & Title with Wishlist Toggle */}
                   <div className="flex flex-col gap-sm">
-                    <div className="flex">
+                    <div className="flex justify-between items-center">
                       <span className="bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm px-sm py-[4px] rounded-full uppercase tracking-wider">
                         {ad.category}
                       </span>
+                      
+                      {/* Wishlist Button */}
+                      <button
+                        onClick={() => toggleWishlist(ad.id)}
+                        className="w-10 h-10 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-error flex items-center justify-center shadow-sm border border-outline-variant/10 transition-all duration-200 focus:outline-none active:scale-[0.95]"
+                        title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                      >
+                        <span
+                          className={`material-symbols-outlined text-[22px] transition-transform ${isWishlisted ? 'text-error animate-pulse' : 'text-on-surface-variant'}`}
+                          style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
+                        >
+                          favorite
+                        </span>
+                      </button>
                     </div>
                     <h2 className="font-headline-lg text-[26px] md:text-headline-lg font-bold text-on-surface leading-tight tracking-tight">
                       {ad.title}

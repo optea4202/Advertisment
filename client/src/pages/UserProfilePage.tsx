@@ -4,8 +4,10 @@ import { Navbar } from '../components/Navbar.js';
 import { AdCard } from '../components/AdCard.js';
 import { usePublicProfile } from '../hooks/useUsers.js';
 import { useAuth } from '../context/AuthContext.js';
-import { deleteAd } from '../api/ads.js';
+import { deleteAd, type Ad } from '../api/ads.js';
 import { startConversation } from '../api/chats.js';
+import { getWishlist } from '../api/wishlist.js';
+import { useWishlist } from '../context/WishlistContext.js';
 
 export const UserProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +18,40 @@ export const UserProfilePage: React.FC = () => {
 
   const isOwnProfile = currentUser?.id === numericId;
   const [startingChat, setStartingChat] = useState(false);
+
+  // Wishlist state and hooks
+  const { wishlistIds } = useWishlist();
+  const [activeTab, setActiveTab] = useState<'ads' | 'wishlist'>('ads');
+  const [wishlistAds, setWishlistAds] = useState<Ad[]>([]);
+  const [loadingWishlist, setLoadingWishlist] = useState(false);
+  const [wishlistError, setWishlistError] = useState<Error | null>(null);
+
+  const fetchWishlistAds = async () => {
+    setLoadingWishlist(true);
+    try {
+      const data = await getWishlist();
+      setWishlistAds(data);
+      setWishlistError(null);
+    } catch (err: any) {
+      console.error('Failed to fetch wishlist ads:', err);
+      setWishlistError(err);
+    } finally {
+      setLoadingWishlist(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (isOwnProfile && activeTab === 'wishlist') {
+      fetchWishlistAds();
+    }
+  }, [activeTab, isOwnProfile]);
+
+  // Dynamically filter out removed wishlist items for a premium reactive UI
+  React.useEffect(() => {
+    if (isOwnProfile && wishlistAds.length > 0) {
+      setWishlistAds(prev => prev.filter(ad => wishlistIds.has(ad.id)));
+    }
+  }, [wishlistIds, isOwnProfile]);
 
   const handleMessageUser = async () => {
     if (!profile) return;
@@ -181,48 +217,122 @@ export const UserProfilePage: React.FC = () => {
 
             {/* Ads Grid Section */}
             <div className="flex flex-col gap-lg">
-              <div className="flex items-center justify-between">
-                <h2 className="font-headline-md text-headline-md text-on-surface">
-                  {isOwnProfile ? 'Your Advertisements' : `Ads by ${profile.user.username}`}
-                </h2>
-                <span className="font-label-sm text-label-sm text-secondary bg-surface-container px-sm py-[4px] rounded-full">
-                  {profile.ads.length}
-                </span>
-              </div>
+              {!isOwnProfile && (
+                <div className="flex items-center justify-between">
+                  <h2 className="font-headline-md text-headline-md text-on-surface">
+                    {`Ads by ${profile.user.username}`}
+                  </h2>
+                  <span className="font-label-sm text-label-sm text-secondary bg-surface-container px-sm py-[4px] rounded-full">
+                    {profile.ads.length}
+                  </span>
+                </div>
+              )}
 
-              {profile.ads.length === 0 ? (
-                <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl py-[80px] px-xl flex flex-col items-center justify-center text-center gap-md shadow-1">
-                  <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-secondary">
-                    <span className="material-symbols-outlined text-[32px]">campaign</span>
+              {/* Tabs for Own Profile */}
+              {isOwnProfile && (
+                <div className="flex border-b border-outline-variant/30 gap-md mb-xs">
+                  <button
+                    onClick={() => setActiveTab('ads')}
+                    className={`pb-sm font-label-md text-label-md transition-all border-b-2 px-xs flex items-center gap-xs ${
+                      activeTab === 'ads'
+                        ? 'border-primary text-primary font-bold'
+                        : 'border-transparent text-secondary hover:text-on-surface'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">campaign</span>
+                    My Ads ({profile.ads.length})
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('wishlist')}
+                    className={`pb-sm font-label-md text-label-md transition-all border-b-2 px-xs flex items-center gap-xs ${
+                      activeTab === 'wishlist'
+                        ? 'border-primary text-primary font-bold'
+                        : 'border-transparent text-secondary hover:text-on-surface'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">favorite</span>
+                    My Wishlist ({wishlistIds.size})
+                  </button>
+                </div>
+              )}
+
+              {activeTab === 'ads' ? (
+                // My Ads Tab
+                profile.ads.length === 0 ? (
+                  <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl py-[80px] px-xl flex flex-col items-center justify-center text-center gap-md shadow-1">
+                    <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-secondary">
+                      <span className="material-symbols-outlined text-[32px]">campaign</span>
+                    </div>
+                    <div>
+                      <h3 className="font-headline-md text-[18px] font-semibold text-on-surface">No Advertisements Yet</h3>
+                      <p className="font-body-sm text-body-sm text-secondary mt-xs max-w-[350px] mx-auto">
+                        {isOwnProfile ? "You haven't posted any ads yet. Create your first one!" : 'This user has no active advertisements.'}
+                      </p>
+                    </div>
+                    {isOwnProfile && (
+                      <Link
+                        to="/ads/create"
+                        className="mt-sm bg-primary text-on-primary font-label-md text-label-md px-xl py-sm rounded-lg hover:brightness-110 transition-all flex items-center gap-xs"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">add</span>
+                        Post Your First Ad
+                      </Link>
+                    )}
                   </div>
-                  <div>
-                    <h3 className="font-headline-md text-[18px] font-semibold text-on-surface">No Advertisements Yet</h3>
-                    <p className="font-body-sm text-body-sm text-secondary mt-xs max-w-[350px] mx-auto">
-                      {isOwnProfile ? "You haven't posted any ads yet. Create your first one!" : 'This user has no active advertisements.'}
-                    </p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
+                    {profile.ads.map((ad) => (
+                      <AdCard
+                        key={ad.id}
+                        ad={ad}
+                        showActions={isOwnProfile}
+                        onEditClick={handleEditClick}
+                        onDeleteClick={handleDeleteClick}
+                      />
+                    ))}
                   </div>
-                  {isOwnProfile && (
+                )
+              ) : (
+                // My Wishlist Tab (only accessible if isOwnProfile === true)
+                loadingWishlist ? (
+                  <div className="flex flex-col items-center justify-center py-[80px] gap-md">
+                    <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                    <p className="font-label-sm text-label-sm text-secondary">Loading wishlist...</p>
+                  </div>
+                ) : wishlistError ? (
+                  <div className="text-center py-[40px] text-error font-body-md">
+                    Failed to load wishlist items. Please try again.
+                  </div>
+                ) : wishlistAds.length === 0 ? (
+                  <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl py-[80px] px-xl flex flex-col items-center justify-center text-center gap-md shadow-1">
+                    <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-secondary">
+                      <span className="material-symbols-outlined text-[32px]">favorite</span>
+                    </div>
+                    <div>
+                      <h3 className="font-headline-md text-[18px] font-semibold text-on-surface">Your Wishlist is Empty</h3>
+                      <p className="font-body-sm text-body-sm text-secondary mt-xs max-w-[350px] mx-auto">
+                        Save ads you like by clicking the love symbol button on the marketplace.
+                      </p>
+                    </div>
                     <Link
-                      to="/ads/create"
+                      to="/"
                       className="mt-sm bg-primary text-on-primary font-label-md text-label-md px-xl py-sm rounded-lg hover:brightness-110 transition-all flex items-center gap-xs"
                     >
-                      <span className="material-symbols-outlined text-[18px]">add</span>
-                      Post Your First Ad
+                      <span className="material-symbols-outlined text-[18px]">explore</span>
+                      Browse Feed
                     </Link>
-                  )}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
-                  {profile.ads.map((ad) => (
-                    <AdCard
-                      key={ad.id}
-                      ad={ad}
-                      showActions={isOwnProfile}
-                      onEditClick={handleEditClick}
-                      onDeleteClick={handleDeleteClick}
-                    />
-                  ))}
-                </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter animate-fade-in">
+                    {wishlistAds.map((ad) => (
+                      <AdCard
+                        key={ad.id}
+                        ad={ad}
+                        showActions={false}
+                      />
+                    ))}
+                  </div>
+                )
               )}
             </div>
           </>

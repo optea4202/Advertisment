@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { type Ad } from '../api/ads.js';
+import { useWishlist } from '../context/WishlistContext.js';
 
 interface AdCardProps {
   ad: Ad;
@@ -15,6 +16,15 @@ export const AdCard: React.FC<AdCardProps> = ({
   onDeleteClick,
   onEditClick
 }) => {
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const isWishlisted = isInWishlist(ad.id);
+
+  const handleWishlistClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(ad.id);
+  };
+
   // Get cover image URL or a placeholder if none exists
   const coverImageUrl = ad.images && ad.images.length > 0 
     ? ad.images[0].cloudinary_url 
@@ -33,6 +43,20 @@ export const AdCard: React.FC<AdCardProps> = ({
           alt={ad.title} 
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" 
         />
+        
+        {/* Wishlist Button Overlay */}
+        <button
+          onClick={handleWishlistClick}
+          className="absolute top-md right-md w-8 h-8 rounded-full bg-surface/85 hover:bg-surface text-on-surface hover:text-error flex items-center justify-center shadow-md backdrop-blur-sm transition-all duration-200 focus:outline-none border border-outline-variant/10 z-10"
+          aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+        >
+          <span
+            className={`material-symbols-outlined text-[18px] transition-transform active:scale-125 duration-150 ${isWishlisted ? 'text-error' : 'text-on-surface-variant'}`}
+            style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
+          >
+            favorite
+          </span>
+        </button>
         
         {/* Price Tag Overlay */}
         <div className="absolute bottom-md left-md bg-primary text-on-primary font-label-md text-label-md px-md py-[6px] rounded-lg shadow-sm border-t border-white/20">

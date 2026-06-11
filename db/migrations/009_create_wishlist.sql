@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS wishlist (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+    ad_id INTEGER REFERENCES ads(id) ON DELETE CASCADE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, ad_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_wishlist_user_id ON wishlist(user_id);

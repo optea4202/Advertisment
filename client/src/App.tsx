@@ -17,6 +17,7 @@ import { AdDetailPage } from './pages/AdDetailPage.js';
 import { AdminPage } from './pages/AdminPage.js';
 import { AdminRoute } from './components/AdminRoute.js';
 import { InboxPage } from './pages/InboxPage.js';
+import { WishlistProvider } from './context/WishlistContext.js';
 
 // Get publishable key from environment
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -30,8 +31,9 @@ function App() {
     <ThemeProvider>
       <ClerkProvider publishableKey={clerkPublishableKey}>
         <AuthProvider>
-          <BrowserRouter>
-            <ChatProvider>
+          <WishlistProvider>
+            <BrowserRouter>
+              <ChatProvider>
               <Routes>
               {/* Public Auth Routes */}
               <Route path="/login/*" element={<LoginPage />} />
@@ -133,8 +135,9 @@ function App() {
               {/* Catch-all Redirect */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-            </ChatProvider>
-          </BrowserRouter>
+              </ChatProvider>
+            </BrowserRouter>
+          </WishlistProvider>
         </AuthProvider>
       </ClerkProvider>
     </ThemeProvider>
