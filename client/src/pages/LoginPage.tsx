@@ -72,7 +72,7 @@ export const LoginPage: React.FC = () => {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
               <span className="material-symbols-outlined text-on-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
             </div>
-            <h1 className="font-headline-lg text-headline-lg text-primary tracking-tight">AdHub</h1>
+            <h1 className="font-headline-lg text-headline-lg text-primary tracking-tight">Fakna</h1>
           </div>
           <p className="font-body-lg text-body-lg text-secondary mt-sm max-w-sm">
             The high-performance marketplace for premium digital advertising inventory.
@@ -83,7 +83,7 @@ export const LoginPage: React.FC = () => {
         <div className="relative z-10 flex-grow flex items-center justify-center my-xl">
           <div className="w-full max-w-[480px] aspect-square rounded-2xl bg-surface-container-highest shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] overflow-hidden relative border border-outline-variant/50">
             <img 
-              alt="AdHub Interface" 
+              alt="Fakna Interface" 
               className="w-full h-full object-cover opacity-90 mix-blend-multiply" 
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGqEgEEyCJ1buKkgNxQQovVL6RzIlYh5edZP0tYOoUgNWOtEZTJy5mB_HmZFPHdBWUjCDDANbk1SK1RxGbr2aIOCDk6YJOr9QWlU0NV5KPyBoDNWfiOdhZdy-6Gm7GSjcW0fSDoHDhJtw-siqQPLrmc46lJEoNdQlCDoK3dt4I_CHvejFaka6nE04KP9yv0REBHtH_Se7CgfVyKfJVPXvr8hUh3rb0H2ZKKE0C4tYereWHguXeDCUP0f8bkuwDDd_TJYaa6z040oo"
             />
@@ -108,7 +108,7 @@ export const LoginPage: React.FC = () => {
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
             <span className="material-symbols-outlined text-on-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
           </div>
-          <h1 className="font-headline-md text-headline-md text-primary tracking-tight">AdHub</h1>
+          <h1 className="font-headline-md text-headline-md text-primary tracking-tight">Fakna</h1>
         </div>
 
         <div className="w-full max-w-[420px] flex flex-col gap-xl fade-in-up mt-16 md:mt-0">
@@ -229,7 +229,7 @@ export const LoginPage: React.FC = () => {
           </form>
 
           <p className="text-center font-body-sm text-body-sm text-secondary mt-xl">
-            By continuing, you agree to AdHub's &nbsp;
+            By continuing, you agree to Fakna's &nbsp;
             <a className="text-primary hover:underline" href="#">Terms of Service</a> &nbsp;and &nbsp;
             <a className="text-primary hover:underline" href="#">Privacy Policy</a>.
           </p>

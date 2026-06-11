@@ -52,7 +52,7 @@ export const FeedPage: React.FC = () => {
               </h1>
               
               <p className="text-secondary max-w-[540px] text-body-md md:text-body-lg">
-                Browse local services, premium products, and verified stores posted by the AdHub community. Build trust and grow your audience.
+                Browse local services, premium products, and verified stores posted by the Fakna community. Build trust and grow your audience.
               </p>
 
               {/* Metrics Grid */}

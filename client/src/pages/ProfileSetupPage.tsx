@@ -106,7 +106,7 @@ export const ProfileSetupPage: React.FC = () => {
         {/* Header Section */}
         <header className="flex flex-col items-center mb-xl">
           <div className="mb-lg">
-            <span className="font-headline-md text-headline-md font-bold text-primary tracking-tight">AdHub</span>
+            <span className="font-headline-md text-headline-md font-bold text-primary tracking-tight">Fakna</span>
           </div>
           
           <div className="w-full max-w-[300px] mb-lg">

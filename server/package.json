@@ -1,7 +1,7 @@
 {
-  "name": "adhub-server",
+  "name": "fakna-server",
   "version": "1.0.0",
-  "description": "Express backend for AdHub Advertisement Platform",
+  "description": "Express backend for Fakna Advertisement Platform",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

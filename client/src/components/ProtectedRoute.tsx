@@ -32,7 +32,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           <span className="material-symbols-outlined text-error text-[48px] mb-md" style={{ fontVariationSettings: "'FILL' 1" }}>gpp_bad</span>
           <h1 className="font-headline-lg text-headline-lg text-on-error-container mb-sm">Account Banned</h1>
           <p className="font-body-md text-body-md text-on-error-container/80">
-            Your account has been suspended by platform administrators. You no longer have access to AdHub.
+            Your account has been suspended by platform administrators. You no longer have access to Fakna.
           </p>
         </div>
       </div>

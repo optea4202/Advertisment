@@ -24,7 +24,7 @@ export const Navbar: React.FC = () => {
             <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-lg flex items-center justify-center text-on-primary">
               <span className="material-symbols-outlined text-[18px] md:text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
             </div>
-            <span className="text-body-lg md:text-headline-md font-bold text-primary tracking-tight">AdHub</span>
+            <span className="text-body-lg md:text-headline-md font-bold text-primary tracking-tight">Fakna</span>
           </Link>
 
           {/* Navigation Links */}

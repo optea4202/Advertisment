@@ -1,7 +1,7 @@
 {
-  "name": "AdHub - Advertisement Platform",
-  "short_name": "AdHub",
-  "description": "Browse, post, and manage advertisements on AdHub.",
+  "name": "Fakna - Advertisement Platform",
+  "short_name": "Fakna",
+  "description": "Browse, post, and manage advertisements on Fakna.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -55,5 +55,5 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 // Start Express Server
 const PORT = config.PORT;
 app.listen(PORT, () => {
-  console.log(`🚀 AdHub Server running on port ${PORT}`);
+  console.log(`🚀 Fakna Server running on port ${PORT}`);
 });

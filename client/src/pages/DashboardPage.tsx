@@ -74,7 +74,7 @@ export const DashboardPage: React.FC = () => {
             {/* Brand badge */}
             <span className="inline-flex items-center gap-xs bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm px-md py-[6px] rounded-full">
               <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
-              Welcome to AdHub
+              Welcome to Fakna
             </span>
 
             <h1 className="font-headline-lg text-headline-lg md:text-[44px] md:leading-[54px] text-on-surface tracking-tight max-w-[700px] font-bold">
@@ -83,7 +83,7 @@ export const DashboardPage: React.FC = () => {
             </h1>
 
             <p className="font-body-lg text-body-lg text-secondary max-w-[560px]">
-              AdHub is a secure, community-driven advertisement platform where you can buy, sell, and discover goods
+              Fakna is a secure, community-driven advertisement platform where you can buy, sell, and discover goods
               and services posted by real people — all in one elegant feed.
             </p>
 
@@ -232,7 +232,7 @@ export const DashboardPage: React.FC = () => {
             <p className="font-body-lg text-body-lg text-on-primary/80 max-w-[440px]">
               {user
                 ? `Welcome back, ${user.username}! Your next listing is just one click away.`
-                : 'Join thousands of users already sharing and discovering on AdHub.'}
+                : 'Join thousands of users already sharing and discovering on Fakna.'}
             </p>
             <div className="flex flex-wrap gap-md justify-center">
               <Link

@@ -12,7 +12,7 @@ export const sendReviewNotificationEmail = async (
 ): Promise<void> => {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'AdHub <onboarding@resend.dev>',
+      from: 'Fakna <onboarding@resend.dev>',
       to: ownerEmail,
       subject: `New Review on your Ad: "${adTitle}"`,
       html: `
@@ -28,7 +28,7 @@ export const sendReviewNotificationEmail = async (
           </div>
           
           <p style="font-size: 12px; color: #bcc9c6; margin-bottom: 0; border-t: 1px solid #eff4ff; pt: 10px;">
-            You are receiving this because you are the owner of this advertisement on AdHub.
+            You are receiving this because you are the owner of this advertisement on Fakna.
           </p>
         </div>
       `
