@@ -134,3 +134,22 @@ export const banUser = async (id: number, isBanned: boolean): Promise<DbUser> =>
   const res = await query(sql, [id, isBanned]);
   return res.rows[0];
 };
+
+/**
+ * Search for users by username (case-insensitive prefix/substring match).
+ * Excludes banned users and the requesting user themselves.
+ * Returns at most 10 results.
+ */
+export const searchUsers = async (q: string, excludeId: number): Promise<PublicUser[]> => {
+  const sql = `
+    SELECT id, username, photo_url, bio, created_at, is_banned
+    FROM users
+    WHERE username ILIKE $1
+      AND is_banned = false
+      AND id != $2
+    ORDER BY username ASC
+    LIMIT 10
+  `;
+  const res = await query(sql, [`%${q}%`, excludeId]);
+  return res.rows;
+};

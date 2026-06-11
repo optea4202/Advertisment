@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, Link, useLocation } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { useAuth } from '../context/AuthContext.js';
 import { useMessages } from '../hooks/useChats.js';
 import { useChat } from '../context/ChatContext.js';
 import { deleteConversation as deleteConversationApi } from '../api/chats.js';
+import { startConversation } from '../api/chats.js';
+import { searchUsers } from '../api/users.js';
+import type { PublicUserProfile } from '../api/users.js';
 import type { Conversation } from '../types/Chat.js';
 
 export const InboxPage: React.FC = () => {
@@ -58,6 +61,15 @@ export const InboxPage: React.FC = () => {
   const [showDeleteConvModal, setShowDeleteConvModal] = useState(false);
   const [deletingConv, setDeletingConv] = useState(false);
 
+  // ── User search state ────────────────────────────────────────────
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<PublicUserProfile[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [startingChatFor, setStartingChatFor] = useState<number | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchDropdownRef = useRef<HTMLDivElement>(null);
+
   const { messages, loading: loadingMsgs, sending, send, editMsg, deleteMsg } = useMessages(activeConvId);
 
   // Monitor visual viewport to handle mobile keyboards without shifting page or scroll issues
@@ -90,6 +102,62 @@ export const InboxPage: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // ── Debounced user search ────────────────────────────────────────
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    const timer = setTimeout(async () => {
+      try {
+        const results = await searchUsers(searchQuery.trim());
+        setSearchResults(results);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        searchDropdownRef.current &&
+        !searchDropdownRef.current.contains(e.target as Node) &&
+        searchInputRef.current &&
+        !searchInputRef.current.contains(e.target as Node)
+      ) {
+        setSearchFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // ── Start chat from search result ────────────────────────────────
+  const handleSearchResultClick = useCallback(async (user: PublicUserProfile) => {
+    if (startingChatFor === user.id) return;
+    setStartingChatFor(user.id);
+    try {
+      const conv = await startConversation(user.id, null);
+      await refreshConversations();
+      setActiveConvId(conv.id);
+      setShowMobileList(false);
+      setSearchQuery('');
+      setSearchResults([]);
+      setSearchFocused(false);
+    } catch (err) {
+      console.error('Failed to start conversation:', err);
+    } finally {
+      setStartingChatFor(null);
+    }
+  }, [startingChatFor, refreshConversations]);
 
   // Sync last active conversation when activeConvId or conversations list changes
   useEffect(() => {
@@ -262,6 +330,102 @@ export const InboxPage: React.FC = () => {
             <div className="flex items-center gap-sm px-lg py-md border-b border-outline-variant/20 md:border-b md:border-outline-variant/10">
               <span className="material-symbols-outlined text-primary text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>inbox</span>
               <span className="font-headline-md text-[18px] font-bold text-on-surface">Messages</span>
+            </div>
+
+            {/* ── Search Users Bar ── */}
+            <div className="relative px-md pt-md pb-sm">
+              <div className={`flex items-center gap-xs bg-surface-container border rounded-xl px-md py-sm transition-all ${
+                searchFocused ? 'border-primary ring-1 ring-primary/20 bg-surface-container-lowest' : 'border-outline-variant/50'
+              }`}>
+                {searchLoading ? (
+                  <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin flex-shrink-0" />
+                ) : (
+                  <span className="material-symbols-outlined text-[18px] text-on-surface-variant flex-shrink-0">search</span>
+                )}
+                <input
+                  ref={searchInputRef}
+                  id="inbox-user-search"
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setSearchFocused(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      setSearchFocused(false);
+                      setSearchQuery('');
+                      setSearchResults([]);
+                    }
+                  }}
+                  placeholder="Search people to message…"
+                  autoComplete="off"
+                  className="flex-grow bg-transparent text-body-sm font-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none min-w-0"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => { setSearchQuery(''); setSearchResults([]); setSearchFocused(false); }}
+                    className="text-on-surface-variant hover:text-on-surface transition-colors flex-shrink-0"
+                    title="Clear search"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">close</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Search Dropdown */}
+              {searchFocused && searchQuery.trim() && (
+                <div
+                  ref={searchDropdownRef}
+                  className="absolute left-md right-md top-full mt-xs z-30 bg-surface-container-lowest rounded-xl border border-outline-variant/30 shadow-2 overflow-hidden"
+                >
+                  {searchLoading && searchResults.length === 0 && (
+                    <div className="flex items-center gap-sm px-md py-sm">
+                      <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+                      <span className="font-body-sm text-body-sm text-on-surface-variant">Searching…</span>
+                    </div>
+                  )}
+
+                  {!searchLoading && searchResults.length === 0 && (
+                    <div className="flex items-center gap-sm px-md py-md">
+                      <span className="material-symbols-outlined text-[18px] text-on-surface-variant/50">person_off</span>
+                      <span className="font-body-sm text-body-sm text-on-surface-variant">No users found</span>
+                    </div>
+                  )}
+
+                  {searchResults.map((u) => (
+                    <button
+                      key={u.id}
+                      id={`search-user-${u.id}`}
+                      onClick={() => handleSearchResultClick(u)}
+                      disabled={startingChatFor === u.id}
+                      className="w-full flex items-center gap-sm px-md py-sm hover:bg-surface-container-low transition-colors text-left border-b border-outline-variant/10 last:border-b-0 disabled:opacity-50"
+                    >
+                      {/* Avatar */}
+                      <div className="w-9 h-9 rounded-full bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {u.photo_url ? (
+                          <img src={u.photo_url} alt={u.username} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-primary-fixed flex items-center justify-center text-primary font-bold uppercase text-[11px]">
+                            {u.username?.substring(0, 2)}
+                          </div>
+                        )}
+                      </div>
+                      {/* Name + bio */}
+                      <div className="flex flex-col min-w-0 flex-grow">
+                        <span className="font-label-md text-label-md text-on-surface font-semibold truncate">{u.username}</span>
+                        {u.bio && (
+                          <span className="font-label-sm text-[11px] text-on-surface-variant truncate">{u.bio}</span>
+                        )}
+                      </div>
+                      {/* CTA */}
+                      {startingChatFor === u.id ? (
+                        <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin flex-shrink-0" />
+                      ) : (
+                        <span className="material-symbols-outlined text-[18px] text-primary flex-shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* List */}

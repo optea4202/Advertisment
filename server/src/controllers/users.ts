@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { getOrCreateUser, updateProfile, getPublicProfile } from '../services/users.js';
+import { getOrCreateUser, updateProfile, getPublicProfile, searchUsers } from '../services/users.js';
 import { uploadImage } from '../utils/cloudinary.js';
 
 // Input validation schema for updating user profile
@@ -111,6 +111,26 @@ export const getPublicUser = async (req: Request, res: Response, next: NextFunct
     }
 
     return res.status(200).json({ data: profile });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const searchUsersHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const q = String(req.query.q ?? '').trim();
+    if (!q) {
+      return res.status(200).json({ data: [] });
+    }
+
+    if (!req.user) {
+      return res.status(401).json({
+        error: { message: 'Unauthorized', code: 'UNAUTHORIZED' }
+      });
+    }
+
+    const results = await searchUsers(q, req.user.id);
+    return res.status(200).json({ data: results });
   } catch (error) {
     next(error);
   }

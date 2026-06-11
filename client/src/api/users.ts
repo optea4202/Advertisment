@@ -46,3 +46,10 @@ export const getPublicProfile = async (userId: number): Promise<PublicProfileDat
   const res = await api.get<{ data: PublicProfileData }>(`/api/users/${userId}`);
   return res.data.data;
 };
+
+export const searchUsers = async (q: string): Promise<PublicUserProfile[]> => {
+  const res = await api.get<{ data: PublicUserProfile[] }>('/api/users/search', {
+    params: { q },
+  });
+  return res.data.data;
+};

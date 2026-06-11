@@ -1,5 +1,5 @@
 import { clerkClient } from '@clerk/clerk-sdk-node';
-import { getUserByClerkId, createUser, updateUser, getPublicUserById, type DbUser, type PublicUser } from '../db/users.js';
+import { getUserByClerkId, createUser, updateUser, getPublicUserById, searchUsers as dbSearchUsers, type DbUser, type PublicUser } from '../db/users.js';
 import { getAdsByOwner } from '../db/ads.js';
 import type { DbAd } from '../db/ads.js';
 
@@ -64,4 +64,12 @@ export const getPublicProfile = async (userId: number): Promise<PublicProfileRes
 
   const ads = await getAdsByOwner(userId);
   return { user, ads };
+};
+
+/**
+ * Search for users by a username query string.
+ * Excludes banned users and the requesting user.
+ */
+export const searchUsers = async (q: string, excludeId: number): Promise<PublicUser[]> => {
+  return await dbSearchUsers(q, excludeId);
 };

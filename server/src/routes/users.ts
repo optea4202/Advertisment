@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { getMe, updateMe, getPublicUser } from '../controllers/users.js';
+import { getMe, updateMe, getPublicUser, searchUsersHandler } from '../controllers/users.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 import { requireNotBanned } from '../middleware/requireNotBanned.js';
 
@@ -20,6 +20,9 @@ router.get('/me', requireAuth, getMe);
 // PUT /api/users/me - Update profile (fields + photo upload)
 // Runs requireAuth first. Note: requireNotBanned is also run to block banned accounts.
 router.put('/me', requireAuth, requireNotBanned, upload.single('photo'), updateMe);
+
+// GET /api/users/search?q=... - Search users by username (must be before /:id to avoid parameter clash)
+router.get('/search', requireAuth, requireNotBanned, searchUsersHandler);
 
 // GET /api/users/:id - Retrieve the public profile of any user by numeric ID
 router.get('/:id', requireAuth, requireNotBanned, getPublicUser);
