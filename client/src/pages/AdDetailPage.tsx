@@ -27,7 +27,14 @@ export const AdDetailPage: React.FC = () => {
     setStartingChat(true);
     try {
       const conv = await startConversation(ad.owner_id, adId);
-      navigate(`/inbox?chatId=${conv.id}`);
+      navigate(`/inbox?chatId=${conv.id}`, {
+        state: {
+          other_user_id: ad.owner_id,
+          other_user_name: ad.owner_name,
+          other_user_photo: ad.owner_photo,
+          ad_title: ad.title
+        }
+      });
     } catch {
       // Silently fail — user stays on page
     } finally {

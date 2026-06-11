@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useLocation } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { useAuth } from '../context/AuthContext.js';
 import { useConversations, useMessages } from '../hooks/useChats.js';
@@ -9,6 +9,15 @@ export const InboxPage: React.FC = () => {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialChatId = searchParams.get('chatId');
+  const location = useLocation();
+
+  // Route state details passed from AdDetailPage
+  const routeState = location.state as {
+    other_user_id: number;
+    other_user_name: string;
+    other_user_photo: string | null;
+    ad_title: string;
+  } | null;
 
   const { conversations, loading: loadingConvs } = useConversations();
   const [activeConvId, setActiveConvId] = useState<number | null>(
@@ -19,7 +28,61 @@ export const InboxPage: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Store the last known details of the active conversation to prevent auto-hiding during reload/polling
+  const [lastActiveConversation, setLastActiveConversation] = useState<Conversation | null>(
+    initialChatId && routeState ? {
+      id: parseInt(initialChatId),
+      other_user_id: routeState.other_user_id,
+      other_user_name: routeState.other_user_name,
+      other_user_photo: routeState.other_user_photo,
+      ad_title: routeState.ad_title,
+      last_message: null,
+      last_message_at: null,
+    } : null
+  );
+
   const { messages, loading: loadingMsgs, sending, send } = useMessages(activeConvId);
+
+  // Monitor visual viewport to handle mobile keyboards without shifting page or scroll issues
+  const [viewportHeight, setViewportHeight] = useState<number>(window.innerHeight);
+
+  useEffect(() => {
+    if (!window.visualViewport) return;
+
+    const handleResize = () => {
+      setViewportHeight(window.visualViewport.height);
+    };
+
+    window.visualViewport.addEventListener('resize', handleResize);
+    window.visualViewport.addEventListener('scroll', handleResize);
+    handleResize();
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleResize);
+      window.visualViewport?.removeEventListener('scroll', handleResize);
+    };
+  }, []);
+
+  // Prevent window scroll adjustments when keyboard is active
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY !== 0 && window.innerWidth < 768) {
+        window.scrollTo(0, 0);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Sync last active conversation when activeConvId or conversations list changes
+  useEffect(() => {
+    if (activeConvId) {
+      const active = conversations.find((c) => c.id === activeConvId);
+      if (active) {
+        setLastActiveConversation(active);
+      }
+    }
+  }, [conversations, activeConvId]);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -54,7 +117,7 @@ export const InboxPage: React.FC = () => {
     }
   };
 
-  const activeConversation = conversations.find((c) => c.id === activeConvId) ?? null;
+  const activeConversation = conversations.find((c) => c.id === activeConvId) ?? lastActiveConversation;
 
   const formatTime = (ts: string) => {
     const d = new Date(ts);
@@ -66,7 +129,12 @@ export const InboxPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-surface text-on-surface flex flex-col h-[100dvh] overflow-hidden md:min-h-screen md:h-auto md:overflow-visible">
+    <div 
+      className="bg-surface text-on-surface flex flex-col overflow-hidden md:min-h-screen md:h-auto md:overflow-visible"
+      style={{
+        height: window.innerWidth < 768 ? `${viewportHeight}px` : 'auto'
+      }}
+    >
       <Navbar />
 
       <main className="flex-grow w-full max-w-container-max mx-auto px-0 md:px-md lg:px-xl py-0 md:py-xl flex flex-col overflow-hidden md:overflow-visible">
@@ -171,7 +239,7 @@ export const InboxPage: React.FC = () => {
 
                 <Link
                   to={`/profile/${activeConversation.other_user_id}`}
-                  className="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-primary/30 transition-all"
+                  className="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-primary/30 transition-all flex-shrink-0"
                 >
                   {activeConversation.other_user_photo ? (
                     <img src={activeConversation.other_user_photo} alt={activeConversation.other_user_name} className="w-full h-full object-cover" />
@@ -191,6 +259,21 @@ export const InboxPage: React.FC = () => {
                       Re: {activeConversation.ad_title}
                     </span>
                   )}
+                </div>
+              </div>
+            ) : activeConvId ? (
+              <div className="flex items-center gap-md px-lg py-md border-b border-outline-variant/20 bg-surface-container-lowest flex-shrink-0 z-10">
+                <button
+                  className="md:hidden text-secondary hover:text-primary transition-colors"
+                  onClick={() => setShowMobileList(true)}
+                  title="Back to conversations"
+                >
+                  <span className="material-symbols-outlined text-[24px]">arrow_back</span>
+                </button>
+                <div className="w-10 h-10 rounded-full bg-surface-container-highest animate-pulse flex-shrink-0" />
+                <div className="flex flex-col gap-xs flex-grow">
+                  <div className="h-4 w-24 bg-surface-container-highest rounded animate-pulse" />
+                  <div className="h-3 w-32 bg-surface-container-highest rounded animate-pulse" />
                 </div>
               </div>
             ) : (
