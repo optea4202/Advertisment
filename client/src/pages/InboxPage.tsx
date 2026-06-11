@@ -77,7 +77,7 @@ export const InboxPage: React.FC = () => {
         </div>
 
         {/* Main Panel */}
-        <div className="flex flex-grow bg-surface-container-lowest md:rounded-2xl md:border md:border-outline-variant/20 md:shadow-1 overflow-hidden" style={{ minHeight: 'calc(100vh - 200px)', maxHeight: 'calc(100vh - 200px)' }}>
+        <div className="flex flex-grow bg-surface-container-lowest md:rounded-2xl md:border md:border-outline-variant/20 md:shadow-1 overflow-hidden h-[calc(100dvh-56px)] min-h-[calc(100dvh-56px)] max-h-[calc(100dvh-56px)] md:h-[calc(100vh-200px)] md:min-h-[calc(100vh-200px)] md:max-h-[calc(100vh-200px)]">
 
           {/* ─── Left Panel: Conversation List ─── */}
           <div className={`

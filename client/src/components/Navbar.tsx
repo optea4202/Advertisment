@@ -155,7 +155,7 @@ export const Navbar: React.FC = () => {
       </header>
 
       {/* Mobile Floating Action Buttons (FABs) */}
-      {user && location.pathname !== '/ads/create' && !location.pathname.startsWith('/ads/edit/') && (
+      {user && location.pathname !== '/ads/create' && !location.pathname.startsWith('/ads/edit/') && location.pathname !== '/inbox' && (
         <>
           {/* Inbox FAB — above the post ad FAB */}
           <Link
