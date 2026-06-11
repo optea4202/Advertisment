@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, useLocation } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { useAuth } from '../context/AuthContext.js';
-import { useConversations, useMessages } from '../hooks/useChats.js';
+import { useMessages } from '../hooks/useChats.js';
+import { useChat } from '../context/ChatContext.js';
 import type { Conversation } from '../types/Chat.js';
 
 export const InboxPage: React.FC = () => {
@@ -19,7 +20,7 @@ export const InboxPage: React.FC = () => {
     ad_title: string;
   } | null;
 
-  const { conversations, loading: loadingConvs } = useConversations();
+  const { conversations, loadingConvs, markAsRead } = useChat();
   const [activeConvId, setActiveConvId] = useState<number | null>(
     initialChatId ? parseInt(initialChatId) : null
   );
@@ -38,7 +39,7 @@ export const InboxPage: React.FC = () => {
       ad_title: routeState.ad_title,
       last_message: null,
       last_message_at: null,
-    } : null
+    } as any as Conversation : null
   );
 
   const { messages, loading: loadingMsgs, sending, send } = useMessages(activeConvId);
@@ -50,7 +51,7 @@ export const InboxPage: React.FC = () => {
     if (!window.visualViewport) return;
 
     const handleResize = () => {
-      setViewportHeight(window.visualViewport.height);
+      setViewportHeight(window.visualViewport!.height);
     };
 
     window.visualViewport.addEventListener('resize', handleResize);
@@ -83,6 +84,13 @@ export const InboxPage: React.FC = () => {
       }
     }
   }, [conversations, activeConvId]);
+
+  // Mark active conversation as read when activeConvId, conversations list, or messages update
+  useEffect(() => {
+    if (activeConvId) {
+      markAsRead(activeConvId);
+    }
+  }, [activeConvId, conversations, messages, markAsRead]);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {

@@ -3,11 +3,13 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.js';
 import { useClerk } from '@clerk/clerk-react';
 import { useTheme } from '../context/ThemeContext.js';
+import { useChat } from '../context/ChatContext.js';
 
 export const Navbar: React.FC = () => {
   const { user } = useAuth();
   const { signOut } = useClerk();
   const { theme, toggleTheme } = useTheme();
+  const { hasUnreadMessages } = useChat();
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
@@ -78,12 +80,18 @@ export const Navbar: React.FC = () => {
             {/* Inbox Button */}
             <Link
               to="/inbox"
-              className={`text-secondary hover:text-primary transition-colors p-xs flex items-center justify-center rounded-md ${
+              className={`relative text-secondary hover:text-primary transition-colors p-xs flex items-center justify-center rounded-md ${
                 isActive('/inbox') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
               }`}
               title="Inbox"
             >
               <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActive('/inbox') ? "'FILL' 1" : "'FILL' 0" }}>inbox</span>
+              {hasUnreadMessages && (
+                <span className="absolute top-[4px] right-[4px] flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+              )}
             </Link>
 
             {/* Theme Toggle Button */}
@@ -156,29 +164,13 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Floating Action Buttons (FABs) */}
       {user && location.pathname !== '/ads/create' && !location.pathname.startsWith('/ads/edit/') && location.pathname !== '/inbox' && (
-        <>
-          {/* Inbox FAB — above the post ad FAB */}
-          <Link
-            to="/inbox"
-            className={`fixed bottom-24 right-6 z-50 flex sm:hidden w-12 h-12 rounded-full items-center justify-center shadow-lg hover:brightness-110 active:scale-95 transition-all elevation-2 ${
-              isActive('/inbox')
-                ? 'bg-primary text-on-primary'
-                : 'bg-surface-container-lowest text-primary border border-outline-variant/40'
-            }`}
-            title="Inbox"
-          >
-            <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: isActive('/inbox') ? "'FILL' 1" : "'FILL' 0" }}>inbox</span>
-          </Link>
-
-          {/* Post Ad FAB */}
-          <Link 
-            to="/ads/create" 
-            className="fixed bottom-6 right-6 z-50 flex sm:hidden w-14 h-14 bg-primary text-on-primary rounded-full items-center justify-center shadow-lg hover:brightness-110 active:scale-95 transition-all elevation-2 animate-bounce-short"
-            title="Post Ad"
-          >
-            <span className="material-symbols-outlined text-[28px]">add</span>
-          </Link>
-        </>
+        <Link 
+          to="/ads/create" 
+          className="fixed bottom-6 right-6 z-50 flex sm:hidden w-14 h-14 bg-primary text-on-primary rounded-full items-center justify-center shadow-lg hover:brightness-110 active:scale-95 transition-all elevation-2 animate-bounce-short"
+          title="Post Ad"
+        >
+          <span className="material-symbols-outlined text-[28px]">add</span>
+        </Link>
       )}
     </>
   );

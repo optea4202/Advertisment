@@ -13,6 +13,7 @@ export interface DbConversation {
   ad_title?: string | null;
   last_message?: string | null;
   last_message_at?: Date | null;
+  last_message_sender_id?: number | null;
 }
 
 export interface DbMessage {
@@ -65,12 +66,13 @@ export const getConversationsForUser = async (userId: number): Promise<DbConvers
       other_u.photo_url AS other_user_photo,
       a.title AS ad_title,
       last_msg.message_text AS last_message,
-      last_msg.created_at AS last_message_at
+      last_msg.created_at AS last_message_at,
+      last_msg.sender_id AS last_message_sender_id
     FROM conversations c
     JOIN users other_u ON other_u.id = CASE WHEN c.buyer_id = $1 THEN c.seller_id ELSE c.buyer_id END
     LEFT JOIN ads a ON a.id = c.ad_id
     LEFT JOIN LATERAL (
-      SELECT message_text, created_at
+      SELECT message_text, created_at, sender_id
       FROM messages
       WHERE conversation_id = c.id
       ORDER BY created_at DESC
