@@ -75,6 +75,17 @@ export const Navbar: React.FC = () => {
 
           {/* User Info / Actions */}
           <div className="flex items-center gap-xs md:gap-md">
+            {/* Inbox Button */}
+            <Link
+              to="/inbox"
+              className={`text-secondary hover:text-primary transition-colors p-xs flex items-center justify-center rounded-md ${
+                isActive('/inbox') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
+              }`}
+              title="Inbox"
+            >
+              <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActive('/inbox') ? "'FILL' 1" : "'FILL' 0" }}>inbox</span>
+            </Link>
+
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
@@ -143,15 +154,31 @@ export const Navbar: React.FC = () => {
         </div>
       </header>
 
-      {/* Mobile Floating Action Button (FAB) */}
+      {/* Mobile Floating Action Buttons (FABs) */}
       {user && location.pathname !== '/ads/create' && !location.pathname.startsWith('/ads/edit/') && (
-        <Link 
-          to="/ads/create" 
-          className="fixed bottom-6 right-6 z-50 flex sm:hidden w-14 h-14 bg-primary text-on-primary rounded-full items-center justify-center shadow-lg hover:brightness-110 active:scale-95 transition-all elevation-2 animate-bounce-short"
-          title="Post Ad"
-        >
-          <span className="material-symbols-outlined text-[28px]">add</span>
-        </Link>
+        <>
+          {/* Inbox FAB — above the post ad FAB */}
+          <Link
+            to="/inbox"
+            className={`fixed bottom-24 right-6 z-50 flex sm:hidden w-12 h-12 rounded-full items-center justify-center shadow-lg hover:brightness-110 active:scale-95 transition-all elevation-2 ${
+              isActive('/inbox')
+                ? 'bg-primary text-on-primary'
+                : 'bg-surface-container-lowest text-primary border border-outline-variant/40'
+            }`}
+            title="Inbox"
+          >
+            <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: isActive('/inbox') ? "'FILL' 1" : "'FILL' 0" }}>inbox</span>
+          </Link>
+
+          {/* Post Ad FAB */}
+          <Link 
+            to="/ads/create" 
+            className="fixed bottom-6 right-6 z-50 flex sm:hidden w-14 h-14 bg-primary text-on-primary rounded-full items-center justify-center shadow-lg hover:brightness-110 active:scale-95 transition-all elevation-2 animate-bounce-short"
+            title="Post Ad"
+          >
+            <span className="material-symbols-outlined text-[28px]">add</span>
+          </Link>
+        </>
       )}
     </>
   );

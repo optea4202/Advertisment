@@ -1,5 +1,5 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { ImageGallery } from '../components/ImageGallery.js';
 import { useAd } from '../hooks/useAds.js';
@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext.js';
 import { useReviews } from '../hooks/useReviews.js';
 import { ReviewForm } from '../components/ReviewForm.js';
 import { ReviewList } from '../components/ReviewList.js';
+import { startConversation } from '../api/chats.js';
 
 export const AdDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,7 +17,23 @@ export const AdDetailPage: React.FC = () => {
   const { ad, loading, error, refresh } = useAd(adId);
   const { reviews, loading: loadingReviews, error: errorReviews, addReview } = useReviews(adId);
 
+  const navigate = useNavigate();
+  const [startingChat, setStartingChat] = useState(false);
+
   const isOwner = user?.id === ad?.owner_id;
+
+  const handleChatWithSeller = async () => {
+    if (!ad) return;
+    setStartingChat(true);
+    try {
+      const conv = await startConversation(ad.owner_id, adId);
+      navigate(`/inbox?chatId=${conv.id}`);
+    } catch {
+      // Silently fail — user stays on page
+    } finally {
+      setStartingChat(false);
+    }
+  };
 
   const handleReviewSubmit = async (rating: number, comment: string) => {
     await addReview(rating, comment);
@@ -147,6 +164,23 @@ export const AdDetailPage: React.FC = () => {
                   </div>
                   <span className="material-symbols-outlined text-[18px] text-secondary group-hover:text-primary transition-colors">chevron_right</span>
                 </Link>
+
+                {/* Chat with Seller CTA — hidden for the ad owner */}
+                {!isOwner && (
+                  <button
+                    id="chat-with-seller-btn"
+                    onClick={handleChatWithSeller}
+                    disabled={startingChat}
+                    className="w-full flex items-center justify-center gap-sm bg-primary text-on-primary font-label-md text-label-md px-md py-[10px] rounded-xl shadow-sm hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {startingChat ? (
+                      <div className="w-4 h-4 border-2 border-on-primary/30 border-t-on-primary rounded-full animate-spin" />
+                    ) : (
+                      <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span>
+                    )}
+                    {startingChat ? 'Opening chat…' : 'Chat with Seller'}
+                  </button>
+                )}
 
               </div>
             </div>

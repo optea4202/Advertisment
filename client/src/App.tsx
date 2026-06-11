@@ -15,6 +15,7 @@ import { FeedPage } from './pages/FeedPage.js';
 import { AdDetailPage } from './pages/AdDetailPage.js';
 import { AdminPage } from './pages/AdminPage.js';
 import { AdminRoute } from './components/AdminRoute.js';
+import { InboxPage } from './pages/InboxPage.js';
 
 // Get publishable key from environment
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -95,6 +96,15 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <UserProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/inbox"
+                element={
+                  <ProtectedRoute>
+                    <InboxPage />
                   </ProtectedRoute>
                 }
               />
