@@ -3,6 +3,32 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { getAdById, updateAd } from '../api/ads.js';
 import { compressImage } from '../utils/imageCompressor.js';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+// Fix broken default marker icons in Vite
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
+
+const LocationPicker: React.FC<{
+  position: [number, number] | null;
+  onPick: (lat: number, lng: number) => void;
+}> = ({ position, onPick }) => {
+  useMapEvents({
+    click(e) {
+      onPick(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return position ? <Marker position={position} /> : null;
+};
 
 export const EditAdPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +44,9 @@ export const EditAdPage: React.FC = () => {
   const [price, setPrice] = useState('');
   const [location, setLocation] = useState('');
   const [contactInfo, setContactInfo] = useState('');
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [isGeocoding, setIsGeocoding] = useState(false);
 
   // Image tracking states
   // We separate images into 'existing Cloudinary URLs' and 'new File uploads'
@@ -56,6 +85,10 @@ export const EditAdPage: React.FC = () => {
         setPrice(ad.price.toString());
         setLocation(ad.location);
         setContactInfo(ad.contact_info);
+        if (ad.latitude !== null && ad.longitude !== null) {
+          setLatitude(ad.latitude);
+          setLongitude(ad.longitude);
+        }
         
         const urls = ad.images.map(img => img.cloudinary_url);
         setExistingImages(urls);
@@ -164,6 +197,23 @@ export const EditAdPage: React.FC = () => {
     setPreviews(combined);
   };
 
+  const reverseGeocode = async (lat: number, lng: number) => {
+    setIsGeocoding(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      );
+      const data = await res.json();
+      if (data.display_name) {
+        setLocation(data.display_name);
+      }
+    } catch (err) {
+      console.error('Reverse geocoding failed:', err);
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -193,6 +243,9 @@ export const EditAdPage: React.FC = () => {
       formData.append('price', price);
       formData.append('location', location.trim());
       formData.append('contact_info', contactInfo.trim());
+
+      if (latitude !== null) formData.append('latitude', String(latitude));
+      if (longitude !== null) formData.append('longitude', String(longitude));
 
       // Append existing images to keep
       formData.append('keep_images', JSON.stringify(existingImages));
@@ -313,21 +366,69 @@ export const EditAdPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Location */}
+                {/* Location — Leaflet Map Picker */}
                 <div className="flex flex-col gap-sm">
-                  <label className="font-label-md text-label-md text-on-surface" htmlFor="ad-location">Location</label>
+                  <label className="font-label-md text-label-md text-on-surface" htmlFor="ad-location">
+                    Location
+                  </label>
+
+                  {/* Interactive map */}
+                  <div
+                    className="w-full rounded-xl overflow-hidden border border-outline-variant"
+                    style={{ height: '280px', zIndex: 0 }}
+                  >
+                    <MapContainer
+                      key={`${latitude}-${longitude}`}
+                      center={
+                        latitude !== null && longitude !== null
+                          ? [latitude, longitude]
+                          : [20.5937, 78.9629]
+                      }
+                      zoom={latitude !== null ? 14 : 5}
+                      style={{ height: '100%', width: '100%' }}
+                      scrollWheelZoom={true}
+                    >
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      <LocationPicker
+                        position={latitude !== null && longitude !== null ? [latitude, longitude] : null}
+                        onPick={(lat, lng) => {
+                          setLatitude(lat);
+                          setLongitude(lng);
+                          reverseGeocode(lat, lng);
+                        }}
+                      />
+                    </MapContainer>
+                  </div>
+
+                  <p className="font-body-sm text-body-sm text-secondary">
+                    Click anywhere on the map to pin your location. The address will fill automatically.
+                  </p>
+
+                  {/* Address input — auto-filled but still manually editable */}
                   <div className="relative input-glow rounded-md transition-shadow duration-200">
-                    <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-secondary">location_on</span>
+                    <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-secondary">
+                      {isGeocoding ? 'sync' : 'location_on'}
+                    </span>
                     <input
                       className="w-full bg-surface-bright border border-outline-variant rounded-md pl-[44px] pr-md py-[10px] font-body-md text-body-md text-on-surface placeholder:text-secondary/60 focus:border-primary focus:outline-none transition-colors"
                       id="ad-location"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      placeholder="City, State or Neighborhood"
+                      placeholder="Click the map or type an address manually..."
                       type="text"
                       required
                     />
                   </div>
+
+                  {/* Coordinates badge — shows after pin */}
+                  {latitude !== null && longitude !== null && (
+                    <span className="font-label-sm text-label-sm text-secondary bg-surface-container-low px-sm py-xs rounded-full self-start">
+                      📍 {latitude.toFixed(5)}, {longitude.toFixed(5)}
+                    </span>
+                  )}
                 </div>
 
                 {/* Contact Information */}

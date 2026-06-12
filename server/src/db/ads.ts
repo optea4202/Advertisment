@@ -80,6 +80,8 @@ export const getAdsByOwner = async (ownerId: number): Promise<DbAd[]> => {
   return res.rows.map(row => ({
     ...row,
     price: parseFloat(row.price),
+    latitude: row.latitude !== null ? parseFloat(row.latitude) : null,
+    longitude: row.longitude !== null ? parseFloat(row.longitude) : null,
   }));
 };
 
@@ -109,7 +111,9 @@ export const getAdById = async (id: number): Promise<DbAd | null> => {
   if (res.rows.length === 0) return null;
   return {
     ...res.rows[0],
-    price: parseFloat(res.rows[0].price)
+    price: parseFloat(res.rows[0].price),
+    latitude: res.rows[0].latitude !== null ? parseFloat(res.rows[0].latitude) : null,
+    longitude: res.rows[0].longitude !== null ? parseFloat(res.rows[0].longitude) : null,
   };
 };
 
@@ -201,6 +205,8 @@ export const getAds = async (filters: { category?: string; search?: string }): P
   return res.rows.map(row => ({
     ...row,
     price: parseFloat(row.price),
+    latitude: row.latitude !== null ? parseFloat(row.latitude) : null,
+    longitude: row.longitude !== null ? parseFloat(row.longitude) : null,
   }));
 };
 

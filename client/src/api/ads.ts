@@ -16,6 +16,8 @@ export interface Ad {
   price: number;
   location: string;
   contact_info: string;
+  latitude: number | null;
+  longitude: number | null;
   created_at: string;
   updated_at: string;
   images: AdImage[];

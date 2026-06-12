@@ -3,6 +3,32 @@ import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { createAd } from '../api/ads.js';
 import { compressImage } from '../utils/imageCompressor.js';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+// Fix broken default marker icons in Vite
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
+
+const LocationPicker: React.FC<{
+  position: [number, number] | null;
+  onPick: (lat: number, lng: number) => void;
+}> = ({ position, onPick }) => {
+  useMapEvents({
+    click(e) {
+      onPick(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return position ? <Marker position={position} /> : null;
+};
 
 export const CreateAdPage: React.FC = () => {
   const navigate = useNavigate();
@@ -15,6 +41,9 @@ export const CreateAdPage: React.FC = () => {
   const [price, setPrice] = useState('');
   const [location, setLocation] = useState('');
   const [contactInfo, setContactInfo] = useState('');
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [isGeocoding, setIsGeocoding] = useState(false);
 
   // Image states
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -75,6 +104,23 @@ export const CreateAdPage: React.FC = () => {
     setImagePreviews(newPreviews);
   };
 
+  const reverseGeocode = async (lat: number, lng: number) => {
+    setIsGeocoding(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      );
+      const data = await res.json();
+      if (data.display_name) {
+        setLocation(data.display_name);
+      }
+    } catch (err) {
+      console.error('Reverse geocoding failed:', err);
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -100,6 +146,9 @@ export const CreateAdPage: React.FC = () => {
       formData.append('price', price);
       formData.append('location', location.trim());
       formData.append('contact_info', contactInfo.trim());
+
+      if (latitude !== null) formData.append('latitude', String(latitude));
+      if (longitude !== null) formData.append('longitude', String(longitude));
 
       // Compress images before uploading
       const compressedFilesPromises = selectedFiles.map((file) => compressImage(file, 1200, 0.8));
@@ -128,7 +177,7 @@ export const CreateAdPage: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-grow w-full max-w-container-max mx-auto px-md md:px-xl py-xl md:py-xxl flex flex-col gap-xl">
-        
+
         {/* Page Header */}
         <div className="flex flex-col gap-xs">
           <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">Create Advertisement</h1>
@@ -144,11 +193,11 @@ export const CreateAdPage: React.FC = () => {
 
         {/* Bento Grid Form Layout */}
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
-          
+
           {/* Left Column: Primary Details (7 cols) */}
           <div className="lg:col-span-7 flex flex-col gap-xl">
             <div className="bg-surface-container-lowest rounded-2xl elevation-1 p-xl flex flex-col gap-lg border border-outline-variant/30">
-              
+
               {/* Title */}
               <div className="flex flex-col gap-sm">
                 <label className="font-label-md text-label-md text-on-surface" htmlFor="ad-title">Advertisement Title</label>
@@ -208,21 +257,64 @@ export const CreateAdPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Location */}
+              {/* Location — Leaflet Map Picker */}
               <div className="flex flex-col gap-sm">
-                <label className="font-label-md text-label-md text-on-surface" htmlFor="ad-location">Location</label>
+                <label className="font-label-md text-label-md text-on-surface" htmlFor="ad-location">
+                  Location
+                </label>
+
+                {/* Interactive map */}
+                <div
+                  className="w-full rounded-xl overflow-hidden border border-outline-variant"
+                  style={{ height: '280px', zIndex: 0 }}
+                >
+                  <MapContainer
+                    center={[20.5937, 78.9629]}
+                    zoom={5}
+                    style={{ height: '100%', width: '100%' }}
+                    scrollWheelZoom={true}
+                  >
+                    <TileLayer
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <LocationPicker
+                      position={latitude !== null && longitude !== null ? [latitude, longitude] : null}
+                      onPick={(lat, lng) => {
+                        setLatitude(lat);
+                        setLongitude(lng);
+                        reverseGeocode(lat, lng);
+                      }}
+                    />
+                  </MapContainer>
+                </div>
+
+                <p className="font-body-sm text-body-sm text-secondary">
+                  Click anywhere on the map to pin your location. The address will fill automatically.
+                </p>
+
+                {/* Address input — auto-filled but still manually editable */}
                 <div className="relative input-glow rounded-md transition-shadow duration-200">
-                  <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-secondary">location_on</span>
+                  <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-secondary">
+                    {isGeocoding ? 'sync' : 'location_on'}
+                  </span>
                   <input
                     className="w-full bg-surface-bright border border-outline-variant rounded-md pl-[44px] pr-md py-[10px] font-body-md text-body-md text-on-surface placeholder:text-secondary/60 focus:border-primary focus:outline-none transition-colors"
                     id="ad-location"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    placeholder="City, State or Neighborhood"
+                    placeholder="Click the map or type an address manually..."
                     type="text"
                     required
                   />
                 </div>
+
+                {/* Coordinates badge — shows after pin */}
+                {latitude !== null && longitude !== null && (
+                  <span className="font-label-sm text-label-sm text-secondary bg-surface-container-low px-sm py-xs rounded-full self-start">
+                    📍 {latitude.toFixed(5)}, {longitude.toFixed(5)}
+                  </span>
+                )}
               </div>
 
               {/* Contact Information */}
@@ -262,7 +354,7 @@ export const CreateAdPage: React.FC = () => {
 
           {/* Right Column: Media & Actions (5 cols) */}
           <div className="lg:col-span-5 flex flex-col gap-xl">
-            
+
             {/* Image Upload Area */}
             <div className="bg-surface-container-lowest rounded-2xl elevation-1 p-xl flex flex-col gap-md border border-outline-variant/30">
               <div className="flex justify-between items-center">
@@ -272,9 +364,9 @@ export const CreateAdPage: React.FC = () => {
                 </span>
               </div>
               <p className="font-body-sm text-body-sm text-secondary">Upload up to 5 images. The first image will be the cover photo.</p>
-              
+
               {/* Drag & Drop Zone */}
-              <div 
+              <div
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
@@ -288,7 +380,7 @@ export const CreateAdPage: React.FC = () => {
                   <span className="font-body-md text-body-md text-secondary"> or drag and drop</span>
                 </div>
                 <span className="font-body-sm text-body-sm text-secondary/70">PNG, JPG, WEBP up to 10MB</span>
-                <input 
+                <input
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileSelect}
@@ -302,21 +394,20 @@ export const CreateAdPage: React.FC = () => {
               {imagePreviews.length > 0 && (
                 <div className="grid grid-cols-4 gap-sm mt-sm">
                   {imagePreviews.map((preview, index) => (
-                    <div 
+                    <div
                       key={index}
-                      className={`relative aspect-square rounded-lg border border-outline-variant bg-surface-container-lowest overflow-hidden group ${
-                        index === 0 ? 'col-span-2 row-span-2' : ''
-                      }`}
+                      className={`relative aspect-square rounded-lg border border-outline-variant bg-surface-container-lowest overflow-hidden group ${index === 0 ? 'col-span-2 row-span-2' : ''
+                        }`}
                     >
                       <img src={preview} alt="Upload preview" className="w-full h-full object-cover" />
-                      
+
                       {/* Cover label for first image */}
                       {index === 0 && (
                         <div className="absolute bottom-xs left-xs bg-surface-container-highest/80 backdrop-blur-sm px-[6px] py-[2px] rounded text-[10px] font-semibold text-on-surface uppercase tracking-wider">
                           Cover
                         </div>
                       )}
-                      
+
                       {/* Delete button on hover */}
                       <button
                         type="button"
@@ -341,7 +432,7 @@ export const CreateAdPage: React.FC = () => {
                 <span className="material-symbols-outlined text-sm">send</span>
                 {isSubmitting ? 'Optimizing & Publishing...' : 'Publish Advertisement'}
               </button>
-              
+
               <button
                 type="button"
                 onClick={() => navigate('/dashboard')}

@@ -10,7 +10,9 @@ const createAdSchema = z.object({
   category: z.string().min(1, { message: 'Category is required' }).max(100),
   price: z.coerce.number().positive({ message: 'Price must be a positive number' }),
   location: z.string().min(1, { message: 'Location is required' }).max(255),
-  contact_info: z.string().min(1, { message: 'Contact information is required' }).max(500)
+  contact_info: z.string().min(1, { message: 'Contact information is required' }).max(500),
+  latitude: z.coerce.number().optional().nullable(),
+  longitude: z.coerce.number().optional().nullable()
 });
 
 export const handleCreateAd = async (req: Request, res: Response, next: NextFunction) => {
@@ -45,7 +47,7 @@ export const handleCreateAd = async (req: Request, res: Response, next: NextFunc
 
     // 4. Create ad via service layer
     const newAd = await createAd(req.user.id, bodyResult.data, filesArray);
-    
+
     return res.status(201).json({ data: newAd });
   } catch (error) {
     next(error);
@@ -230,7 +232,7 @@ export const handleGetAds = async (req: Request, res: Response, next: NextFuncti
 
     const { category, search } = queryResult.data;
     const ads = await getAds({ category, search });
-    
+
     return res.status(200).json({ data: ads });
   } catch (error) {
     next(error);

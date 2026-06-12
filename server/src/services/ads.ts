@@ -85,7 +85,9 @@ export const createAd = async (
     const finalAd = completeAdRes.rows[0];
     return {
       ...finalAd,
-      price: parseFloat(finalAd.price)
+      price: parseFloat(finalAd.price),
+      latitude: finalAd.latitude !== null ? parseFloat(finalAd.latitude) : null,
+      longitude: finalAd.longitude !== null ? parseFloat(finalAd.longitude) : null,
     };
   } catch (error) {
     await client.query('ROLLBACK');

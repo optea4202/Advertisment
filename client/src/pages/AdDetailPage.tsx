@@ -150,6 +150,26 @@ export const AdDetailPage: React.FC = () => {
                       <span className="material-symbols-outlined text-secondary text-[20px]">location_on</span>
                       <span>{ad.location}</span>
                     </div>
+
+                    {/* Small Google Map (OLX style, placed between location text and posted date) */}
+                    {ad.location && (
+                      <div className="w-full rounded-xl overflow-hidden border border-outline-variant/20 shadow-sm my-xs">
+                        <iframe
+                          title="Ad location map"
+                          width="100%"
+                          height="150"
+                          style={{ border: 0 }}
+                          loading="lazy"
+                          allowFullScreen
+                          src={
+                            typeof ad.latitude === 'number' && typeof ad.longitude === 'number'
+                              ? `https://maps.google.com/maps?q=${ad.latitude},${ad.longitude}&z=15&output=embed`
+                              : `https://maps.google.com/maps?q=${encodeURIComponent(ad.location)}&z=15&output=embed`
+                          }
+                        />
+                      </div>
+                    )}
+
                     <div className="flex items-center gap-sm">
                       <span className="material-symbols-outlined text-secondary text-[20px]">calendar_today</span>
                       <span>Posted on {new Date(ad.created_at).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
@@ -208,6 +228,8 @@ export const AdDetailPage: React.FC = () => {
 
               </div>
             </div>
+
+
 
             {/* Description Block */}
             <div className="bg-surface-container-lowest rounded-2xl elevation-1 border border-outline-variant/20 p-xl flex flex-col gap-md">
