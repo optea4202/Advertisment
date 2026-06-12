@@ -8,6 +8,7 @@ import { deleteAd, type Ad } from '../api/ads.js';
 import { startConversation } from '../api/chats.js';
 import { getWishlist } from '../api/wishlist.js';
 import { useWishlist } from '../context/WishlistContext.js';
+import { ReportModal } from '../components/ReportModal.js';
 
 export const UserProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +19,7 @@ export const UserProfilePage: React.FC = () => {
 
   const isOwnProfile = currentUser?.id === numericId;
   const [startingChat, setStartingChat] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   // Wishlist state and hooks
   const { wishlistIds } = useWishlist();
@@ -179,6 +181,21 @@ export const UserProfilePage: React.FC = () => {
                         {startingChat ? 'Opening…' : 'Message'}
                       </button>
                     )}
+                    {!isOwnProfile && (
+                      <button
+                        onClick={() => {
+                          if (!currentUser) {
+                            navigate('/login');
+                          } else {
+                            setShowReportModal(true);
+                          }
+                        }}
+                        className="flex items-center gap-xs bg-error-container text-on-error-container border border-error/20 font-label-md text-label-md px-md py-xs rounded-lg hover:bg-error-container/80 transition-all active:scale-[0.98]"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">flag</span>
+                        Report
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -338,6 +355,14 @@ export const UserProfilePage: React.FC = () => {
           </>
         )}
       </main>
+
+      {showReportModal && profile && (
+        <ReportModal
+          type="user"
+          itemId={profile.user.id}
+          onClose={() => setShowReportModal(false)}
+        />
+      )}
     </div>
   );
 };

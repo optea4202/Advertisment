@@ -12,16 +12,19 @@ import {
 import { type Ad } from '../api/ads.js';
 import { type Review } from '../api/reviews.js';
 import { type UserProfile } from '../api/users.js';
+import { getReports, deleteReport, type Report } from '../api/reports.js';
+import { Link, useSearchParams } from 'react-router-dom';
 
-type Tab = 'ads' | 'reviews' | 'users';
+type Tab = 'ads' | 'reviews' | 'users' | 'reports';
 
 export const AdminPage: React.FC = () => {
   const { user: currentUser } = useAuth();
-  
-  const [activeTab, setActiveTab] = useState<Tab>('ads');
+  const [searchParams] = useSearchParams();
+  const activeTab = (searchParams.get('tab') as Tab) || 'ads';
   const [ads, setAds] = useState<Ad[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -40,6 +43,9 @@ export const AdminPage: React.FC = () => {
       } else if (tab === 'users') {
         const data = await adminGetUsers();
         setUsers(data);
+      } else if (tab === 'reports') {
+        const data = await getReports();
+        setReports(data);
       }
     } catch (err: any) {
       console.error(`Error fetching admin ${tab}:`, err);
@@ -71,7 +77,7 @@ export const AdminPage: React.FC = () => {
     try {
       await adminDeleteAd(id);
       showFeedback(`Successfully deleted advertisement "${title}".`);
-      fetchData('ads');
+      fetchData(activeTab);
     } catch (err: any) {
       console.error('Admin delete ad failed:', err);
       showFeedback(null, err.response?.data?.error?.message || 'Failed to delete advertisement.');
@@ -85,7 +91,7 @@ export const AdminPage: React.FC = () => {
     try {
       await adminDeleteReview(id);
       showFeedback(`Successfully deleted review by "${reviewer}".`);
-      fetchData('reviews');
+      fetchData(activeTab);
     } catch (err: any) {
       console.error('Admin delete review failed:', err);
       showFeedback(null, 'Failed to delete review.');
@@ -100,10 +106,21 @@ export const AdminPage: React.FC = () => {
     try {
       await adminBanUser(userId, !currentBanStatus);
       showFeedback(`Successfully updated ban status for "${username}".`);
-      fetchData('users');
+      fetchData(activeTab);
     } catch (err: any) {
       console.error('Admin ban user toggle failed:', err);
       showFeedback(null, err.response?.data?.error?.message || `Failed to ${actionWord} user.`);
+    }
+  };
+
+  const handleDismissReport = async (reportId: number) => {
+    try {
+      await deleteReport(reportId);
+      showFeedback('Report dismissed/resolved successfully.');
+      fetchData('reports');
+    } catch (err: any) {
+      console.error('Failed to dismiss report:', err);
+      showFeedback(null, 'Failed to dismiss report.');
     }
   };
 
@@ -136,33 +153,7 @@ export const AdminPage: React.FC = () => {
           </div>
         )}
 
-        {/* Tab Selection Row */}
-        <div className="flex border-b border-outline-variant/30 gap-sm mt-xs">
-          {(['ads', 'reviews', 'users'] as Tab[]).map((tab) => {
-            const isActive = activeTab === tab;
-            const labels = { ads: 'Advertisements', reviews: 'Reviews & Ratings', users: 'User Accounts' };
-            const icons = { ads: 'campaign', reviews: 'rate_review', users: 'group' };
-            return (
-              <button
-                key={tab}
-                onClick={() => {
-                  setActiveTab(tab);
-                  setAds([]);
-                  setReviews([]);
-                  setUsers([]);
-                }}
-                className={`pb-md px-sm font-label-md text-label-md transition-all border-b-2 flex items-center gap-xs capitalize ${
-                  isActive
-                    ? 'border-primary text-primary font-bold'
-                    : 'border-transparent text-secondary hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[20px]">{icons[tab]}</span>
-                {labels[tab]}
-              </button>
-            );
-          })}
-        </div>
+        {/* Tab Selection Row integrated into the main header Navbar */}
 
         {/* Dynamic List Content */}
         <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-md md:p-xl shadow-sm min-h-[350px]">
@@ -343,6 +334,136 @@ export const AdminPage: React.FC = () => {
                                     {usr.is_banned ? 'Unban Account' : 'Ban Account'}
                                   </button>
                                 )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              )}
+
+              {/* REPORTS TAB */}
+              {activeTab === 'reports' && (
+                <div className="overflow-x-auto">
+                  {reports.length === 0 ? (
+                    <div className="py-xl text-center text-secondary font-body-md">No reports exist on the platform.</div>
+                  ) : (
+                    <table className="w-full text-left font-body-md border-collapse">
+                      <thead>
+                        <tr className="border-b border-outline-variant/20 text-secondary text-label-sm font-label-sm uppercase tracking-wider">
+                          <th className="pb-md">Reporter</th>
+                          <th className="pb-md">Reported Type</th>
+                          <th className="pb-md">Target Preview / Content</th>
+                          <th className="pb-md">Reason for Report</th>
+                          <th className="pb-md">Date</th>
+                          <th className="pb-md text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-outline-variant/10">
+                        {reports.map((rep) => {
+                          let previewContent: React.ReactNode = null;
+                          if (rep.reported_item_type === 'ad' && rep.ad_id) {
+                            previewContent = (
+                              <div className="flex flex-col gap-xs">
+                                <span className="font-semibold text-on-surface">Ad Pinned</span>
+                                <Link 
+                                  to={`/ads/${rep.ad_id}`} 
+                                  className="text-primary hover:underline text-body-sm inline-flex items-center gap-[2px]"
+                                >
+                                  {rep.ad_title || `Ad #${rep.ad_id}`}
+                                  <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                                </Link>
+                              </div>
+                            );
+                          } else if (rep.reported_item_type === 'user' && rep.reported_user_id) {
+                            previewContent = (
+                              <div className="flex flex-col gap-xs">
+                                <span className="font-semibold text-on-surface">User Profile</span>
+                                <Link 
+                                  to={`/profile/${rep.reported_user_id}`} 
+                                  className="text-primary hover:underline text-body-sm inline-flex items-center gap-[2px]"
+                                >
+                                  @{rep.reported_username || `User #${rep.reported_user_id}`}
+                                  <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                                </Link>
+                              </div>
+                            );
+                          } else if (rep.reported_item_type === 'review' && rep.review_id) {
+                            previewContent = (
+                              <div className="flex flex-col gap-xs max-w-[250px]">
+                                <span className="font-semibold text-on-surface">Review Comment</span>
+                                <p className="text-secondary text-body-sm italic truncate">"{rep.review_text || 'No comment text'}"</p>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <tr key={rep.id} className="hover:bg-surface-container-low/20 transition-colors">
+                              <td className="py-md font-semibold text-on-surface">@{rep.reporter_username}</td>
+                              <td className="py-md">
+                                <span className={`text-[11px] font-semibold px-sm py-[2px] rounded-full uppercase tracking-wider ${
+                                  rep.reported_item_type === 'ad'
+                                    ? 'bg-primary-fixed text-on-primary-fixed'
+                                    : rep.reported_item_type === 'user'
+                                    ? 'bg-secondary-fixed text-on-secondary-fixed'
+                                    : 'bg-tertiary-fixed text-on-tertiary-fixed'
+                                }`}>
+                                  {rep.reported_item_type}
+                                </span>
+                              </td>
+                              <td className="py-md">{previewContent}</td>
+                              <td className="py-md text-secondary max-w-[200px] truncate" title={rep.reason}>
+                                {rep.reason}
+                              </td>
+                              <td className="py-md text-secondary text-body-sm">
+                                {new Date(rep.created_at).toLocaleDateString(undefined, { dateStyle: 'short' })}
+                              </td>
+                              <td className="py-md text-right">
+                                <div className="flex items-center gap-xs justify-end flex-wrap">
+                                  {/* Item deletion/ban actions */}
+                                  {rep.reported_item_type === 'ad' && rep.ad_id && (
+                                    <button
+                                      onClick={() => handleDeleteAd(rep.ad_id!, rep.ad_title || 'Advertisement')}
+                                      className="py-[6px] px-sm rounded-lg text-label-sm font-label-sm bg-error text-on-error hover:brightness-95 active:scale-95 transition-all flex items-center gap-xs inline-flex"
+                                      title="Delete reported ad"
+                                    >
+                                      <span className="material-symbols-outlined text-[16px]">delete</span>
+                                      Delete Ad
+                                    </button>
+                                  )}
+                                  {rep.reported_item_type === 'review' && rep.review_id && (
+                                    <button
+                                      onClick={() => handleDeleteReview(rep.review_id!, rep.reporter_username || 'Reviewer')}
+                                      className="py-[6px] px-sm rounded-lg text-label-sm font-label-sm bg-error text-on-error hover:brightness-95 active:scale-95 transition-all flex items-center gap-xs inline-flex"
+                                      title="Delete reported review"
+                                    >
+                                      <span className="material-symbols-outlined text-[16px]">delete</span>
+                                      Delete Review
+                                    </button>
+                                  )}
+                                  {rep.reported_item_type === 'user' && rep.reported_user_id && (
+                                    <button
+                                      onClick={() => handleBanToggle(rep.reported_user_id!, rep.reported_username || 'User', false)}
+                                      className="py-[6px] px-sm rounded-lg text-label-sm font-label-sm bg-error text-on-error hover:brightness-95 active:scale-95 transition-all flex items-center gap-xs inline-flex"
+                                      title="Ban reported user"
+                                    >
+                                      <span className="material-symbols-outlined text-[16px]">block</span>
+                                      Ban User
+                                    </button>
+                                  )}
+
+                                  {/* Dismiss Report button */}
+                                  <button
+                                    onClick={() => handleDismissReport(rep.id)}
+                                    className="py-[6px] px-sm rounded-lg text-label-sm font-label-sm bg-surface-container-highest text-on-surface-variant border border-outline-variant/30 hover:brightness-95 active:scale-95 transition-all flex items-center gap-xs inline-flex"
+                                    title="Dismiss report without taking action"
+                                  >
+                                    <span className="material-symbols-outlined text-[16px]">check</span>
+                                    Dismiss
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           );

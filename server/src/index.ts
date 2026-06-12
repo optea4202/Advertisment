@@ -8,6 +8,7 @@ import reviewRoutes from './routes/reviews.js';
 import adminRoutes from './routes/admin.js';
 import chatRoutes from './routes/chats.js';
 import wishlistRoutes from './routes/wishlist.js';
+import reportRoutes from './routes/reports.js';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Health check endpoint (checks database connectivity)
 app.get('/health', async (req: Request, res: Response, next: NextFunction) => {

@@ -1,13 +1,16 @@
 import React from 'react';
 import { type Review } from '../api/reviews.js';
+import { useAuth } from '../context/AuthContext.js';
 
 interface ReviewListProps {
   reviews: Review[];
   loading: boolean;
   error: Error | null;
+  onReportReview?: (reviewId: number) => void;
 }
 
-export const ReviewList: React.FC<ReviewListProps> = ({ reviews, loading, error }) => {
+export const ReviewList: React.FC<ReviewListProps> = ({ reviews, loading, error, onReportReview }) => {
+  const { user } = useAuth();
   if (error) {
     return (
       <div className="p-md bg-error-container text-on-error-container rounded-lg border border-error/10 text-body-sm text-center">
@@ -83,23 +86,35 @@ export const ReviewList: React.FC<ReviewListProps> = ({ reviews, loading, error 
                 </div>
               </div>
 
-              {/* Star Rating Display */}
-              <div className="flex items-center gap-[2px]">
-                {[1, 2, 3, 4, 5].map((star) => {
-                  const isFilled = star <= review.star_rating;
-                  return (
-                    <span
-                      key={star}
-                      className="material-symbols-outlined text-[18px] select-none block"
-                      style={{
-                        fontVariationSettings: isFilled ? "'FILL' 1" : "'FILL' 0",
-                        color: isFilled ? '#ffb700' : 'var(--color-outline-variant)'
-                      }}
-                    >
-                      star
-                    </span>
-                  );
-                })}
+              {/* Star Rating Display & Report Button */}
+              <div className="flex items-center gap-sm">
+                <div className="flex items-center gap-[2px]">
+                  {[1, 2, 3, 4, 5].map((star) => {
+                    const isFilled = star <= review.star_rating;
+                    return (
+                      <span
+                        key={star}
+                        className="material-symbols-outlined text-[18px] select-none block"
+                        style={{
+                          fontVariationSettings: isFilled ? "'FILL' 1" : "'FILL' 0",
+                          color: isFilled ? '#ffb700' : 'var(--color-outline-variant)'
+                        }}
+                      >
+                        star
+                      </span>
+                    );
+                  })}
+                </div>
+
+                {user?.id !== review.reviewer_id && onReportReview && (
+                  <button
+                    onClick={() => onReportReview(review.id)}
+                    className="text-on-surface-variant hover:text-error transition-colors p-[6px] rounded-full hover:bg-surface-container flex items-center justify-center focus:outline-none"
+                    title="Report review"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">flag</span>
+                  </button>
+                )}
               </div>
             </div>
 

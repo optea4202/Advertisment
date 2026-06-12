@@ -40,6 +40,16 @@ export const getReviewsByAdId = async (adId: number): Promise<DbReview[]> => {
   return res.rows;
 };
 
+export const getReviewById = async (id: number): Promise<DbReview | null> => {
+  const sql = `
+    SELECT * FROM reviews
+    WHERE id = $1
+  `;
+  const res = await query(sql, [id]);
+  if (res.rows.length === 0) return null;
+  return res.rows[0];
+};
+
 export const deleteReviewRecord = async (id: number): Promise<void> => {
   const sql = `
     DELETE FROM reviews

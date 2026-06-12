@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { SearchBar } from '../components/SearchBar.js';
 import { CategoryFilter } from '../components/CategoryFilter.js';
 import { AdCard } from '../components/AdCard.js';
 import { useFeed } from '../hooks/useAds.js';
+import { useAuth } from '../context/AuthContext.js';
 
 export const FeedPage: React.FC = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user?.is_admin) {
+      navigate('/admin', { replace: true });
+    }
+  }, [user, navigate]);
+
   const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
   const [spotlightIndex, setSpotlightIndex] = useState(0);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { useAuth } from '../context/AuthContext.js';
 
@@ -57,6 +57,13 @@ const steps = [
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (user?.is_admin) {
+      navigate('/admin', { replace: true });
+    }
+  }, [user, navigate]);
 
   return (
     <div className="bg-surface text-on-surface min-h-screen flex flex-col">

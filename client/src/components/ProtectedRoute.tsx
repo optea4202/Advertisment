@@ -24,6 +24,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Redirect admins to /admin on user-specific protected routes
+  if (user?.is_admin) {
+    return <Navigate to="/admin" replace />;
+  }
+
   // Render a banned banner if user is banned
   if (user?.is_banned) {
     return (

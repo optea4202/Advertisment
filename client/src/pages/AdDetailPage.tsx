@@ -9,6 +9,7 @@ import { ReviewForm } from '../components/ReviewForm.js';
 import { ReviewList } from '../components/ReviewList.js';
 import { startConversation } from '../api/chats.js';
 import { useWishlist } from '../context/WishlistContext.js';
+import { ReportModal } from '../components/ReportModal.js';
 
 export const AdDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +25,8 @@ export const AdDetailPage: React.FC = () => {
   const [showShareSheet, setShowShareSheet] = useState(false);
   const [copied, setCopied] = useState(false);
   const shareRef = useRef<HTMLDivElement>(null);
+  const [reportType, setReportType] = useState<'ad' | 'review' | null>(null);
+  const [reportItemId, setReportItemId] = useState<number | null>(null);
 
   // Close share sheet when clicking outside
   useEffect(() => {
@@ -301,6 +304,24 @@ export const AdDetailPage: React.FC = () => {
                     )}
                   </div>
 
+                  {/* Report Section */}
+                  {!isOwner && (
+                    <button
+                      onClick={() => {
+                        if (!user) {
+                          navigate('/login');
+                        } else {
+                          setReportType('ad');
+                          setReportItemId(adId);
+                        }
+                      }}
+                      className="w-full flex items-center justify-center gap-sm border border-error/30 bg-error-container hover:bg-error-container/80 text-on-error-container font-label-md text-label-md px-md py-[9px] rounded-xl transition-all duration-200 active:scale-[0.98] focus:outline-none"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">flag</span>
+                      Report this Ad
+                    </button>
+                  )}
+
                 </div>
 
                 {/* Publisher info card — links to the owner's public profile */}
@@ -369,12 +390,35 @@ export const AdDetailPage: React.FC = () => {
                 </div>
               )}
 
-              <ReviewList reviews={reviews} loading={loadingReviews} error={errorReviews} />
+              <ReviewList 
+                reviews={reviews} 
+                loading={loadingReviews} 
+                error={errorReviews} 
+                onReportReview={(reviewId) => {
+                  if (!user) {
+                    navigate('/login');
+                  } else {
+                    setReportType('review');
+                    setReportItemId(reviewId);
+                  }
+                }}
+              />
             </div>
 
           </div>
         )}
       </main>
+
+      {reportType && reportItemId && (
+        <ReportModal 
+          type={reportType} 
+          itemId={reportItemId} 
+          onClose={() => {
+            setReportType(null);
+            setReportItemId(null);
+          }} 
+        />
+      )}
     </div>
   );
 };
