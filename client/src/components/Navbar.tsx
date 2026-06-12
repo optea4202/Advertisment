@@ -32,10 +32,20 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      <header className="bg-surface-container-lowest border-b border-outline-variant full-width top-0 sticky z-50 shadow-sm md:fixed md:left-0 md:top-0 md:h-screen md:w-[240px] md:border-r md:border-b-0 md:shadow-md md:bg-surface-container-high">
-        <div className="flex justify-between items-center w-full px-sm py-xs md:px-md lg:px-lg md:py-md max-w-container-max mx-auto gap-md md:flex-col md:justify-start md:items-stretch md:h-full md:gap-lg md:px-md md:py-lg">
+      <header className={`bg-surface-container-lowest border-b border-outline-variant top-0 z-50 shadow-sm ${
+          user?.is_admin
+            ? 'fixed left-0 h-screen w-[240px] border-r border-b-0 shadow-md bg-surface-container-high'
+            : 'sticky w-full'
+        }`}>
+        <div className={`flex w-full px-sm py-xs gap-md ${
+          user?.is_admin
+            ? 'flex-col justify-start items-stretch h-full gap-lg px-md py-lg'
+            : 'justify-between items-center md:px-md lg:px-lg md:py-md max-w-container-max mx-auto'
+        }`}>
           
-          <div className="flex items-center gap-md lg:gap-xl overflow-x-auto scrollbar-none py-xs md:flex-col md:items-stretch md:gap-lg md:w-full md:overflow-visible">
+          <div className={`flex items-center gap-md lg:gap-xl overflow-x-auto scrollbar-none py-xs ${
+            user?.is_admin ? 'flex-col items-stretch gap-lg w-full overflow-visible' : ''
+          }`}>
             {/* Brand / Logo */}
             <Link to={user?.is_admin ? "/admin" : "/"} className="flex items-center gap-xs md:gap-sm shrink-0">
               <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-lg flex items-center justify-center text-on-primary">
@@ -45,7 +55,9 @@ export const Navbar: React.FC = () => {
             </Link>
 
             {/* Navigation Links */}
-            <nav className={`${user?.is_admin ? 'flex' : 'hidden md:flex'} items-center gap-xs lg:gap-md overflow-x-auto scrollbar-none whitespace-nowrap py-xs md:flex-col md:items-stretch md:gap-sm md:w-full md:overflow-visible`}>
+            <nav className={`${
+              user?.is_admin ? 'flex flex-col items-stretch gap-sm w-full overflow-visible' : 'hidden md:flex items-center gap-xs lg:gap-md overflow-x-auto scrollbar-none whitespace-nowrap py-xs'
+            }`}>
               {user?.is_admin ? (
                 <>
                   <Link 
@@ -136,20 +148,23 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* User Info / Actions */}
-          <div className="flex items-center gap-xs md:gap-md shrink-0 md:flex-col md:items-stretch md:w-full md:mt-auto md:pt-md md:border-t md:border-outline-variant/20">
+          <div className={`flex items-center gap-xs shrink-0 ${
+            user?.is_admin
+              ? 'flex-col items-stretch w-full mt-auto pt-md border-t border-outline-variant/20'
+              : 'md:gap-md'
+          }`}>
             {/* Inbox Button */}
             {user && !user.is_admin && (
               <Link
                 to="/inbox"
-                className={`relative text-secondary hover:text-primary transition-colors px-xs py-xs md:px-md md:py-sm flex items-center gap-xs md:gap-sm rounded-md md:rounded-lg ${
+                className={`relative text-secondary hover:text-primary transition-colors px-xs py-xs flex items-center gap-xs rounded-md ${
                   isActive('/inbox') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
                 }`}
                 title="Inbox"
               >
                 <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActive('/inbox') ? "'FILL' 1" : "'FILL' 0" }}>inbox</span>
-                <span className="text-body-sm font-bold md:inline hidden">Inbox</span>
                 {hasUnreadMessages && (
-                  <span className="absolute top-[4px] right-[4px] md:top-[12px] md:right-[16px] flex h-2.5 w-2.5">
+                  <span className="absolute top-[4px] right-[4px] flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                   </span>
@@ -160,15 +175,19 @@ export const Navbar: React.FC = () => {
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
-              className="text-secondary hover:text-primary transition-colors px-xs py-xs md:px-md md:py-sm flex items-center gap-xs md:gap-sm rounded-md md:rounded-lg hover:bg-surface-container-low w-full text-left"
+              className={`text-secondary hover:text-primary transition-colors px-xs py-xs flex items-center gap-xs rounded-md hover:bg-surface-container-low text-left ${
+                user?.is_admin ? 'w-full px-md py-sm gap-sm rounded-lg' : ''
+              }`}
               title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
               <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: theme === 'dark' ? "'FILL' 1" : "'FILL' 0" }}>
                 {theme === 'dark' ? 'light_mode' : 'dark_mode'}
               </span>
-              <span className="text-body-sm font-bold md:inline hidden">
-                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-              </span>
+              {user?.is_admin && (
+                <span className="text-body-sm font-bold">
+                  {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                </span>
+              )}
             </button>
 
             {/* Mobile About Button */}
@@ -188,22 +207,24 @@ export const Navbar: React.FC = () => {
             {user && !user.is_admin && (
               <Link 
                 to="/ads/create" 
-                className="hidden sm:flex bg-primary text-on-primary font-label-md text-label-md px-md py-[8px] rounded-lg shadow-sm btn-primary-inner hover:brightness-110 active:scale-[0.98] transition-all items-center gap-xs md:gap-sm justify-center md:w-full"
+                className="hidden sm:flex bg-primary text-on-primary font-label-md text-label-md px-md py-[8px] rounded-lg shadow-sm btn-primary-inner hover:brightness-110 active:scale-[0.98] transition-all items-center gap-xs"
               >
                 <span className="material-symbols-outlined text-[18px]">add</span>
-                <span className="md:inline hidden">Post Ad</span>
+                Post Ad
               </Link>
             )}
 
             {/* User Profile / Auth State Actions */}
             {user ? (
-              <div className="flex items-center gap-sm md:flex-col md:items-stretch md:w-full md:gap-xs">
+              <div className={`flex items-center gap-sm ${
+                user?.is_admin ? 'flex-col items-stretch w-full gap-xs' : ''
+              }`}>
                 {!user.is_admin ? (
                   <>
-                    <div className="flex items-center gap-sm md:flex-col md:gap-xs md:mb-xs">
+                    <div className="flex items-center gap-sm">
                       <Link
                         to={`/profile/${user.id}`}
-                        className="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-primary/40 transition-all md:w-12 md:h-12"
+                        className="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-primary/40 transition-all"
                         title="View my profile"
                       >
                         {user.photo_url ? (
@@ -214,33 +235,30 @@ export const Navbar: React.FC = () => {
                           </div>
                         )}
                       </Link>
-                      <span className="text-body-sm font-semibold text-on-surface truncate max-w-[120px] md:block hidden text-center">{user.username}</span>
                     </div>
 
                     <Link
                       to="/settings"
-                      className={`text-secondary hover:text-primary transition-colors px-xs py-xs md:px-md md:py-sm flex items-center gap-xs md:gap-sm rounded-md md:rounded-lg w-full ${
+                      className={`text-secondary hover:text-primary transition-colors px-xs py-xs flex items-center gap-xs rounded-md ${
                         isActive('/settings') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
                       }`}
                       title="Settings"
                     >
                       <span className="material-symbols-outlined text-[20px]">settings</span>
-                      <span className="text-body-sm font-bold md:inline hidden">Settings</span>
                     </Link>
 
                     <button
                       onClick={() => signOut()}
-                      className="text-secondary hover:text-error transition-colors px-xs py-xs md:px-md md:py-sm flex items-center gap-xs md:gap-sm rounded-md md:rounded-lg w-full text-left hover:bg-surface-container-low"
+                      className="text-secondary hover:text-error transition-colors px-xs py-xs flex items-center gap-xs rounded-md hover:bg-surface-container-low"
                       title="Sign Out"
                     >
                       <span className="material-symbols-outlined text-[20px]">logout</span>
-                      <span className="text-body-sm font-bold md:inline hidden">Sign Out</span>
                     </button>
                   </>
                 ) : (
                   <>
-                    <div className="flex items-center gap-sm md:flex-row md:items-center md:justify-start md:w-full md:gap-sm md:mb-xs md:px-sm">
-                      <div className="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden shrink-0 md:w-10 md:h-10" title="Administrator">
+                    <div className="flex items-center gap-sm flex-row items-center justify-start w-full gap-sm mb-xs px-sm">
+                      <div className="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden shrink-0" title="Administrator">
                         {user.photo_url ? (
                           <img src={user.photo_url} alt={user.username} className="w-full h-full object-cover" />
                         ) : (
@@ -249,7 +267,7 @@ export const Navbar: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      <div className="flex flex-col items-start min-w-0 md:block hidden">
+                      <div className="flex flex-col items-start min-w-0">
                         <span className="text-body-sm font-bold text-on-surface truncate block">{user.username}</span>
                         <span className="text-[10px] bg-secondary-fixed text-on-secondary-fixed px-sm py-[1px] rounded-full font-bold uppercase tracking-wider mt-[2px] inline-block">Admin</span>
                       </div>
@@ -257,11 +275,11 @@ export const Navbar: React.FC = () => {
 
                     <button
                       onClick={() => signOut()}
-                      className="text-secondary hover:text-error transition-colors px-xs py-xs md:px-md md:py-sm flex items-center gap-xs md:gap-sm rounded-md md:rounded-lg w-full text-left hover:bg-surface-container-low"
+                      className="text-secondary hover:text-error transition-colors px-md py-sm flex items-center gap-sm rounded-lg w-full text-left hover:bg-surface-container-low"
                       title="Sign Out"
                     >
                       <span className="material-symbols-outlined text-[20px]">logout</span>
-                      <span className="text-body-sm font-bold md:inline hidden">Sign Out</span>
+                      <span className="text-body-sm font-bold">Sign Out</span>
                     </button>
                   </>
                 )}
@@ -269,7 +287,7 @@ export const Navbar: React.FC = () => {
             ) : (
               <Link
                 to="/login"
-                className="bg-primary text-on-primary font-label-md text-label-md px-md py-[8px] rounded-lg shadow-sm btn-primary-inner hover:brightness-110 active:scale-[0.98] transition-all text-center block md:w-full"
+                className="bg-primary text-on-primary font-label-md text-label-md px-md py-[8px] rounded-lg shadow-sm btn-primary-inner hover:brightness-110 active:scale-[0.98] transition-all text-center block"
               >
                 Sign In
               </Link>
