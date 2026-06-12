@@ -57,6 +57,7 @@ Update this file after every meaningful implementation change.
 - Added a Share button to `AdDetailPage` next to the Wishlist button. On mobile/supported browsers it invokes the native Web Share sheet (`navigator.share`); on desktop it copies the current page URL to the clipboard and shows a 2-second "Link copied!" pill toast with a fade-in-up animation.
 - Added a share button overlay to the `AdCard` component underneath the wishlist favorite heart icon, which reveals a premium sharing overlay covering the image container with social media sharing targets (WhatsApp, Telegram, Facebook, Twitter / X) and a copy link option.
 - Added client-side search inputs to the Admin Moderation Dashboard: "Search by title" on the Ads tab, "Search by comment" on the Reviews tab, and "Search by username" on the Users tab. Each input has a search icon prefix, a clear (×) button, and shows a contextual empty-state message when no matches are found.
+- Implemented a complete dashboard for the Admin Home page (`AdminHomePage.tsx` / `/admin/home`), rendering visual metrics cards (Active Ads, Total Users, Active vs Banned counts, Reviews, Average Rating, Pending Reports), an interactive custom CSS/HTML category distribution chart, quick actions, a feed of recent reports needing action, and recently posted advertisements.
 
 
 ## In Progress
