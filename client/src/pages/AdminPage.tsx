@@ -26,6 +26,10 @@ export const AdminPage: React.FC = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
 
+  const [adsSearch, setAdsSearch] = useState('');
+  const [reviewsSearch, setReviewsSearch] = useState('');
+  const [usersSearch, setUsersSearch] = useState('');
+
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -169,178 +173,268 @@ export const AdminPage: React.FC = () => {
             <>
               {/* ADS TAB */}
               {activeTab === 'ads' && (
-                <div className="overflow-x-auto">
-                  {ads.length === 0 ? (
-                    <div className="py-xl text-center text-secondary font-body-md">No advertisements exist on the platform.</div>
-                  ) : (
-                    <table className="w-full text-left font-body-md border-collapse">
-                      <thead>
-                        <tr className="border-b border-outline-variant/20 text-secondary text-label-sm font-label-sm uppercase tracking-wider">
-                          <th className="pb-md pr-md">Cover</th>
-                          <th className="pb-md">Title</th>
-                          <th className="pb-md">Category</th>
-                          <th className="pb-md">Price</th>
-                          <th className="pb-md">Location</th>
-                          <th className="pb-md text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-outline-variant/10">
-                        {ads.map((ad) => {
-                          const thumbnail = ad.images?.[0]?.cloudinary_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop';
-                          return (
-                            <tr key={ad.id} className="hover:bg-surface-container-low/20 transition-colors">
-                              <td className="py-md pr-md">
-                                <div className="w-12 h-10 rounded-md overflow-hidden bg-surface-container border border-outline-variant/20">
-                                  <img src={thumbnail} alt="" className="w-full h-full object-cover" />
-                                </div>
-                              </td>
-                              <td className="py-md font-semibold text-on-surface">
-                                <span className="block max-w-[200px] truncate">{ad.title}</span>
-                              </td>
-                              <td className="py-md text-secondary">{ad.category}</td>
-                              <td className="py-md font-semibold text-primary">₹{ad.price.toFixed(2)}</td>
-                              <td className="py-md text-secondary">{ad.location}</td>
-                              <td className="py-md text-right">
-                                <button
-                                  onClick={() => handleDeleteAd(ad.id, ad.title)}
-                                  className="py-[6px] px-md rounded-lg text-label-sm font-label-sm bg-error-container text-on-error-container border border-error/10 hover:brightness-95 active:scale-95 transition-all flex items-center gap-xs inline-flex"
-                                >
-                                  <span className="material-symbols-outlined text-[16px]">delete</span>
-                                  Delete
-                                </button>
-                              </td>
+                <div className="flex flex-col gap-md">
+                  {/* Search bar */}
+                  <div className="relative max-w-sm">
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-secondary pointer-events-none">search</span>
+                    <input
+                      id="admin-ads-search"
+                      type="text"
+                      value={adsSearch}
+                      onChange={(e) => setAdsSearch(e.target.value)}
+                      placeholder="Search by title…"
+                      className="w-full pl-9 pr-4 py-2 rounded-xl border border-outline-variant/30 bg-surface-container text-on-surface text-body-sm font-body-sm placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
+                    />
+                    {adsSearch && (
+                      <button
+                        onClick={() => setAdsSearch('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-on-surface transition"
+                        aria-label="Clear search"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">close</span>
+                      </button>
+                    )}
+                  </div>
+                  <div className="overflow-x-auto">
+                    {(() => {
+                      const filtered = adsSearch.trim()
+                        ? ads.filter(a => a.title.toLowerCase().includes(adsSearch.toLowerCase()))
+                        : ads;
+                      return filtered.length === 0 ? (
+                        <div className="py-xl text-center text-secondary font-body-md">
+                          {adsSearch.trim() ? `No ads match "${adsSearch}".` : 'No advertisements exist on the platform.'}
+                        </div>
+                      ) : (
+                        <table className="w-full text-left font-body-md border-collapse">
+                          <thead>
+                            <tr className="border-b border-outline-variant/20 text-secondary text-label-sm font-label-sm uppercase tracking-wider">
+                              <th className="pb-md pr-md">Cover</th>
+                              <th className="pb-md">Title</th>
+                              <th className="pb-md">Category</th>
+                              <th className="pb-md">Price</th>
+                              <th className="pb-md">Location</th>
+                              <th className="pb-md text-right">Actions</th>
                             </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  )}
+                          </thead>
+                          <tbody className="divide-y divide-outline-variant/10">
+                            {filtered.map((ad) => {
+                              const thumbnail = ad.images?.[0]?.cloudinary_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop';
+                              return (
+                                <tr key={ad.id} className="hover:bg-surface-container-low/20 transition-colors">
+                                  <td className="py-md pr-md">
+                                    <div className="w-12 h-10 rounded-md overflow-hidden bg-surface-container border border-outline-variant/20">
+                                      <img src={thumbnail} alt="" className="w-full h-full object-cover" />
+                                    </div>
+                                  </td>
+                                  <td className="py-md font-semibold text-on-surface">
+                                    <span className="block max-w-[200px] truncate">{ad.title}</span>
+                                  </td>
+                                  <td className="py-md text-secondary">{ad.category}</td>
+                                  <td className="py-md font-semibold text-primary">₹{ad.price.toFixed(2)}</td>
+                                  <td className="py-md text-secondary">{ad.location}</td>
+                                  <td className="py-md text-right">
+                                    <button
+                                      onClick={() => handleDeleteAd(ad.id, ad.title)}
+                                      className="py-[6px] px-md rounded-lg text-label-sm font-label-sm bg-error-container text-on-error-container border border-error/10 hover:brightness-95 active:scale-95 transition-all flex items-center gap-xs inline-flex"
+                                    >
+                                      <span className="material-symbols-outlined text-[16px]">delete</span>
+                                      Delete
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      );
+                    })()}
+                  </div>
                 </div>
               )}
 
               {/* REVIEWS TAB */}
               {activeTab === 'reviews' && (
-                <div className="overflow-x-auto">
-                  {reviews.length === 0 ? (
-                    <div className="py-xl text-center text-secondary font-body-md">No reviews exist on the platform.</div>
-                  ) : (
-                    <table className="w-full text-left font-body-md border-collapse">
-                      <thead>
-                        <tr className="border-b border-outline-variant/20 text-secondary text-label-sm font-label-sm uppercase tracking-wider">
-                          <th className="pb-md">Reviewer</th>
-                          <th className="pb-md">Ad Title</th>
-                          <th className="pb-md">Rating</th>
-                          <th className="pb-md">Comment</th>
-                          <th className="pb-md text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-outline-variant/10">
-                        {reviews.map((rev) => (
-                          <tr key={rev.id} className="hover:bg-surface-container-low/20 transition-colors">
-                            <td className="py-md font-semibold text-on-surface">{rev.reviewer_name}</td>
-                            <td className="py-md text-secondary">
-                              <span className="block max-w-[150px] truncate">{(rev as any).ad_title}</span>
-                            </td>
-                            <td className="py-md">
-                              <div className="flex items-center gap-[1px]">
-                                {[1,2,3,4,5].map(s => (
-                                  <span 
-                                    key={s} 
-                                    className="material-symbols-outlined text-[16px] select-none"
-                                    style={{
-                                      fontVariationSettings: s <= rev.star_rating ? "'FILL' 1" : "'FILL' 0",
-                                      color: s <= rev.star_rating ? '#ffb700' : 'var(--color-outline-variant)'
-                                    }}
+                <div className="flex flex-col gap-md">
+                  {/* Search bar */}
+                  <div className="relative max-w-sm">
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-secondary pointer-events-none">search</span>
+                    <input
+                      id="admin-reviews-search"
+                      type="text"
+                      value={reviewsSearch}
+                      onChange={(e) => setReviewsSearch(e.target.value)}
+                      placeholder="Search by comment…"
+                      className="w-full pl-9 pr-4 py-2 rounded-xl border border-outline-variant/30 bg-surface-container text-on-surface text-body-sm font-body-sm placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
+                    />
+                    {reviewsSearch && (
+                      <button
+                        onClick={() => setReviewsSearch('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-on-surface transition"
+                        aria-label="Clear search"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">close</span>
+                      </button>
+                    )}
+                  </div>
+                  <div className="overflow-x-auto">
+                    {(() => {
+                      const filtered = reviewsSearch.trim()
+                        ? reviews.filter(r => (r.review_text || '').toLowerCase().includes(reviewsSearch.toLowerCase()))
+                        : reviews;
+                      return filtered.length === 0 ? (
+                        <div className="py-xl text-center text-secondary font-body-md">
+                          {reviewsSearch.trim() ? `No reviews match "${reviewsSearch}".` : 'No reviews exist on the platform.'}
+                        </div>
+                      ) : (
+                        <table className="w-full text-left font-body-md border-collapse">
+                          <thead>
+                            <tr className="border-b border-outline-variant/20 text-secondary text-label-sm font-label-sm uppercase tracking-wider">
+                              <th className="pb-md">Reviewer</th>
+                              <th className="pb-md">Ad Title</th>
+                              <th className="pb-md">Rating</th>
+                              <th className="pb-md">Comment</th>
+                              <th className="pb-md text-right">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-outline-variant/10">
+                            {filtered.map((rev) => (
+                              <tr key={rev.id} className="hover:bg-surface-container-low/20 transition-colors">
+                                <td className="py-md font-semibold text-on-surface">{rev.reviewer_name}</td>
+                                <td className="py-md text-secondary">
+                                  <span className="block max-w-[150px] truncate">{(rev as any).ad_title}</span>
+                                </td>
+                                <td className="py-md">
+                                  <div className="flex items-center gap-[1px]">
+                                    {[1,2,3,4,5].map(s => (
+                                      <span
+                                        key={s}
+                                        className="material-symbols-outlined text-[16px] select-none"
+                                        style={{
+                                          fontVariationSettings: s <= rev.star_rating ? "'FILL' 1" : "'FILL' 0",
+                                          color: s <= rev.star_rating ? '#ffb700' : 'var(--color-outline-variant)'
+                                        }}
+                                      >
+                                        star
+                                      </span>
+                                    ))}
+                                  </div>
+                                </td>
+                                <td className="py-md text-secondary max-w-[250px] truncate">
+                                  {rev.review_text || <span className="italic opacity-50">No text comment</span>}
+                                </td>
+                                <td className="py-md text-right">
+                                  <button
+                                    onClick={() => handleDeleteReview(rev.id, rev.reviewer_name)}
+                                    className="py-[6px] px-md rounded-lg text-label-sm font-label-sm bg-error-container text-on-error-container border border-error/10 hover:brightness-95 active:scale-95 transition-all flex items-center gap-xs inline-flex"
                                   >
-                                    star
-                                  </span>
-                                ))}
-                              </div>
-                            </td>
-                            <td className="py-md text-secondary max-w-[250px] truncate">
-                              {rev.review_text || <span className="italic opacity-50">No text comment</span>}
-                            </td>
-                            <td className="py-md text-right">
-                              <button
-                                onClick={() => handleDeleteReview(rev.id, rev.reviewer_name)}
-                                className="py-[6px] px-md rounded-lg text-label-sm font-label-sm bg-error-container text-on-error-container border border-error/10 hover:brightness-95 active:scale-95 transition-all flex items-center gap-xs inline-flex"
-                              >
-                                <span className="material-symbols-outlined text-[16px]">delete</span>
-                                Delete
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
+                                    <span className="material-symbols-outlined text-[16px]">delete</span>
+                                    Delete
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      );
+                    })()}
+                  </div>
                 </div>
               )}
 
               {/* USERS TAB */}
               {activeTab === 'users' && (
-                <div className="overflow-x-auto">
-                  {users.length === 0 ? (
-                    <div className="py-xl text-center text-secondary font-body-md">No user accounts exist in the database.</div>
-                  ) : (
-                    <table className="w-full text-left font-body-md border-collapse">
-                      <thead>
-                        <tr className="border-b border-outline-variant/20 text-secondary text-label-sm font-label-sm uppercase tracking-wider">
-                          <th className="pb-md">Profile</th>
-                          <th className="pb-md">Username</th>
-                          <th className="pb-md">Email</th>
-                          <th className="pb-md">Status</th>
-                          <th className="pb-md text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-outline-variant/10">
-                        {users.map((usr) => {
-                          const isSelf = currentUser && currentUser.id === usr.id;
-                          return (
-                            <tr key={usr.id} className="hover:bg-surface-container-low/20 transition-colors">
-                              <td className="py-md">
-                                <div className="w-8 h-8 rounded-full overflow-hidden bg-surface-container border border-outline-variant/30 flex items-center justify-center">
-                                  {usr.photo_url ? (
-                                    <img src={usr.photo_url} alt="" className="w-full h-full object-cover" />
-                                  ) : (
-                                    <span className="font-bold text-xs uppercase text-primary">{usr.username.substring(0, 2)}</span>
-                                  )}
-                                </div>
-                              </td>
-                              <td className="py-md font-semibold text-on-surface">
-                                {usr.username} {isSelf && <span className="text-[11px] bg-secondary-fixed text-on-secondary-fixed px-sm py-[2px] rounded-full ml-xs">You</span>}
-                              </td>
-                              <td className="py-md text-secondary">{usr.email}</td>
-                              <td className="py-md">
-                                {usr.is_admin ? (
-                                  <span className="bg-primary-fixed text-on-primary-fixed text-[11px] font-semibold px-sm py-[2px] rounded-full uppercase tracking-wider">Admin</span>
-                                ) : usr.is_banned ? (
-                                  <span className="bg-error-container text-on-error-container text-[11px] font-semibold px-sm py-[2px] rounded-full uppercase tracking-wider">Banned</span>
-                                ) : (
-                                  <span className="bg-surface-container-highest text-on-surface-variant text-[11px] font-semibold px-sm py-[2px] rounded-full uppercase tracking-wider font-normal">Active</span>
-                                )}
-                              </td>
-                              <td className="py-md text-right">
-                                {!usr.is_admin && !isSelf && (
-                                  <button
-                                    onClick={() => handleBanToggle(usr.id, usr.username, usr.is_banned)}
-                                    className={`py-[6px] px-md rounded-lg text-label-sm font-label-sm border hover:brightness-95 active:scale-95 transition-all inline-flex items-center gap-xs ${
-                                      usr.is_banned
-                                        ? 'bg-surface-container-highest text-on-surface-variant border-outline-variant/30'
-                                        : 'bg-error-container text-on-error-container border-error/10 font-bold'
-                                    }`}
-                                  >
-                                    <span className="material-symbols-outlined text-[16px]">{usr.is_banned ? 'gpp_good' : 'block'}</span>
-                                    {usr.is_banned ? 'Unban Account' : 'Ban Account'}
-                                  </button>
-                                )}
-                              </td>
+                <div className="flex flex-col gap-md">
+                  {/* Search bar */}
+                  <div className="relative max-w-sm">
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-secondary pointer-events-none">search</span>
+                    <input
+                      id="admin-users-search"
+                      type="text"
+                      value={usersSearch}
+                      onChange={(e) => setUsersSearch(e.target.value)}
+                      placeholder="Search by username…"
+                      className="w-full pl-9 pr-4 py-2 rounded-xl border border-outline-variant/30 bg-surface-container text-on-surface text-body-sm font-body-sm placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
+                    />
+                    {usersSearch && (
+                      <button
+                        onClick={() => setUsersSearch('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-on-surface transition"
+                        aria-label="Clear search"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">close</span>
+                      </button>
+                    )}
+                  </div>
+                  <div className="overflow-x-auto">
+                    {(() => {
+                      const filtered = usersSearch.trim()
+                        ? users.filter(u => u.username.toLowerCase().includes(usersSearch.toLowerCase()))
+                        : users;
+                      return filtered.length === 0 ? (
+                        <div className="py-xl text-center text-secondary font-body-md">
+                          {usersSearch.trim() ? `No users match "${usersSearch}".` : 'No user accounts exist in the database.'}
+                        </div>
+                      ) : (
+                        <table className="w-full text-left font-body-md border-collapse">
+                          <thead>
+                            <tr className="border-b border-outline-variant/20 text-secondary text-label-sm font-label-sm uppercase tracking-wider">
+                              <th className="pb-md">Profile</th>
+                              <th className="pb-md">Username</th>
+                              <th className="pb-md">Email</th>
+                              <th className="pb-md">Status</th>
+                              <th className="pb-md text-right">Actions</th>
                             </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  )}
+                          </thead>
+                          <tbody className="divide-y divide-outline-variant/10">
+                            {filtered.map((usr) => {
+                              const isSelf = currentUser && currentUser.id === usr.id;
+                              return (
+                                <tr key={usr.id} className="hover:bg-surface-container-low/20 transition-colors">
+                                  <td className="py-md">
+                                    <div className="w-8 h-8 rounded-full overflow-hidden bg-surface-container border border-outline-variant/30 flex items-center justify-center">
+                                      {usr.photo_url ? (
+                                        <img src={usr.photo_url} alt="" className="w-full h-full object-cover" />
+                                      ) : (
+                                        <span className="font-bold text-xs uppercase text-primary">{usr.username.substring(0, 2)}</span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td className="py-md font-semibold text-on-surface">
+                                    {usr.username} {isSelf && <span className="text-[11px] bg-secondary-fixed text-on-secondary-fixed px-sm py-[2px] rounded-full ml-xs">You</span>}
+                                  </td>
+                                  <td className="py-md text-secondary">{usr.email}</td>
+                                  <td className="py-md">
+                                    {usr.is_admin ? (
+                                      <span className="bg-primary-fixed text-on-primary-fixed text-[11px] font-semibold px-sm py-[2px] rounded-full uppercase tracking-wider">Admin</span>
+                                    ) : usr.is_banned ? (
+                                      <span className="bg-error-container text-on-error-container text-[11px] font-semibold px-sm py-[2px] rounded-full uppercase tracking-wider">Banned</span>
+                                    ) : (
+                                      <span className="bg-surface-container-highest text-on-surface-variant text-[11px] font-semibold px-sm py-[2px] rounded-full uppercase tracking-wider font-normal">Active</span>
+                                    )}
+                                  </td>
+                                  <td className="py-md text-right">
+                                    {!usr.is_admin && !isSelf && (
+                                      <button
+                                        onClick={() => handleBanToggle(usr.id, usr.username, usr.is_banned)}
+                                        className={`py-[6px] px-md rounded-lg text-label-sm font-label-sm border hover:brightness-95 active:scale-95 transition-all inline-flex items-center gap-xs ${
+                                          usr.is_banned
+                                            ? 'bg-surface-container-highest text-on-surface-variant border-outline-variant/30'
+                                            : 'bg-error-container text-on-error-container border-error/10 font-bold'
+                                        }`}
+                                      >
+                                        <span className="material-symbols-outlined text-[16px]">{usr.is_banned ? 'gpp_good' : 'block'}</span>
+                                        {usr.is_banned ? 'Unban Account' : 'Ban Account'}
+                                      </button>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      );
+                    })()}
+                  </div>
                 </div>
               )}
 

@@ -56,6 +56,7 @@ Update this file after every meaningful implementation change.
 - Implemented Google Maps style location picker: integrated Leaflet.js + OpenStreetMap interactive map on `CreateAdPage` and `EditAdPage` (click-to-pin, dynamic map centering, Nominatim reverse geocoding auto-fills address field). Added latitude/longitude columns to the `ads` table (migration 010) and extended the DB, Service, Controller, and API endpoints. Added free Google Maps iframe embed on `AdDetailPage` to display the pinned location when coordinates exist.
 - Added a Share button to `AdDetailPage` next to the Wishlist button. On mobile/supported browsers it invokes the native Web Share sheet (`navigator.share`); on desktop it copies the current page URL to the clipboard and shows a 2-second "Link copied!" pill toast with a fade-in-up animation.
 - Added a share button overlay to the `AdCard` component underneath the wishlist favorite heart icon, which reveals a premium sharing overlay covering the image container with social media sharing targets (WhatsApp, Telegram, Facebook, Twitter / X) and a copy link option.
+- Added client-side search inputs to the Admin Moderation Dashboard: "Search by title" on the Ads tab, "Search by comment" on the Reviews tab, and "Search by username" on the Users tab. Each input has a search icon prefix, a clear (×) button, and shows a contextual empty-state message when no matches are found.
 
 
 ## In Progress
