@@ -239,8 +239,8 @@ export const Navbar: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <div className="flex items-center gap-sm md:flex-col md:gap-xs md:mb-xs">
-                      <div className="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden md:w-12 md:h-12" title="Administrator">
+                    <div className="flex items-center gap-sm md:flex-row md:items-center md:justify-start md:w-full md:gap-sm md:mb-xs md:px-sm">
+                      <div className="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden shrink-0 md:w-10 md:h-10" title="Administrator">
                         {user.photo_url ? (
                           <img src={user.photo_url} alt={user.username} className="w-full h-full object-cover" />
                         ) : (
@@ -249,7 +249,10 @@ export const Navbar: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      <span className="text-[11px] bg-secondary-fixed text-on-secondary-fixed px-sm py-[2px] rounded-full text-center md:block hidden truncate font-semibold uppercase tracking-wider">Admin</span>
+                      <div className="flex flex-col items-start min-w-0 md:block hidden">
+                        <span className="text-body-sm font-bold text-on-surface truncate block">{user.username}</span>
+                        <span className="text-[10px] bg-secondary-fixed text-on-secondary-fixed px-sm py-[1px] rounded-full font-bold uppercase tracking-wider mt-[2px] inline-block">Admin</span>
+                      </div>
                     </div>
 
                     <button
