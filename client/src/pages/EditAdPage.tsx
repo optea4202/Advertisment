@@ -3,32 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { getAdById, updateAd } from '../api/ads.js';
 import { compressImage } from '../utils/imageCompressor.js';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-// Fix broken default marker icons in Vite
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconUrl: markerIcon,
-  iconRetinaUrl: markerIcon2x,
-  shadowUrl: markerShadow,
-});
-
-const LocationPicker: React.FC<{
-  position: [number, number] | null;
-  onPick: (lat: number, lng: number) => void;
-}> = ({ position, onPick }) => {
-  useMapEvents({
-    click(e) {
-      onPick(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return position ? <Marker position={position} /> : null;
-};
 
 export const EditAdPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -66,6 +41,22 @@ export const EditAdPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const iframeSrc = useRef<string>('');
+
+  // Listen to message events from the map-picker iframe
+  useEffect(() => {
+    const handleMapMessage = (e: MessageEvent) => {
+      if (e.data && e.data.type === 'LOCATION_PICKED') {
+        const { lat, lng } = e.data;
+        setLatitude(lat);
+        setLongitude(lng);
+        reverseGeocode(lat, lng);
+      }
+    };
+    window.addEventListener('message', handleMapMessage);
+    return () => window.removeEventListener('message', handleMapMessage);
+  }, []);
+
   // Fetch ad details on mount
   useEffect(() => {
     if (isNaN(adId)) {
@@ -88,6 +79,9 @@ export const EditAdPage: React.FC = () => {
         if (ad.latitude !== null && ad.longitude !== null) {
           setLatitude(ad.latitude);
           setLongitude(ad.longitude);
+          iframeSrc.current = `/map-picker.html?lat=${ad.latitude}&lng=${ad.longitude}`;
+        } else {
+          iframeSrc.current = '/map-picker.html';
         }
         
         const urls = ad.images.map(img => img.cloudinary_url);
@@ -372,35 +366,17 @@ export const EditAdPage: React.FC = () => {
                     Location
                   </label>
 
-                  {/* Interactive map */}
+                  {/* Interactive map iframe */}
                   <div
-                    className="w-full rounded-xl overflow-hidden border border-outline-variant"
-                    style={{ height: '280px', zIndex: 0 }}
+                    className="w-full rounded-xl overflow-hidden border border-outline-variant bg-surface-container"
+                    style={{ height: '280px' }}
                   >
-                    <MapContainer
-                      key={`${latitude}-${longitude}`}
-                      center={
-                        latitude !== null && longitude !== null
-                          ? [latitude, longitude]
-                          : [20.5937, 78.9629]
-                      }
-                      zoom={latitude !== null ? 14 : 5}
-                      style={{ height: '100%', width: '100%' }}
-                      scrollWheelZoom={true}
-                    >
-                      <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      />
-                      <LocationPicker
-                        position={latitude !== null && longitude !== null ? [latitude, longitude] : null}
-                        onPick={(lat, lng) => {
-                          setLatitude(lat);
-                          setLongitude(lng);
-                          reverseGeocode(lat, lng);
-                        }}
-                      />
-                    </MapContainer>
+                    <iframe
+                      title="Location Picker Map"
+                      src={iframeSrc.current}
+                      className="w-full h-full border-0"
+                      loading="lazy"
+                    />
                   </div>
 
                   <p className="font-body-sm text-body-sm text-secondary">

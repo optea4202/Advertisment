@@ -1,34 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { createAd } from '../api/ads.js';
 import { compressImage } from '../utils/imageCompressor.js';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-// Fix broken default marker icons in Vite
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconUrl: markerIcon,
-  iconRetinaUrl: markerIcon2x,
-  shadowUrl: markerShadow,
-});
-
-const LocationPicker: React.FC<{
-  position: [number, number] | null;
-  onPick: (lat: number, lng: number) => void;
-}> = ({ position, onPick }) => {
-  useMapEvents({
-    click(e) {
-      onPick(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return position ? <Marker position={position} /> : null;
-};
 
 export const CreateAdPage: React.FC = () => {
   const navigate = useNavigate();
@@ -52,6 +27,26 @@ export const CreateAdPage: React.FC = () => {
   // Status states
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Listen to message events from the map-picker iframe
+  useEffect(() => {
+    const handleMapMessage = (e: MessageEvent) => {
+      if (e.data && e.data.type === 'LOCATION_PICKED') {
+        const { lat, lng } = e.data;
+        setLatitude(lat);
+        setLongitude(lng);
+        reverseGeocode(lat, lng);
+      }
+    };
+    window.addEventListener('message', handleMapMessage);
+    return () => window.removeEventListener('message', handleMapMessage);
+  }, []);
+
+  const iframeSrc = useRef(
+    latitude !== null && longitude !== null
+      ? `/map-picker.html?lat=${latitude}&lng=${longitude}`
+      : '/map-picker.html'
+  );
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -263,30 +258,17 @@ export const CreateAdPage: React.FC = () => {
                   Location
                 </label>
 
-                {/* Interactive map */}
+                {/* Interactive map iframe */}
                 <div
-                  className="w-full rounded-xl overflow-hidden border border-outline-variant"
-                  style={{ height: '280px', zIndex: 0 }}
+                  className="w-full rounded-xl overflow-hidden border border-outline-variant bg-surface-container"
+                  style={{ height: '280px' }}
                 >
-                  <MapContainer
-                    center={[20.5937, 78.9629]}
-                    zoom={5}
-                    style={{ height: '100%', width: '100%' }}
-                    scrollWheelZoom={true}
-                  >
-                    <TileLayer
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    <LocationPicker
-                      position={latitude !== null && longitude !== null ? [latitude, longitude] : null}
-                      onPick={(lat, lng) => {
-                        setLatitude(lat);
-                        setLongitude(lng);
-                        reverseGeocode(lat, lng);
-                      }}
-                    />
-                  </MapContainer>
+                  <iframe
+                    title="Location Picker Map"
+                    src={iframeSrc.current}
+                    className="w-full h-full border-0"
+                    loading="lazy"
+                  />
                 </div>
 
                 <p className="font-body-sm text-body-sm text-secondary">
