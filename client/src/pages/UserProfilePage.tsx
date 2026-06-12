@@ -121,7 +121,7 @@ export const UserProfilePage: React.FC = () => {
               <p className="font-body-md text-body-md text-secondary mt-xs">This user profile doesn't exist or is not accessible.</p>
             </div>
             <Link to="/" className="mt-sm bg-primary text-on-primary font-label-md text-label-md px-xl py-sm rounded-lg hover:brightness-110 transition-all">
-              Back to Feed
+              Back to Home
             </Link>
           </div>
         )}
@@ -319,7 +319,7 @@ export const UserProfilePage: React.FC = () => {
                       className="mt-sm bg-primary text-on-primary font-label-md text-label-md px-xl py-sm rounded-lg hover:brightness-110 transition-all flex items-center gap-xs"
                     >
                       <span className="material-symbols-outlined text-[18px]">explore</span>
-                      Browse Feed
+                      Browse Home
                     </Link>
                   </div>
                 ) : (

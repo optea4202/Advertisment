@@ -37,7 +37,7 @@ export const Navbar: React.FC = () => {
                   : 'text-secondary hover:text-primary hover:bg-surface-container-low'
               }`}
             >
-              Feed
+              Home
             </Link>
             {user && (
               <Link 

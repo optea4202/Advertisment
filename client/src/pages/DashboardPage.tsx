@@ -100,7 +100,7 @@ export const DashboardPage: React.FC = () => {
                 className="bg-surface-container-lowest text-on-surface border border-outline-variant font-label-md text-label-md px-xl py-md rounded-xl hover:bg-surface-container-low transition-all flex items-center gap-xs"
               >
                 <span className="material-symbols-outlined text-[20px]">explore</span>
-                Browse the Feed
+                Browse Home
               </Link>
             </div>
           </div>

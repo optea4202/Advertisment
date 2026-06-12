@@ -105,6 +105,20 @@ export default {
         "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
         "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
         "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }]
+      },
+      keyframes: {
+        "fade-in-up": {
+          "0%":   { opacity: "0", transform: "translateY(6px) translateX(-50%)" },
+          "100%": { opacity: "1", transform: "translateY(0)  translateX(-50%)" }
+        },
+        "fade-in-up-sheet": {
+          "0%":   { opacity: "0", transform: "translateY(8px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" }
+        }
+      },
+      animation: {
+        "fade-in-up": "fade-in-up 0.18s ease-out both",
+        "fade-in-up-sheet": "fade-in-up-sheet 0.18s ease-out both"
       }
     },
   },

@@ -12,6 +12,7 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Changed website text/buttons from "Feed" to "Home" across the client application (Navbar, AdDetailPage, UserProfilePage, DashboardPage). Added a "Back to Home" button at the top-left (left top) of the login and signup pages for both desktop and mobile viewports.
 - Enabled guest browsing: removed the mandatory authentication gateway from the main feed page, search/filters, about page, ad detail page, and public profile page. Introduced backend optional authentication middleware. Restricted mutative and private actions (posting ads, inbox chat, writing reviews, and wishlists) to registered users with direct login redirects.
 - Replaced Leaflet.js interactive maps on `CreateAdPage` and `EditAdPage` with an iframe-rendered interactive map picker (`map-picker.html`), which listens for click/pin events via cross-window communication (`postMessage`). This resolves React Leaflet bundle bloat and rendering/sizing issues inside tabs/flex grids while keeping coordinate and address auto-filling intact.
 - Changed the price input field currency symbol prefix from dollars ($) to Indian Rupees (₹) in both the Create and Edit ad pages to match the rest of the application's currency display.
@@ -51,6 +52,8 @@ Update this file after every meaningful implementation change.
 - Changed the website name and branding from AdHub to Fakna across all pages, components, SEO meta tags, email templates, configuration files, and package metadata.
 - Implemented the Wishlist feature: added database table `wishlist` (migration 009) with CASCADE triggers, built backend endpoints (`/api/wishlist` and `/api/wishlist/ids`), created a global frontend `WishlistProvider` for optimistic love symbol button updates, integrated the heart button overlays on `AdCard` and `AdDetailPage`, and added a private, reactive `My Wishlist` tab on the user's own profile page.
 - Implemented Google Maps style location picker: integrated Leaflet.js + OpenStreetMap interactive map on `CreateAdPage` and `EditAdPage` (click-to-pin, dynamic map centering, Nominatim reverse geocoding auto-fills address field). Added latitude/longitude columns to the `ads` table (migration 010) and extended the DB, Service, Controller, and API endpoints. Added free Google Maps iframe embed on `AdDetailPage` to display the pinned location when coordinates exist.
+- Added a Share button to `AdDetailPage` next to the Wishlist button. On mobile/supported browsers it invokes the native Web Share sheet (`navigator.share`); on desktop it copies the current page URL to the clipboard and shows a 2-second "Link copied!" pill toast with a fade-in-up animation.
+- Added a share button overlay to the `AdCard` component underneath the wishlist favorite heart icon, which reveals a premium sharing overlay covering the image container with social media sharing targets (WhatsApp, Telegram, Facebook, Twitter / X) and a copy link option.
 
 
 ## In Progress

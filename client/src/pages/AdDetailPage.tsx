@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { ImageGallery } from '../components/ImageGallery.js';
@@ -21,6 +21,58 @@ export const AdDetailPage: React.FC = () => {
 
   const navigate = useNavigate();
   const [startingChat, setStartingChat] = useState(false);
+  const [showShareSheet, setShowShareSheet] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const shareRef = useRef<HTMLDivElement>(null);
+
+  // Close share sheet when clicking outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (shareRef.current && !shareRef.current.contains(e.target as Node)) {
+        setShowShareSheet(false);
+      }
+    };
+    if (showShareSheet) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showShareSheet]);
+
+  const pageUrl = window.location.href;
+  const pageTitle = encodeURIComponent(ad?.title ?? 'Check out this ad on Fakna');
+  const encodedUrl = encodeURIComponent(pageUrl);
+
+  const shareTargets = [
+    {
+      id: 'whatsapp',
+      label: 'WhatsApp',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg',
+      href: `https://wa.me/?text=${pageTitle}%20${encodedUrl}`,
+    },
+    {
+      id: 'telegram',
+      label: 'Telegram',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg',
+      href: `https://t.me/share/url?url=${encodedUrl}&text=${pageTitle}`,
+    },
+    {
+      id: 'facebook',
+      label: 'Facebook',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg',
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+    },
+    {
+      id: 'twitter',
+      label: 'Twitter / X',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/5/57/X_logo_2023_%28white%29.png',
+      href: `https://twitter.com/intent/tweet?text=${pageTitle}&url=${encodedUrl}`,
+      dark: true,
+    },
+  ];
+
+  const handleCopyLink = async () => {
+    await navigator.clipboard.writeText(pageUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const isOwner = user?.id === ad?.owner_id;
   const isWishlisted = ad ? isInWishlist(ad.id) : false;
@@ -65,7 +117,7 @@ export const AdDetailPage: React.FC = () => {
             className="inline-flex items-center gap-xs text-secondary hover:text-primary transition-colors font-label-md text-label-md"
           >
             <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-            Back to Feed
+            Back to Home
           </Link>
         </div>
 
@@ -113,14 +165,13 @@ export const AdDetailPage: React.FC = () => {
                 
                 {/* Meta details card */}
                 <div className="bg-surface-container-lowest rounded-2xl elevation-1 border border-outline-variant/20 p-xl flex flex-col gap-lg">
-                  
                   {/* Category & Title with Wishlist Toggle */}
                   <div className="flex flex-col gap-sm">
                     <div className="flex justify-between items-center">
                       <span className="bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm px-sm py-[4px] rounded-full uppercase tracking-wider">
                         {ad.category}
                       </span>
-                      
+
                       {/* Wishlist Button */}
                       <button
                         onClick={() => {
@@ -131,7 +182,7 @@ export const AdDetailPage: React.FC = () => {
                           }
                         }}
                         className="w-10 h-10 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-error flex items-center justify-center shadow-sm border border-outline-variant/10 transition-all duration-200 focus:outline-none active:scale-[0.95]"
-                        title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                        title={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
                       >
                         <span
                           className={`material-symbols-outlined text-[22px] transition-transform ${isWishlisted ? 'text-error animate-pulse' : 'text-on-surface-variant'}`}
@@ -196,6 +247,60 @@ export const AdDetailPage: React.FC = () => {
                       {ad.contact_info}
                     </p>
                   </div>
+
+                  {/* Share Section */}
+                  <div ref={shareRef} className="relative">
+                    {/* Toggle button */}
+                    <button
+                      id="share-ad-btn"
+                      onClick={() => setShowShareSheet(v => !v)}
+                      className="w-full flex items-center justify-center gap-sm border border-outline-variant/30 bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-primary font-label-md text-label-md px-md py-[9px] rounded-xl transition-all duration-200 active:scale-[0.98] focus:outline-none"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">share</span>
+                      Share this Ad
+                    </button>
+
+                    {/* Share sheet dropdown */}
+                    {showShareSheet && (
+                      <div className="absolute bottom-[calc(100%+8px)] left-0 right-0 z-50 bg-surface-container-lowest border border-outline-variant/25 rounded-2xl shadow-lg p-md flex flex-col gap-sm animate-fade-in-up-sheet">
+                        <p className="font-label-sm text-label-sm text-secondary uppercase tracking-wider px-xs pb-xs border-b border-outline-variant/10">Share via</p>
+
+                        {/* App buttons */}
+                        <div className="flex gap-sm justify-around px-xs py-xs">
+                          {shareTargets.map(t => (
+                            <a
+                              key={t.id}
+                              href={t.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={() => setShowShareSheet(false)}
+                              className="flex flex-col items-center gap-[5px] group"
+                              title={`Share on ${t.label}`}
+                            >
+                              <div className={`w-11 h-11 rounded-full flex items-center justify-center shadow-sm border border-outline-variant/15 transition-all group-hover:scale-110 group-hover:shadow-md ${ t.dark ? 'bg-black' : 'bg-white' }`}>
+                                <img src={t.icon} alt={t.label} className="w-6 h-6 object-contain" />
+                              </div>
+                              <span className="font-label-sm text-[10px] text-secondary group-hover:text-primary transition-colors">{t.label}</span>
+                            </a>
+                          ))}
+                        </div>
+
+                        {/* Copy Link */}
+                        <button
+                          onClick={handleCopyLink}
+                          className="flex items-center gap-sm w-full px-md py-[9px] rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline-variant/20 transition-all active:scale-[0.98] focus:outline-none"
+                        >
+                          <span className={`material-symbols-outlined text-[18px] transition-colors ${ copied ? 'text-primary' : 'text-on-surface-variant' }`}>
+                            {copied ? 'check_circle' : 'link'}
+                          </span>
+                          <span className={`font-label-md text-label-md transition-colors ${ copied ? 'text-primary' : 'text-on-surface-variant' }`}>
+                            {copied ? 'Link copied!' : 'Copy link'}
+                          </span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
                 </div>
 
                 {/* Publisher info card — links to the owner's public profile */}

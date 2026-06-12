@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSignUp } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const SignUpPage: React.FC = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -130,12 +130,32 @@ export const SignUpPage: React.FC = () => {
 
       {/* Right Panel: Form Area */}
       <div className="w-full md:w-[55%] lg:w-1/2 flex items-center justify-center p-gutter md:p-xl bg-surface-container-lowest relative z-10 min-h-screen overflow-y-auto">
-        {/* Mobile Header (Only visible on small screens) */}
-        <div className="absolute top-0 left-0 w-full p-gutter flex items-center gap-sm md:hidden">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-            <span className="material-symbols-outlined text-on-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
+        {/* Mobile Header & Back to Home */}
+        <div className="absolute top-0 left-0 w-full p-gutter flex items-center justify-between md:hidden">
+          <Link 
+            to="/" 
+            className="inline-flex items-center gap-xs text-secondary hover:text-primary transition-colors font-label-sm text-label-sm"
+          >
+            <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+            Back to Home
+          </Link>
+          <div className="flex items-center gap-sm">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
+              <span className="material-symbols-outlined text-on-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
+            </div>
+            <h1 className="font-headline-md text-headline-md text-primary tracking-tight">Fakna</h1>
           </div>
-          <h1 className="font-headline-md text-headline-md text-primary tracking-tight">Fakna</h1>
+        </div>
+
+        {/* Desktop Back to Home Link */}
+        <div className="absolute top-6 left-6 hidden md:block">
+          <Link 
+            to="/" 
+            className="inline-flex items-center gap-xs text-secondary hover:text-primary transition-colors font-label-md text-label-md"
+          >
+            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+            Back to Home
+          </Link>
         </div>
 
         <div className="w-full max-w-[420px] flex flex-col gap-xl fade-in-up mt-16 md:mt-0">
