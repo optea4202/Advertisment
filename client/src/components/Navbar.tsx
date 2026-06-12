@@ -57,7 +57,7 @@ export const Navbar: React.FC = () => {
                     }`}
                   >
                     <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActiveTab('ads') ? "'FILL' 1" : "'FILL' 0" }}>campaign</span>
-                    <span>Advertisements</span>
+                    <span>Ads</span>
                   </Link>
                   <Link 
                     to="/admin?tab=reviews" 
