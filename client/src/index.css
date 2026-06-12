@@ -167,3 +167,11 @@ textarea::-webkit-scrollbar-thumb:hover {
   animation: spin-slow 8s linear infinite;
 }
 
+@media (min-width: 768px) {
+  /* Offset main content for left sidebar navigation */
+  body.admin-sidebar-layout .bg-surface.text-on-surface.flex.flex-col {
+    padding-left: 240px;
+  }
+}
+
+
