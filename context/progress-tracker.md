@@ -12,6 +12,7 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Enabled guest browsing: removed the mandatory authentication gateway from the main feed page, search/filters, about page, ad detail page, and public profile page. Introduced backend optional authentication middleware. Restricted mutative and private actions (posting ads, inbox chat, writing reviews, and wishlists) to registered users with direct login redirects.
 - Replaced Leaflet.js interactive maps on `CreateAdPage` and `EditAdPage` with an iframe-rendered interactive map picker (`map-picker.html`), which listens for click/pin events via cross-window communication (`postMessage`). This resolves React Leaflet bundle bloat and rendering/sizing issues inside tabs/flex grids while keeping coordinate and address auto-filling intact.
 - Changed the price input field currency symbol prefix from dollars ($) to Indian Rupees (₹) in both the Create and Edit ad pages to match the rest of the application's currency display.
 - Client project foundation initialized with React, Vite, TS, Tailwind CSS, and custom design tokens in `variables.css`.

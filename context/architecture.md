@@ -106,8 +106,8 @@ There is no Redis or in-memory cache in Version 1. PostgreSQL handles all read q
 
 | Role | How it is set | Permissions |
 |---|---|---|
-| **Guest** | No JWT present | Login and signup pages only; all other routes return `401` |
-| **User** | Valid JWT + `is_admin = false` + `is_banned = false` | Browse feed, view ads, create/edit/delete own ads, post reviews |
+| **Guest** | No JWT present | Access to login, signup, about, main feed, ad details, public user profiles, and review listings |
+| **User** | Valid JWT + `is_admin = false` + `is_banned = false` | All guest permissions + create/edit/delete own ads, manage wishlist, chat/message, post reviews |
 | **Admin** | Valid JWT + `is_admin = true` | All user permissions + delete any ad, delete any review, ban any user |
 | **Banned User** | Valid JWT + `is_banned = true` | All API requests return `403 Forbidden` regardless of other flags |
 
@@ -151,8 +151,8 @@ If the Resend API call fails, the review is still saved and a non-blocking error
 
 These are rules the codebase must **never** violate. They are non-negotiable and must be enforced at the API layer regardless of client behaviour.
 
-### 1. No unauthenticated access to application data
-Every API route that reads or writes application data must be protected by the Clerk JWT verification middleware. A missing or invalid token must always return `401`. There are no exceptions. The frontend enforcing login state is not sufficient — the backend must independently verify every request.
+### 1. No unauthenticated write operations or access to private data
+All mutative API endpoints (creating/editing ads, settings, messaging, reviews, wishlists) must be protected by the Clerk JWT verification middleware. Read-only endpoints for the main feed, ad details, public profiles, and reviews list allow unauthenticated guest access. A missing or invalid token on a protected route must return `401`. The frontend check is not sufficient — the backend independently verifies every request.
 
 ### 2. Ownership must be verified server-side before any write operation
 Before the backend processes an edit or delete on an ad or review, it must query PostgreSQL to confirm that the requesting user's `id` matches the `owner_id` or `reviewer_id` of the resource. The frontend sending the correct user ID is not sufficient verification.

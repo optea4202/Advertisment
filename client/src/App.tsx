@@ -43,11 +43,7 @@ function App() {
               {/* Protected Routes */}
               <Route
                 path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <DashboardPage />
-                  </ProtectedRoute>
-                }
+                element={<DashboardPage />}
               />
 
               <Route
@@ -70,11 +66,7 @@ function App() {
               
               <Route
                 path="/ads/:id"
-                element={
-                  <ProtectedRoute>
-                    <AdDetailPage />
-                  </ProtectedRoute>
-                }
+                element={<AdDetailPage />}
               />
               
               <Route
@@ -97,11 +89,7 @@ function App() {
 
               <Route
                 path="/profile/:id"
-                element={
-                  <ProtectedRoute>
-                    <UserProfilePage />
-                  </ProtectedRoute>
-                }
+                element={<UserProfilePage />}
               />
 
               <Route
@@ -125,11 +113,7 @@ function App() {
               {/* Main Landing Page (Ad Feed) */}
               <Route
                 path="/"
-                element={
-                  <ProtectedRoute>
-                    <FeedPage />
-                  </ProtectedRoute>
-                }
+                element={<FeedPage />}
               />
 
               {/* Catch-all Redirect */}

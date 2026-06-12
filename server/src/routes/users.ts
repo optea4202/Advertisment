@@ -2,6 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import { getMe, updateMe, getPublicUser, searchUsersHandler } from '../controllers/users.js';
 import { requireAuth } from '../middleware/requireAuth.js';
+import { optionalAuth } from '../middleware/optionalAuth.js';
 import { requireNotBanned } from '../middleware/requireNotBanned.js';
 
 const router = Router();
@@ -25,6 +26,6 @@ router.put('/me', requireAuth, requireNotBanned, upload.single('photo'), updateM
 router.get('/search', requireAuth, requireNotBanned, searchUsersHandler);
 
 // GET /api/users/:id - Retrieve the public profile of any user by numeric ID
-router.get('/:id', requireAuth, requireNotBanned, getPublicUser);
+router.get('/:id', optionalAuth, requireNotBanned, getPublicUser);
 
 export default router;

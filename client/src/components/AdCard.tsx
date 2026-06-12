@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { type Ad } from '../api/ads.js';
 import { useWishlist } from '../context/WishlistContext.js';
+import { useAuth } from '../context/AuthContext.js';
 
 interface AdCardProps {
   ad: Ad;
@@ -16,13 +17,19 @@ export const AdCard: React.FC<AdCardProps> = ({
   onDeleteClick,
   onEditClick
 }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const isWishlisted = isInWishlist(ad.id);
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    toggleWishlist(ad.id);
+    if (!user) {
+      navigate('/login');
+    } else {
+      toggleWishlist(ad.id);
+    }
   };
 
   // Get cover image URL or a placeholder if none exists

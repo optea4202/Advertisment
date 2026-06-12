@@ -2,13 +2,13 @@
 
 ## Overview
 
-This is a web-based advertisement platform where registered users can create an account, set up a personal profile, and publish advertisements for their own companies, stores, or services. The platform is gated behind authentication — only logged-in users can view or interact with any content. Each user can post multiple advertisements, each containing a title, description, up to five uploaded images, a category, a price, a location, and contact information. Other logged-in users can browse the full advertisement feed, filter by category, search by keyword, and leave star ratings with written reviews on any ad. An admin role allows designated users to moderate the platform by deleting ads, removing reviews, and banning accounts. Email notifications alert ad owners when a new review is posted on one of their advertisements.
+This is a web-based advertisement platform where registered users can create an account, set up a personal profile, and publish advertisements for their own companies, stores, or services. Unauthenticated visitors can access the platform as guests to browse advertisements, search/filter the feed, view ad details, read reviews, and see public seller profiles. Authentication is required to post advertisements, manage wishlists, write reviews, or chat with sellers. Each user can post multiple advertisements, each containing a title, description, up to five uploaded images, a category, a price, a location, and contact information. Registered users can browse the full advertisement feed, filter by category, search by keyword, and leave star ratings with written reviews on any ad. An admin role allows designated users to moderate the platform by deleting ads, removing reviews, and banning accounts. Email notifications alert ad owners when a new review is posted on one of their advertisements.
 
 ---
 
 ## Goals
 
-1. Build a secure, authentication-gated advertisement platform where only registered users can access content.
+1. Build an advertisement platform that allows public browsing for guests while gating write operations and interactive features behind authentication.
 2. Allow each user to create and manage multiple advertisement posts from a personal dashboard.
 3. Provide a browsable, searchable, and filterable feed of all advertisements posted by all users.
 4. Enable users to leave star ratings and written reviews on advertisements.
@@ -21,7 +21,7 @@ This is a web-based advertisement platform where registered users can create an 
 
 ## Core User Flow (Start to Finish)
 
-1. **Land on the platform** — An unauthenticated visitor is redirected to the login/signup page. No content is visible without an account.
+1. **Land on the platform** — An unauthenticated visitor lands on the primary feed page and can browse, search, and filter ads as a guest. When trying to perform a restricted action (like posting an ad, messaging, or wishlisting), they are redirected to the login page.
 2. **Create an account** — The user registers using an email address and password, or signs in with their Google account via OAuth. Authentication is handled by Clerk.
 3. **Complete profile setup** — On first login, the user fills in their profile: username, profile photo (uploaded to Cloudinary), phone number, email, and a short bio.
 4. **Arrive at the dashboard** — The user lands on their personal dashboard, which displays a chronological list (newest first) of all ads they have posted.
@@ -41,7 +41,8 @@ This is a web-based advertisement platform where registered users can create an 
 - Email and password registration and login
 - Google Sign-In via OAuth
 - Session management using Clerk JWT tokens
-- Protected routes — all content requires authentication
+- Protected routes — interactive features (posting ads, messaging, managing wishlist, settings, admin panel) require authentication
+- Public routes — guests can view the main feed, ad details, reviews, and public seller profiles without authentication
 - Banned user accounts are blocked at the API middleware level
 
 ### User Profile
@@ -119,11 +120,11 @@ The platform is considered **done** when all of the following are true:
 
 1. **Authentication works end-to-end** — A new user can sign up with email/password or Google, complete their profile, and log in on a subsequent visit without errors.
 2. **Ad posting works** — A logged-in user can create an ad with all required fields and upload up to 5 images. The ad appears in the public feed immediately after submission.
-3. **Feed browsing works** — A logged-in user can view all ads, filter the feed by at least one category, search by keyword, and receive accurate results sorted newest-first.
+3. **Feed browsing works** — Any user, including guests, can view all ads, filter the feed by category, search by keyword, and view ad detail pages.
 4. **Ad management works** — A user can edit the content of their own ad and delete it. Deleted ads are removed from the feed immediately.
 5. **Reviews work** — A logged-in user can submit a star rating and written review on another user's ad. The review appears on the ad detail page.
 6. **Email notifications work** — When a review is posted, the ad owner receives an email notification at their registered email address within 60 seconds.
 7. **Admin panel works** — An admin user can log in, access `/admin`, delete an ad, delete a review, and ban a user. A banned user attempting to log in is denied access.
-8. **Access control is enforced** — An unauthenticated visitor attempting to access any page other than login/signup is redirected to the login page.
+8. **Access control is enforced** — An unauthenticated visitor attempting to access protected pages (creating/editing ads, settings, inbox, admin panel) is redirected to the login page.
 9. **No critical data is lost** — Deleting a user cascades correctly and removes their ads, images, and reviews from the database and Cloudinary.
 10. **All external services are on free tiers** — Clerk, Cloudinary, Render, Resend, and Vercel are all operating within their free-tier limits at launch.

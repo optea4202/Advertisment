@@ -2,6 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import { handleCreateAd, handleGetMyAds, handleGetAdById, handleUpdateAd, handleDeleteAd, handleGetAds } from '../controllers/ads.js';
 import { requireAuth } from '../middleware/requireAuth.js';
+import { optionalAuth } from '../middleware/optionalAuth.js';
 import { requireNotBanned } from '../middleware/requireNotBanned.js';
 
 const router = Router();
@@ -18,13 +19,13 @@ const upload = multer({
 router.post('/', requireAuth, requireNotBanned, upload.array('images', 10), handleCreateAd);
 
 // GET /api/ads - Retrieve all ads matching optional search and category filters
-router.get('/', requireAuth, requireNotBanned, handleGetAds);
+router.get('/', optionalAuth, requireNotBanned, handleGetAds);
 
 // GET /api/ads/mine - Retrieve all ads owned by the current authenticated user
 router.get('/mine', requireAuth, requireNotBanned, handleGetMyAds);
 
 // GET /api/ads/:id - Retrieve details of a single advertisement
-router.get('/:id', requireAuth, requireNotBanned, handleGetAdById);
+router.get('/:id', optionalAuth, requireNotBanned, handleGetAdById);
 
 // PUT /api/ads/:id - Update advertisement details and images
 router.put('/:id', requireAuth, requireNotBanned, upload.array('images', 10), handleUpdateAd);

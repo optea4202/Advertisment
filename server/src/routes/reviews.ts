@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { handleCreateReview, handleGetReviews } from '../controllers/reviews.js';
 import { requireAuth } from '../middleware/requireAuth.js';
+import { optionalAuth } from '../middleware/optionalAuth.js';
 import { requireNotBanned } from '../middleware/requireNotBanned.js';
 
 const router = Router();
@@ -9,6 +10,6 @@ const router = Router();
 router.post('/', requireAuth, requireNotBanned, handleCreateReview);
 
 // GET /api/reviews - Get reviews list for an ad (?adId=)
-router.get('/', requireAuth, requireNotBanned, handleGetReviews);
+router.get('/', optionalAuth, requireNotBanned, handleGetReviews);
 
 export default router;

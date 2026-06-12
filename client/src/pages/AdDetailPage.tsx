@@ -26,6 +26,10 @@ export const AdDetailPage: React.FC = () => {
   const isWishlisted = ad ? isInWishlist(ad.id) : false;
 
   const handleChatWithSeller = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     if (!ad) return;
     setStartingChat(true);
     try {
@@ -119,7 +123,13 @@ export const AdDetailPage: React.FC = () => {
                       
                       {/* Wishlist Button */}
                       <button
-                        onClick={() => toggleWishlist(ad.id)}
+                        onClick={() => {
+                          if (!user) {
+                            navigate('/login');
+                          } else {
+                            toggleWishlist(ad.id);
+                          }
+                        }}
                         className="w-10 h-10 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-error flex items-center justify-center shadow-sm border border-outline-variant/10 transition-all duration-200 focus:outline-none active:scale-[0.95]"
                         title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                       >
@@ -247,8 +257,8 @@ export const AdDetailPage: React.FC = () => {
                 Ratings & Reviews
               </h3>
 
-              {/* Leave review form (Hidden for the ad owner) */}
-              {!isOwner && ad && (
+              {/* Leave review form (Hidden for guests and the ad owner) */}
+              {user && !isOwner && ad && (
                 <div className="mb-md">
                   <ReviewForm onSubmit={handleReviewSubmit} />
                 </div>
