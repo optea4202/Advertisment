@@ -15,6 +15,7 @@ import { EditAdPage } from './pages/EditAdPage.js';
 import { FeedPage } from './pages/FeedPage.js';
 import { AdDetailPage } from './pages/AdDetailPage.js';
 import { AdminPage } from './pages/AdminPage.js';
+import { AdminHomePage } from './pages/AdminHomePage.js';
 import { AdminRoute } from './components/AdminRoute.js';
 import { InboxPage } from './pages/InboxPage.js';
 import { WishlistProvider } from './context/WishlistContext.js';
@@ -106,6 +107,15 @@ function App() {
                 element={
                   <AdminRoute>
                     <AdminPage />
+                  </AdminRoute>
+                }
+              />
+
+              <Route
+                path="/admin/home"
+                element={
+                  <AdminRoute>
+                    <AdminHomePage />
                   </AdminRoute>
                 }
               />

@@ -158,9 +158,19 @@ export const AdDetailPage: React.FC = () => {
             {/* Bento Grid: Gallery on left (7 cols), Details on right (5 cols) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
               
-              {/* Left Column: Image Gallery */}
+              {/* Left Column: Image Gallery + Description */}
               <div className="lg:col-span-7 flex flex-col gap-lg w-full">
                 <ImageGallery images={ad.images} title={ad.title} />
+
+                {/* Description Block — below the image */}
+                <div className="bg-surface-container-lowest rounded-2xl elevation-1 border border-outline-variant/20 p-xl flex flex-col gap-md">
+                  <h3 className="font-headline-md text-[20px] font-semibold text-on-surface border-b border-outline-variant/10 pb-sm">
+                    Description
+                  </h3>
+                  <p className="font-body-md text-body-md text-secondary leading-relaxed whitespace-pre-line">
+                    {ad.description}
+                  </p>
+                </div>
               </div>
 
               {/* Right Column: Ad Details */}
@@ -367,15 +377,6 @@ export const AdDetailPage: React.FC = () => {
 
 
 
-            {/* Description Block */}
-            <div className="bg-surface-container-lowest rounded-2xl elevation-1 border border-outline-variant/20 p-xl flex flex-col gap-md">
-              <h3 className="font-headline-md text-[20px] font-semibold text-on-surface border-b border-outline-variant/10 pb-sm">
-                Description
-              </h3>
-              <p className="font-body-md text-body-md text-secondary leading-relaxed whitespace-pre-line">
-                {ad.description}
-              </p>
-            </div>
 
             {/* Reviews Section */}
             <div className="bg-surface-container-lowest rounded-2xl elevation-1 border border-outline-variant/20 p-xl flex flex-col gap-lg">
