@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { createAd } from '../api/ads.js';
 import { compressImage } from '../utils/imageCompressor.js';
+import { getCategories } from '../api/categories.js';
 
 
 export const CreateAdPage: React.FC = () => {
@@ -13,6 +14,7 @@ export const CreateAdPage: React.FC = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
+  const [categories, setCategories] = useState<string[]>([]);
   const [price, setPrice] = useState('');
   const [location, setLocation] = useState('');
   const [contactInfo, setContactInfo] = useState('');
@@ -40,6 +42,19 @@ export const CreateAdPage: React.FC = () => {
     };
     window.addEventListener('message', handleMapMessage);
     return () => window.removeEventListener('message', handleMapMessage);
+  }, []);
+
+  useEffect(() => {
+    const fetchCats = async () => {
+      try {
+        const list = await getCategories();
+        setCategories(list.map(c => c.name));
+      } catch (err) {
+        console.error('Failed to load categories in CreateAdPage', err);
+        setCategories(['Electronics', 'Furniture', 'Vehicles', 'Services', 'Other']);
+      }
+    };
+    fetchCats();
   }, []);
 
   const iframeSrc = useRef(
@@ -222,11 +237,11 @@ export const CreateAdPage: React.FC = () => {
                       required
                     >
                       <option value="" disabled>Select a category...</option>
-                      <option value="Electronics">Electronics</option>
-                      <option value="Furniture">Furniture</option>
-                      <option value="Vehicles">Vehicles</option>
-                      <option value="Services">Services</option>
-                      <option value="Other">Other</option>
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
                     </select>
                     <span className="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-secondary pointer-events-none">expand_more</span>
                   </div>

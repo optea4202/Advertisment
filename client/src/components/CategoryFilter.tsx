@@ -1,11 +1,10 @@
 import React from 'react';
+import { getCategories } from '../api/categories.js';
 
 interface CategoryFilterProps {
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
 }
-
-const CATEGORIES = ['All', 'Electronics', 'Furniture', 'Vehicles', 'Services', 'Other'];
 
 const CATEGORY_ICONS: Record<string, string> = {
   'All': 'grid_view',
@@ -20,6 +19,22 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   selectedCategory,
   onSelectCategory,
 }) => {
+  const [categories, setCategories] = React.useState<string[]>(['All']);
+
+  React.useEffect(() => {
+    const fetchCats = async () => {
+      try {
+        const list = await getCategories();
+        setCategories(['All', ...list.map(c => c.name)]);
+      } catch (err) {
+        console.error('Failed to load categories dynamically in CategoryFilter', err);
+        // fallback
+        setCategories(['All', 'Electronics', 'Furniture', 'Vehicles', 'Services', 'Other']);
+      }
+    };
+    fetchCats();
+  }, []);
+
   return (
     <div className="flex flex-col gap-sm w-full">
       <h3 className="font-label-md text-label-md text-secondary uppercase tracking-wider px-[4px] hidden md:block">
@@ -28,7 +43,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
       
       {/* Flex container: Column on desktop (sidebar style), row on mobile with horizontal scroll */}
       <div className="flex flex-row md:flex-col gap-xs overflow-x-auto md:overflow-x-visible pb-sm md:pb-0 scrollbar-none w-full">
-        {CATEGORIES.map((category) => {
+        {categories.map((category) => {
           const categoryValue = category === 'All' ? '' : category;
           const isSelected = selectedCategory === categoryValue;
           const icon = CATEGORY_ICONS[category] || 'category';

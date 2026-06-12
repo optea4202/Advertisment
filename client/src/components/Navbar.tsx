@@ -115,6 +115,17 @@ export const Navbar: React.FC = () => {
                     <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActiveTab('reports') ? "'FILL' 1" : "'FILL' 0" }}>flag</span>
                     <span>Reports</span>
                   </Link>
+                  <Link 
+                    to="/admin?tab=categories" 
+                    className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${
+                      isActiveTab('categories') 
+                        ? 'bg-primary-fixed text-primary drop-shadow-sm' 
+                        : 'text-secondary hover:text-primary hover:bg-surface-container-low'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActiveTab('categories') ? "'FILL' 1" : "'FILL' 0" }}>category</span>
+                    <span>Categories</span>
+                  </Link>
                 </>
               ) : (
                 <>

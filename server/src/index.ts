@@ -9,6 +9,7 @@ import adminRoutes from './routes/admin.js';
 import chatRoutes from './routes/chats.js';
 import wishlistRoutes from './routes/wishlist.js';
 import reportRoutes from './routes/reports.js';
+import categoryRoutes from './routes/categories.js';
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/categories', categoryRoutes);
 
 // Health check endpoint (checks database connectivity)
 app.get('/health', async (req: Request, res: Response, next: NextFunction) => {

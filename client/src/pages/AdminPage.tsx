@@ -13,9 +13,17 @@ import { type Ad } from '../api/ads.js';
 import { type Review } from '../api/reviews.js';
 import { type UserProfile } from '../api/users.js';
 import { getReports, deleteReport, type Report } from '../api/reports.js';
+import { 
+  getCategories, 
+  createCategory, 
+  updateCategory, 
+  deleteCategory, 
+  type Category 
+} from '../api/categories.js';
+import { ConfirmModal } from '../components/ConfirmModal.js';
 import { Link, useSearchParams } from 'react-router-dom';
 
-type Tab = 'ads' | 'reviews' | 'users' | 'reports';
+type Tab = 'ads' | 'reviews' | 'users' | 'reports' | 'categories';
 
 export const AdminPage: React.FC = () => {
   const { user: currentUser } = useAuth();
@@ -29,6 +37,42 @@ export const AdminPage: React.FC = () => {
   const [adsSearch, setAdsSearch] = useState('');
   const [reviewsSearch, setReviewsSearch] = useState('');
   const [usersSearch, setUsersSearch] = useState('');
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editingName, setEditingName] = useState('');
+
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    isDestructive?: boolean;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    isDestructive: false
+  });
+
+  const openConfirm = (title: string, message: string, onConfirm: () => void, isDestructive = false) => {
+    setConfirmConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        closeConfirm();
+      },
+      isDestructive
+    });
+  };
+
+  const closeConfirm = () => {
+    setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+  };
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -50,6 +94,9 @@ export const AdminPage: React.FC = () => {
       } else if (tab === 'reports') {
         const data = await getReports();
         setReports(data);
+      } else if (tab === 'categories') {
+        const data = await getCategories();
+        setCategories(data);
       }
     } catch (err: any) {
       console.error(`Error fetching admin ${tab}:`, err);
@@ -57,6 +104,57 @@ export const AdminPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCreateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCategoryName.trim()) return;
+    try {
+      await createCategory(newCategoryName);
+      showFeedback(`Successfully created category "${newCategoryName}".`);
+      setNewCategoryName('');
+      fetchData('categories');
+    } catch (err: any) {
+      console.error('Failed to create category:', err);
+      showFeedback(null, err.response?.data?.error?.message || 'Failed to create category.');
+    }
+  };
+
+  const handleUpdateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCategory || !editingName.trim()) return;
+    try {
+      await updateCategory(editingCategory.id, editingName);
+      showFeedback(`Successfully updated category name to "${editingName}".`);
+      setEditingCategory(null);
+      setEditingName('');
+      fetchData('categories');
+    } catch (err: any) {
+      console.error('Failed to update category:', err);
+      showFeedback(null, err.response?.data?.error?.message || 'Failed to update category.');
+    }
+  };
+
+  const handleDeleteCategory = async (id: number, name: string) => {
+    if (name.toLowerCase() === 'other') {
+      showFeedback(null, 'The "Other" category cannot be deleted.');
+      return;
+    }
+    openConfirm(
+      'Delete Category',
+      `Are you sure you want to delete the category "${name}"? All ads in this category will be reset to "Other".`,
+      async () => {
+        try {
+          await deleteCategory(id);
+          showFeedback(`Successfully deleted category "${name}".`);
+          fetchData('categories');
+        } catch (err: any) {
+          console.error('Failed to delete category:', err);
+          showFeedback(null, err.response?.data?.error?.message || 'Failed to delete category.');
+        }
+      },
+      true
+    );
   };
 
   useEffect(() => {
@@ -75,46 +173,58 @@ export const AdminPage: React.FC = () => {
   };
 
   const handleDeleteAd = async (id: number, title: string) => {
-    if (!window.confirm(`Are you sure you want to delete the advertisement "${title}"? This cannot be undone.`)) {
-      return;
-    }
-    try {
-      await adminDeleteAd(id);
-      showFeedback(`Successfully deleted advertisement "${title}".`);
-      fetchData(activeTab);
-    } catch (err: any) {
-      console.error('Admin delete ad failed:', err);
-      showFeedback(null, err.response?.data?.error?.message || 'Failed to delete advertisement.');
-    }
+    openConfirm(
+      'Delete Advertisement',
+      `Are you sure you want to delete the advertisement "${title}"? This cannot be undone.`,
+      async () => {
+        try {
+          await adminDeleteAd(id);
+          showFeedback(`Successfully deleted advertisement "${title}".`);
+          fetchData(activeTab);
+        } catch (err: any) {
+          console.error('Admin delete ad failed:', err);
+          showFeedback(null, err.response?.data?.error?.message || 'Failed to delete advertisement.');
+        }
+      },
+      true
+    );
   };
 
   const handleDeleteReview = async (id: number, reviewer: string) => {
-    if (!window.confirm(`Are you sure you want to delete the review by "${reviewer}"?`)) {
-      return;
-    }
-    try {
-      await adminDeleteReview(id);
-      showFeedback(`Successfully deleted review by "${reviewer}".`);
-      fetchData(activeTab);
-    } catch (err: any) {
-      console.error('Admin delete review failed:', err);
-      showFeedback(null, 'Failed to delete review.');
-    }
+    openConfirm(
+      'Delete Review',
+      `Are you sure you want to delete the review by "${reviewer}"?`,
+      async () => {
+        try {
+          await adminDeleteReview(id);
+          showFeedback(`Successfully deleted review by "${reviewer}".`);
+          fetchData(activeTab);
+        } catch (err: any) {
+          console.error('Admin delete review failed:', err);
+          showFeedback(null, 'Failed to delete review.');
+        }
+      },
+      true
+    );
   };
 
   const handleBanToggle = async (userId: number, username: string, currentBanStatus: boolean) => {
     const actionWord = currentBanStatus ? 'unban' : 'ban';
-    if (!window.confirm(`Are you sure you want to ${actionWord} the user "${username}"?`)) {
-      return;
-    }
-    try {
-      await adminBanUser(userId, !currentBanStatus);
-      showFeedback(`Successfully updated ban status for "${username}".`);
-      fetchData(activeTab);
-    } catch (err: any) {
-      console.error('Admin ban user toggle failed:', err);
-      showFeedback(null, err.response?.data?.error?.message || `Failed to ${actionWord} user.`);
-    }
+    openConfirm(
+      `${currentBanStatus ? 'Unban' : 'Ban'} User Account`,
+      `Are you sure you want to ${actionWord} the user "${username}"?`,
+      async () => {
+        try {
+          await adminBanUser(userId, !currentBanStatus);
+          showFeedback(`Successfully updated ban status for "${username}".`);
+          fetchData(activeTab);
+        } catch (err: any) {
+          console.error('Admin ban user toggle failed:', err);
+          showFeedback(null, err.response?.data?.error?.message || `Failed to ${actionWord} user.`);
+        }
+      },
+      !currentBanStatus
+    );
   };
 
   const handleDismissReport = async (reportId: number) => {
@@ -567,12 +677,161 @@ export const AdminPage: React.FC = () => {
                   )}
                 </div>
               )}
+
+              {/* CATEGORIES TAB */}
+              {activeTab === 'categories' && (
+                <div className="flex flex-col gap-lg animate-fade-in-up">
+                  {/* Inline creation form */}
+                  <form onSubmit={handleCreateCategory} className="flex gap-md items-end max-w-md bg-surface-container/30 p-md rounded-2xl border border-outline-variant/20">
+                    <div className="flex flex-col gap-xs flex-grow">
+                      <label htmlFor="new-category" className="font-label-sm text-label-sm text-secondary uppercase tracking-wider">
+                        Add New Category
+                      </label>
+                      <input
+                        id="new-category"
+                        type="text"
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        placeholder="e.g. Books, Clothing..."
+                        className="w-full px-md py-[10px] rounded-xl border border-outline-variant/30 bg-surface-bright text-on-surface text-body-sm font-body-sm placeholder:text-secondary/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={!newCategoryName.trim()}
+                      className="bg-primary text-on-primary font-label-md text-label-md px-md py-[10px] rounded-xl hover:brightness-110 active:scale-[0.98] transition-all flex items-center gap-xs shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">add</span>
+                      Add
+                    </button>
+                  </form>
+
+                  {/* List Table */}
+                  <div className="overflow-x-auto">
+                    {categories.length === 0 ? (
+                      <div className="py-xl text-center text-secondary font-body-md">
+                        No categories found.
+                      </div>
+                    ) : (
+                      <table className="w-full text-left font-body-md border-collapse">
+                        <thead>
+                          <tr className="border-b border-outline-variant/20 text-secondary text-label-sm font-label-sm uppercase tracking-wider">
+                            <th className="pb-md">ID</th>
+                            <th className="pb-md">Category Name</th>
+                            <th className="pb-md">Created Date</th>
+                            <th className="pb-md text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-outline-variant/10">
+                          {categories.map((cat) => {
+                            const isEditing = editingCategory?.id === cat.id;
+                            const isOther = cat.name.toLowerCase() === 'other';
+                            return (
+                              <tr key={cat.id} className="hover:bg-surface-container-low/20 transition-colors">
+                                <td className="py-md text-secondary font-mono text-body-sm">#{cat.id}</td>
+                                <td className="py-md font-semibold text-on-surface">
+                                  {isEditing ? (
+                                    <form onSubmit={handleUpdateCategory} className="flex gap-xs items-center max-w-xs">
+                                      <input
+                                        type="text"
+                                        value={editingName}
+                                        onChange={(e) => setEditingName(e.target.value)}
+                                        className="w-full px-xs py-[4px] rounded-lg border border-outline-variant bg-surface-bright text-on-surface text-body-sm font-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        required
+                                        autoFocus
+                                      />
+                                      <button
+                                        type="submit"
+                                        className="p-[6px] rounded-lg bg-primary text-on-primary hover:brightness-115 active:scale-95 transition-all flex items-center justify-center shadow-sm"
+                                        title="Save category name"
+                                      >
+                                        <span className="material-symbols-outlined text-[16px]">check</span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setEditingCategory(null);
+                                          setEditingName('');
+                                        }}
+                                        className="p-[6px] rounded-lg bg-surface-container-highest text-secondary border border-outline-variant hover:brightness-95 active:scale-95 transition-all flex items-center justify-center"
+                                        title="Cancel editing"
+                                      >
+                                        <span className="material-symbols-outlined text-[16px]">close</span>
+                                      </button>
+                                    </form>
+                                  ) : (
+                                    <span className="flex items-center gap-sm">
+                                      {cat.name}
+                                      {isOther && (
+                                        <span className="bg-surface-container-highest text-on-surface-variant text-[10px] font-bold px-sm py-[2px] rounded-full uppercase tracking-wider">
+                                          Default Fallback
+                                        </span>
+                                      )}
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="py-md text-secondary text-body-sm">
+                                  {new Date(cat.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                                </td>
+                                <td className="py-md text-right">
+                                  {!isEditing && (
+                                    <div className="flex items-center gap-xs justify-end">
+                                      <button
+                                        onClick={() => {
+                                          setEditingCategory(cat);
+                                          setEditingName(cat.name);
+                                        }}
+                                        disabled={isOther}
+                                        className={`py-[6px] px-md rounded-lg text-label-sm font-label-sm border hover:brightness-95 active:scale-95 transition-all inline-flex items-center gap-xs ${
+                                          isOther
+                                            ? 'opacity-40 cursor-not-allowed bg-surface-container-low text-secondary/50 border-outline-variant/10'
+                                            : 'bg-surface-bright text-secondary border-outline-variant/40 hover:text-primary hover:border-primary/45 shadow-sm'
+                                        }`}
+                                        title={isOther ? 'Fallback category cannot be edited' : 'Edit category name'}
+                                      >
+                                        <span className="material-symbols-outlined text-[16px]">edit</span>
+                                        Edit
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                                        disabled={isOther}
+                                        className={`py-[6px] px-md rounded-lg text-label-sm font-label-sm border hover:brightness-95 active:scale-95 transition-all inline-flex items-center gap-xs ${
+                                          isOther
+                                            ? 'opacity-40 cursor-not-allowed bg-surface-container-low text-secondary/50 border-outline-variant/10'
+                                            : 'bg-error-container text-on-error-container border-error/15 font-semibold'
+                                        }`}
+                                        title={isOther ? 'Fallback category cannot be deleted' : 'Delete category'}
+                                      >
+                                        <span className="material-symbols-outlined text-[16px]">delete</span>
+                                        Delete
+                                      </button>
+                                    </div>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                </div>
+              )}
             </>
           )}
 
         </div>
 
       </main>
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        isDestructive={confirmConfig.isDestructive}
+        onConfirm={confirmConfig.onConfirm}
+        onCancel={closeConfirm}
+      />
     </div>
   );
 };

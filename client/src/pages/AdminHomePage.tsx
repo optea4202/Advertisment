@@ -11,6 +11,7 @@ import { getReports, type Report } from '../api/reports.js';
 import { type Ad } from '../api/ads.js';
 import { type Review } from '../api/reviews.js';
 import { type UserProfile } from '../api/users.js';
+import { getCategories } from '../api/categories.js';
 
 export const AdminHomePage: React.FC = () => {
   const { user: currentUser } = useAuth();
@@ -18,6 +19,7 @@ export const AdminHomePage: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -27,16 +29,18 @@ export const AdminHomePage: React.FC = () => {
       setLoading(true);
       setErrorMsg(null);
       try {
-        const [adsData, reviewsData, usersData, reportsData] = await Promise.all([
+        const [adsData, reviewsData, usersData, reportsData, categoriesData] = await Promise.all([
           adminGetAds(),
           adminGetReviews(),
           adminGetUsers(),
-          getReports()
+          getReports(),
+          getCategories()
         ]);
         setAds(adsData);
         setReviews(reviewsData);
         setUsers(usersData);
         setReports(reportsData);
+        setCategories(categoriesData.map(c => c.name));
       } catch (err: any) {
         console.error('Error fetching admin dashboard data:', err);
         setErrorMsg('Failed to load dashboard metrics. Please try refreshing.');
@@ -61,7 +65,6 @@ export const AdminHomePage: React.FC = () => {
     : '0.0';
 
   // Compute category distribution
-  const categories = ['Electronics', 'Furniture', 'Vehicles', 'Services', 'Other'];
   const categoryCounts = categories.reduce((acc, cat) => {
     acc[cat] = ads.filter(ad => ad.category === cat).length;
     return acc;
