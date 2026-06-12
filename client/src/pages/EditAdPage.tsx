@@ -350,7 +350,7 @@ export const EditAdPage: React.FC = () => {
                   <div className="flex flex-col gap-sm">
                     <label className="font-label-md text-label-md text-on-surface" htmlFor="ad-price">Price</label>
                     <div className="relative input-glow rounded-md transition-shadow duration-200 flex items-center bg-surface-bright border border-outline-variant focus-within:border-primary overflow-hidden">
-                      <span className="pl-md pr-sm font-body-md text-body-md text-secondary border-r border-outline-variant/50 bg-surface-container-low h-full flex items-center">$</span>
+                      <span className="pl-md pr-sm font-body-md text-body-md text-secondary border-r border-outline-variant/50 bg-surface-container-low h-full flex items-center">₹</span>
                       <input
                         className="w-full bg-transparent border-none px-sm py-[10px] font-body-md text-body-md text-on-surface placeholder:text-secondary/60 focus:ring-0 focus:outline-none"
                         id="ad-price"

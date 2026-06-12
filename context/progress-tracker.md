@@ -12,6 +12,7 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Changed the price input field currency symbol prefix from dollars ($) to Indian Rupees (₹) in both the Create and Edit ad pages to match the rest of the application's currency display.
 - Client project foundation initialized with React, Vite, TS, Tailwind CSS, and custom design tokens in `variables.css`.
 - Server project foundation initialized with Express, TS, Cors, tsx, and Zod env validator.
 - Database migrations 001 through 004 written and successfully applied to Neon PostgreSQL.
