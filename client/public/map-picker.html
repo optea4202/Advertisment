@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Map Picker</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@10.3.1/ol.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <style>
     html, body, #map {
       margin: 0;
@@ -12,145 +12,61 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      font-family: sans-serif;
     }
-    /* Hide OpenLayers attribution to keep it clean */
-    .ol-attribution {
-      display: none !important;
-    }
-    .ol-zoom {
-      top: 8px;
-      left: 8px;
-    }
-    .ol-zoom button {
-      background: rgba(255,255,255,0.9);
-      border: none;
-      border-radius: 4px;
-      width: 28px;
-      height: 28px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      color: #333;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 2px;
-    }
-    .ol-zoom button:hover {
-      background: rgba(255,255,255,1);
-    }
-    /* Marker pin */
-    .map-pin {
-      width: 24px;
-      height: 36px;
-      position: relative;
-    }
-    .map-pin::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 20px;
-      height: 20px;
-      background: #00685f;
-      border-radius: 50% 50% 50% 0;
-      transform: translateX(-50%) rotate(-45deg);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
-    }
-    .map-pin::after {
-      content: '';
-      position: absolute;
-      top: 6px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 8px;
-      height: 8px;
-      background: #fff;
-      border-radius: 50%;
+    .leaflet-container {
+      font-family: 'Inter', sans-serif;
     }
   </style>
 </head>
 <body>
   <div id="map"></div>
-  <script src="https://cdn.jsdelivr.net/npm/ol@10.3.1/dist/ol.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
+    // Get query params
     const urlParams = new URLSearchParams(window.location.search);
     const latParam = urlParams.get('lat');
     const lngParam = urlParams.get('lng');
 
-    let initialLon = 78.9629;
     let initialLat = 20.5937;
+    let initialLng = 78.9629;
     let initialZoom = 5;
     let hasCoords = false;
 
     if (latParam && lngParam && !isNaN(parseFloat(latParam)) && !isNaN(parseFloat(lngParam))) {
       initialLat = parseFloat(latParam);
-      initialLon = parseFloat(lngParam);
+      initialLng = parseFloat(lngParam);
       initialZoom = 14;
       hasCoords = true;
     }
 
-    // Create marker element
-    function createMarkerElement() {
-      const el = document.createElement('div');
-      el.className = 'map-pin';
-      return el;
-    }
+    const map = L.map('map').setView([initialLat, initialLng], initialZoom);
 
-    const markerFeature = new ol.Feature();
-    const markerLayer = new ol.layer.Vector({
-      source: new ol.source.Vector({ features: [markerFeature] }),
-      style: new ol.style.Style({
-        image: new ol.style.Circle({
-          radius: 8,
-          fill: new ol.style.Fill({ color: '#00685f' }),
-          stroke: new ol.style.Stroke({ color: '#fff', width: 2.5 }),
-        }),
-      }),
-    });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
 
-    const view = new ol.View({
-      center: ol.proj.fromLonLat([initialLon, initialLat]),
-      zoom: initialZoom,
-    });
+    let marker = null;
 
-    const map = new ol.Map({
-      target: 'map',
-      layers: [
-        new ol.layer.Tile({
-          source: new ol.source.OSM(),
-        }),
-        markerLayer,
-      ],
-      view: view,
-      controls: ol.control.defaults.defaults({ attribution: false }),
-    });
-
-    // Place initial marker if coords provided
     if (hasCoords) {
-      markerFeature.setGeometry(new ol.geom.Point(ol.proj.fromLonLat([initialLon, initialLat])));
+      marker = L.marker([initialLat, initialLng]).addTo(map);
     }
 
-    // On map click — place marker and notify parent
-    map.on('click', function (e) {
-      const coords = ol.proj.toLonLat(e.coordinate);
-      const lng = coords[0];
-      const lat = coords[1];
+    map.on('click', function(e) {
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
 
-      markerFeature.setGeometry(new ol.geom.Point(e.coordinate));
+      if (marker) {
+        marker.setLatLng(e.latlng);
+      } else {
+        marker = L.marker(e.latlng).addTo(map);
+      }
 
       window.parent.postMessage({
         type: 'LOCATION_PICKED',
         lat: lat,
-        lng: lng,
+        lng: lng
       }, '*');
-    });
-
-    // Change cursor to pointer over map
-    map.on('pointermove', function () {
-      map.getTargetElement().style.cursor = 'crosshair';
     });
   </script>
 </body>
