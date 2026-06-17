@@ -24,6 +24,63 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   // True while the API request is in flight
   const [loading, setLoading] = useState(false);
 
+  const [history, setHistory] = useState<string[]>([]);
+
+  // Load history from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('fakna_search_history');
+    if (stored) {
+      try {
+        setHistory(JSON.parse(stored));
+      } catch (e) {
+        console.error('Failed to parse search history', e);
+      }
+    }
+  }, []);
+
+  const saveToHistory = (term: string) => {
+    const trimmed = term.trim();
+    if (!trimmed) return;
+
+    const stored = localStorage.getItem('fakna_search_history');
+    let currentHistory: string[] = [];
+    if (stored) {
+      try {
+        currentHistory = JSON.parse(stored);
+      } catch (e) {
+        // ignore
+      }
+    }
+    const updated = [trimmed, ...currentHistory.filter((item) => item !== trimmed)].slice(0, 5);
+    localStorage.setItem('fakna_search_history', JSON.stringify(updated));
+    setHistory(updated);
+  };
+
+  const deleteHistoryItem = (e: React.MouseEvent, item: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const stored = localStorage.getItem('fakna_search_history');
+    let currentHistory: string[] = [];
+    if (stored) {
+      try {
+        currentHistory = JSON.parse(stored);
+      } catch (e) {
+        // ignore
+      }
+    }
+    const updated = currentHistory.filter((i) => i !== item);
+    localStorage.setItem('fakna_search_history', JSON.stringify(updated));
+    setHistory(updated);
+  };
+
+  const clearAllHistory = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    localStorage.removeItem('fakna_search_history');
+    setHistory([]);
+    setIsOpen(false);
+  };
+
   const containerRef = useRef<HTMLDivElement>(null);
   const isFirstMount = useRef(true);
 
@@ -109,26 +166,35 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   const handleSelectTitle = (title: string) => {
+    saveToHistory(title);
     setSearchTerm(title);
     onSearchChange(title);
     setIsOpen(false);
   };
 
-  // Re-open on focus if there's already a query
+  // Re-open on focus if there's already a query or search history exists
   const handleFocus = () => {
-    if (searchTerm.trim()) {
+    if (searchTerm.trim() || history.length > 0) {
       setIsOpen(true);
     }
   };
 
-  // Escape closes the dropdown
+  // Escape closes the dropdown, Enter saves/submits search
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       setIsOpen(false);
+    } else if (e.key === 'Enter') {
+      const trimmed = searchTerm.trim();
+      if (trimmed) {
+        saveToHistory(trimmed);
+        onSearchChange(trimmed);
+        setIsOpen(false);
+      }
     }
   };
 
   const hasSuggestions = suggestions.categories.length > 0 || suggestions.titles.length > 0;
+  const showHistory = !searchTerm.trim() && history.length > 0;
 
   return (
     <div ref={containerRef} className="relative w-full" onKeyDown={handleKeyDown}>
@@ -164,12 +230,55 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* ── Dropdown panel ──
           Visible as soon as isOpen=true. Shows skeleton while loading, then results. */}
-      {isOpen && (
+      {isOpen && (searchTerm.trim() || history.length > 0) && (
         <div className="absolute left-0 right-0 mt-sm bg-surface-container-lowest border border-outline-variant/60 rounded-xl shadow-2 backdrop-blur-md z-50 max-h-[320px] overflow-y-auto animate-fade-in-up-sheet">
           <div className="p-xs flex flex-col">
 
+            {/* Recent Searches (Search History) */}
+            {showHistory && (
+              <div className="flex flex-col">
+                <div className="flex items-center justify-between px-sm py-[6px] select-none border-b border-outline-variant/10 mb-xs">
+                  <span className="font-label-sm text-[11px] text-secondary/70 uppercase tracking-wider">
+                    Recent Searches
+                  </span>
+                  <button
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={clearAllHistory}
+                    className="text-[11px] font-semibold text-primary hover:text-primary-container transition-colors"
+                  >
+                    Clear All
+                  </button>
+                </div>
+                {history.map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center justify-between px-sm py-[4px] rounded-lg hover:bg-primary/5 group transition-colors"
+                  >
+                    <button
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => handleSelectTitle(item)}
+                      className="flex items-center gap-sm flex-grow text-left text-on-surface font-body-sm text-body-sm group py-[4px]"
+                    >
+                      <span className="material-symbols-outlined text-secondary/70 group-hover:text-primary text-[18px]">
+                        history
+                      </span>
+                      <span className="truncate group-hover:text-primary font-medium">{item}</span>
+                    </button>
+                    <button
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={(e) => deleteHistoryItem(e, item)}
+                      className="text-secondary hover:text-error hover:bg-error-container/20 p-[4px] rounded-full transition-colors flex items-center justify-center mr-xs"
+                      title="Remove from history"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">close</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Loading skeleton rows — shown while fetch is in flight */}
-            {loading && (
+            {searchTerm.trim() && loading && (
               <div className="flex flex-col gap-xs px-sm py-sm">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="flex items-center gap-sm">
@@ -184,7 +293,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             )}
 
             {/* Category suggestions */}
-            {!loading && suggestions.categories.length > 0 && (
+            {searchTerm.trim() && !loading && suggestions.categories.length > 0 && (
               <div className="flex flex-col mb-xs">
                 <span className="font-label-sm text-[11px] text-secondary/70 uppercase tracking-wider px-sm py-[6px] select-none">
                   Categories
@@ -206,12 +315,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             )}
 
             {/* Divider between sections */}
-            {!loading && suggestions.categories.length > 0 && suggestions.titles.length > 0 && (
+            {searchTerm.trim() && !loading && suggestions.categories.length > 0 && suggestions.titles.length > 0 && (
               <div className="h-[1px] bg-outline-variant/20 my-xs" />
             )}
 
             {/* Ad title suggestions */}
-            {!loading && suggestions.titles.length > 0 && (
+            {searchTerm.trim() && !loading && suggestions.titles.length > 0 && (
               <div className="flex flex-col">
                 <span className="font-label-sm text-[11px] text-secondary/70 uppercase tracking-wider px-sm py-[6px] select-none">
                   Advertisements
@@ -233,7 +342,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             )}
 
             {/* No results state */}
-            {!loading && !hasSuggestions && (
+            {searchTerm.trim() && !loading && !hasSuggestions && (
               <div className="flex items-center gap-sm px-sm py-md text-secondary font-body-sm text-body-sm">
                 <span className="material-symbols-outlined text-[18px]">search_off</span>
                 <span>No suggestions for &ldquo;{searchTerm}&rdquo;</span>
