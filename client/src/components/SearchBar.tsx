@@ -208,6 +208,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         onFocus={handleFocus}
+        onClick={handleFocus}
+        autoComplete="off"
+        spellCheck="false"
         placeholder="Search ads by keyword..."
         className="w-full bg-surface-container border border-outline-variant rounded-xl pl-[44px] pr-[44px] py-md font-body-md text-body-md text-on-surface placeholder:text-secondary/60 focus:border-primary focus:bg-surface-container-lowest focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-200"
       />
