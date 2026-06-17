@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
+import { Footer } from '../components/Footer.js';
 import { useAuth } from '../context/AuthContext.js';
 
 const features = [
@@ -262,12 +263,7 @@ export const DashboardPage: React.FC = () => {
           </div>
         </section>
       </main>
-
-      <footer className="bg-surface-container-lowest border-t border-outline-variant/30 py-md px-md text-center">
-        <p className="font-label-sm text-label-sm text-secondary">
-          Developed by <span className="font-bold text-primary">optea</span>
-        </p>
-      </footer>
+      <Footer />
     </div>
   );
 };

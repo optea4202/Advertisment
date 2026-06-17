@@ -1,0 +1,185 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.js';
+
+export const Footer: React.FC = () => {
+  const { user } = useAuth();
+  const currentYear = new Date().getFullYear();
+
+  return (
+    <footer className="bg-surface-container-lowest border-t border-outline-variant/30 text-on-surface mt-auto">
+      <div className="w-full max-w-container-max mx-auto px-md md:px-xl py-xl md:py-xxl">
+        {/* Main Footer Content Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-xl">
+          {/* Column 1: Brand Info */}
+          <div className="flex flex-col gap-md">
+            <Link to="/" className="flex items-center gap-xs shrink-0 self-start group">
+              <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center text-on-primary group-hover:rotate-6 transition-transform duration-300">
+                <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
+              </div>
+              <span className="text-headline-md font-bold text-primary tracking-tight">Fakna</span>
+            </Link>
+            
+            <p className="text-on-surface-variant text-body-sm leading-relaxed max-w-[280px]">
+              Connecting local businesses, verified stores, and premium services directly with customers. Simple, secure, and community-driven.
+            </p>
+
+            {/* Social Media Links */}
+            <div className="flex items-center gap-sm mt-xs">
+              <a 
+                href="https://wa.me/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full bg-surface-container hover:bg-primary-fixed hover:text-primary transition-all duration-200 flex items-center justify-center text-on-surface-variant group shadow-sm"
+                title="Join our WhatsApp Community"
+              >
+                <img 
+                  src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" 
+                  alt="WhatsApp" 
+                  className="w-4 h-4 object-contain group-hover:scale-110 transition-transform duration-200"
+                />
+              </a>
+              <a 
+                href="https://telegram.org/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full bg-surface-container hover:bg-primary-fixed hover:text-primary transition-all duration-200 flex items-center justify-center text-on-surface-variant group shadow-sm"
+                title="Join our Telegram Channel"
+              >
+                <img 
+                  src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" 
+                  alt="Telegram" 
+                  className="w-4 h-4 object-contain group-hover:scale-110 transition-transform duration-200"
+                />
+              </a>
+              <a 
+                href="https://facebook.com/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full bg-surface-container hover:bg-primary-fixed hover:text-primary transition-all duration-200 flex items-center justify-center text-on-surface-variant group shadow-sm"
+                title="Follow us on Facebook"
+              >
+                <img 
+                  src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" 
+                  alt="Facebook" 
+                  className="w-4 h-4 object-contain group-hover:scale-110 transition-transform duration-200"
+                />
+              </a>
+              <a 
+                href="https://twitter.com/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full bg-surface-container hover:bg-primary-fixed hover:text-primary transition-all duration-200 flex items-center justify-center text-on-surface-variant group shadow-sm"
+                title="Follow us on X"
+              >
+                <img 
+                  src="https://upload.wikimedia.org/wikipedia/commons/5/57/X_logo_2023_%28white%29.png" 
+                  alt="X (formerly Twitter)" 
+                  className="w-4 h-4 object-contain group-hover:scale-110 transition-transform duration-200 invert dark:invert-0"
+                />
+              </a>
+            </div>
+          </div>
+
+          {/* Column 2: Explore */}
+          <div className="flex flex-col gap-sm">
+            <h3 className="font-semibold text-on-surface text-label-md uppercase tracking-wider">Explore</h3>
+            <ul className="flex flex-col gap-xs p-0 m-0 list-none">
+              <li>
+                <Link to="/" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
+                  <span className="material-symbols-outlined text-[16px]">home</span>
+                  Home Marketplace
+                </Link>
+              </li>
+              <li>
+                <Link to="/dashboard" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
+                  <span className="material-symbols-outlined text-[16px]">info</span>
+                  About Platform
+                </Link>
+              </li>
+              <li>
+                <Link to="/" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
+                  <span className="material-symbols-outlined text-[16px]">search</span>
+                  Search Advertisements
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: Members Section */}
+          <div className="flex flex-col gap-sm">
+            <h3 className="font-semibold text-on-surface text-label-md uppercase tracking-wider">Community</h3>
+            <ul className="flex flex-col gap-xs p-0 m-0 list-none">
+              <li>
+                <Link to="/ads/create" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
+                  <span className="material-symbols-outlined text-[16px]">add_box</span>
+                  Post an Ad
+                </Link>
+              </li>
+              {user ? (
+                <>
+                  <li>
+                    <Link to={`/profile/${user.id}`} className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
+                      <span className="material-symbols-outlined text-[16px]">person</span>
+                      My Profile
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/inbox" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
+                      <span className="material-symbols-outlined text-[16px]">inbox</span>
+                      Inbox Messages
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/settings" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
+                      <span className="material-symbols-outlined text-[16px]">settings</span>
+                      Account Settings
+                    </Link>
+                  </li>
+                </>
+              ) : (
+                <li>
+                  <Link to="/login" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
+                    <span className="material-symbols-outlined text-[16px]">login</span>
+                    Sign In / Sign Up
+                  </Link>
+                </li>
+              )}
+            </ul>
+          </div>
+
+          {/* Column 4: Contact & Reliability Badge */}
+          <div className="flex flex-col gap-sm">
+            <h3 className="font-semibold text-on-surface text-label-md uppercase tracking-wider">Support</h3>
+            <ul className="flex flex-col gap-xs p-0 m-0 list-none mb-sm">
+              <li className="text-on-surface-variant text-body-sm flex items-center gap-xs">
+                <span className="material-symbols-outlined text-[16px] text-primary">mail</span>
+                support@fakna.com
+              </li>
+              <li className="text-on-surface-variant text-body-sm flex items-center gap-xs">
+                <span className="material-symbols-outlined text-[16px] text-primary">contact_support</span>
+                Help Center
+              </li>
+            </ul>
+
+            {/* Health & Reliability Badge */}
+            <div className="bg-primary/5 dark:bg-primary-fixed-dim/10 border border-primary/20 dark:border-primary-fixed-dim/20 rounded-xl p-sm flex items-center gap-sm self-start">
+              <div className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </div>
+              <span className="text-[11px] font-semibold text-primary dark:text-primary-fixed uppercase tracking-wider">All Systems Operational</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom copyright notice */}
+        <div className="border-t border-outline-variant/15 mt-xl pt-lg flex flex-col md:flex-row justify-between items-center gap-sm">
+          <p className="font-body-sm text-body-sm text-on-surface-variant text-center md:text-left m-0">
+            &copy; {currentYear} <span className="font-semibold">Fakna</span>. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+};

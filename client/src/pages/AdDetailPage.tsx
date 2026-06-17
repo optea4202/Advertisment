@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
+import { Footer } from '../components/Footer.js';
 import { ImageGallery } from '../components/ImageGallery.js';
 import { useAd } from '../hooks/useAds.js';
 import { useAuth } from '../context/AuthContext.js';
@@ -409,6 +410,7 @@ export const AdDetailPage: React.FC = () => {
           </div>
         )}
       </main>
+      <Footer />
 
       {reportType && reportItemId && (
         <ReportModal 

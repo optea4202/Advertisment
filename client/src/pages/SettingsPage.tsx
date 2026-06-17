@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar.js';
+import { Footer } from '../components/Footer.js';
 import { useAuth } from '../context/AuthContext.js';
 import { updateProfile } from '../api/users.js';
 import { compressImage } from '../utils/imageCompressor.js';
@@ -228,6 +229,7 @@ export const SettingsPage: React.FC = () => {
           </form>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

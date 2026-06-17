@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
+import { Footer } from '../components/Footer.js';
 import { AdCard } from '../components/AdCard.js';
 import { usePublicProfile } from '../hooks/useUsers.js';
 import { useAuth } from '../context/AuthContext.js';
@@ -355,6 +356,7 @@ export const UserProfilePage: React.FC = () => {
           </>
         )}
       </main>
+      <Footer />
 
       {showReportModal && profile && (
         <ReportModal

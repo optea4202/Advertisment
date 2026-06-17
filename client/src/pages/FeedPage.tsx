@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
+import { Footer } from '../components/Footer.js';
 import { SearchBar } from '../components/SearchBar.js';
 import { CategoryFilter } from '../components/CategoryFilter.js';
 import { AdCard } from '../components/AdCard.js';
@@ -253,6 +254,7 @@ export const FeedPage: React.FC = () => {
           )}
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

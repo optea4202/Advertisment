@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
+import { Footer } from '../components/Footer.js';
 import { getAdById, updateAd } from '../api/ads.js';
 import { compressImage } from '../utils/imageCompressor.js';
 import { getCategories, type Category } from '../api/categories.js';
@@ -562,6 +563,7 @@ export const EditAdPage: React.FC = () => {
           </form>
         )}
       </main>
+      <Footer />
     </div>
   );
 };
