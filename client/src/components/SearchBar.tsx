@@ -230,7 +230,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* ── Dropdown panel ──
           Visible as soon as isOpen=true. Shows skeleton while loading, then results. */}
-      {isOpen && (searchTerm.trim() || history.length > 0) && (
+      {isOpen && (!!searchTerm.trim() || history.length > 0) && (
         <div className="absolute left-0 right-0 mt-sm bg-surface-container-lowest border border-outline-variant/60 rounded-xl shadow-2 backdrop-blur-md z-50 max-h-[320px] overflow-y-auto animate-fade-in-up-sheet">
           <div className="p-xs flex flex-col">
 
@@ -278,7 +278,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             )}
 
             {/* Loading skeleton rows — shown while fetch is in flight */}
-            {searchTerm.trim() && loading && (
+            {!!searchTerm.trim() && loading && (
               <div className="flex flex-col gap-xs px-sm py-sm">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="flex items-center gap-sm">
@@ -293,7 +293,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             )}
 
             {/* Category suggestions */}
-            {searchTerm.trim() && !loading && suggestions.categories.length > 0 && (
+            {!!searchTerm.trim() && !loading && suggestions.categories.length > 0 && (
               <div className="flex flex-col mb-xs">
                 <span className="font-label-sm text-[11px] text-secondary/70 uppercase tracking-wider px-sm py-[6px] select-none">
                   Categories
@@ -315,12 +315,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             )}
 
             {/* Divider between sections */}
-            {searchTerm.trim() && !loading && suggestions.categories.length > 0 && suggestions.titles.length > 0 && (
+            {!!searchTerm.trim() && !loading && suggestions.categories.length > 0 && suggestions.titles.length > 0 && (
               <div className="h-[1px] bg-outline-variant/20 my-xs" />
             )}
 
             {/* Ad title suggestions */}
-            {searchTerm.trim() && !loading && suggestions.titles.length > 0 && (
+            {!!searchTerm.trim() && !loading && suggestions.titles.length > 0 && (
               <div className="flex flex-col">
                 <span className="font-label-sm text-[11px] text-secondary/70 uppercase tracking-wider px-sm py-[6px] select-none">
                   Advertisements
@@ -342,7 +342,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             )}
 
             {/* No results state */}
-            {searchTerm.trim() && !loading && !hasSuggestions && (
+            {!!searchTerm.trim() && !loading && !hasSuggestions && (
               <div className="flex items-center gap-sm px-sm py-md text-secondary font-body-sm text-body-sm">
                 <span className="material-symbols-outlined text-[18px]">search_off</span>
                 <span>No suggestions for &ldquo;{searchTerm}&rdquo;</span>
