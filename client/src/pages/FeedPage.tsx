@@ -20,9 +20,10 @@ export const FeedPage: React.FC = () => {
 
   const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const [spotlightIndex, setSpotlightIndex] = useState(0);
 
-  const { ads, loading, error, refresh } = useFeed(category, search);
+  const { ads, total, totalPages, loading, error, refresh } = useFeed(category, search, page);
 
   // Spotlight rotation effect (cycles through top 5 ads every 4 seconds)
   useEffect(() => {
@@ -34,13 +35,51 @@ export const FeedPage: React.FC = () => {
     return () => clearInterval(interval);
   }, [ads]);
 
+  // Reset page to 1 whenever filters change
+  useEffect(() => {
+    setPage(1);
+  }, [category, search]);
+
   const handleResetFilters = () => {
     setCategory('');
     setSearch('');
+    setPage(1);
+  };
+
+  const getPageNumbers = () => {
+    const range = [];
+    const delta = 2; // Number of pages to show before and after current page
+    const left = page - delta;
+    const right = page + delta + 1;
+    const rangeWithDots: (number | string)[] = [];
+    let l;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= left && i < right)) {
+        range.push(i);
+      }
+    }
+
+    for (const i of range) {
+      if (l) {
+        if (i - l === 2) {
+          rangeWithDots.push(l + 1);
+        } else if (i - l > 2) {
+          rangeWithDots.push('...');
+        }
+      }
+      rangeWithDots.push(i);
+      l = i;
+    }
+
+    return rangeWithDots;
   };
 
   const spotlightAds = ads ? ads.slice(0, 5) : [];
   const currentSpotlightAd = spotlightAds[spotlightIndex];
+
+  const startIndex = (page - 1) * 12 + 1;
+  const endIndex = Math.min(page * 12, total);
 
   return (
     <div className="bg-surface text-on-surface min-h-screen flex flex-col">
@@ -69,7 +108,7 @@ export const FeedPage: React.FC = () => {
               {/* Metrics Grid */}
               <div className="grid grid-cols-3 gap-md mt-sm border-t border-outline-variant/15 pt-md">
                 <div className="flex flex-col">
-                  <span className="text-[20px] md:text-[28px] font-bold text-primary">{ads ? ads.length : 0}+</span>
+                  <span className="text-[20px] md:text-[28px] font-bold text-primary">{total}+</span>
                   <span className="text-secondary text-label-sm">Active Ads</span>
                 </div>
                 <div className="flex flex-col">
@@ -244,13 +283,79 @@ export const FeedPage: React.FC = () => {
           )}
 
           {!error && !loading && ads.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
-              {ads.map((ad, idx) => (
-                <div key={ad.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 75, 450)}ms` }}>
-                  <AdCard ad={ad} />
+            <>
+              <div className="flex flex-col gap-md">
+                {search.trim() && (
+                  <div className="text-body-md font-medium text-secondary/90 animate-fade-in-up-sheet">
+                    {startIndex}-{endIndex} of {total} results for <span className="text-primary font-bold">"{search}"</span>
+                  </div>
+                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
+                  {ads.map((ad, idx) => (
+                    <div key={ad.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 75, 450)}ms` }}>
+                      <AdCard ad={ad} />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-xs sm:gap-sm mt-xl py-md border-t border-outline-variant/10 flex-wrap">
+                  <button
+                    onClick={() => {
+                      setPage((p) => Math.max(p - 1, 1));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    disabled={page === 1}
+                    className="inline-flex items-center gap-xs px-sm sm:px-md py-sm rounded-lg font-label-md text-label-md transition-all duration-200 border border-outline-variant/35 text-secondary hover:bg-surface-container-low hover:text-on-surface disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-secondary cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+                    <span className="hidden sm:inline">Previous</span>
+                  </button>
+
+                  <div className="flex items-center gap-xs">
+                    {getPageNumbers().map((pageNum, idx) => {
+                      if (pageNum === '...') {
+                        return (
+                          <span key={`dots-${idx}`} className="px-xs sm:px-sm text-secondary font-label-md">
+                            ...
+                          </span>
+                        );
+                      }
+                      return (
+                        <button
+                          key={`page-${pageNum}`}
+                          onClick={() => {
+                            setPage(pageNum as number);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                          className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg font-label-md text-label-md transition-all duration-200 cursor-pointer ${
+                            page === pageNum
+                              ? 'bg-primary text-on-primary font-bold shadow-sm'
+                              : 'text-secondary hover:bg-surface-container-low hover:text-on-surface border border-transparent'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setPage((p) => Math.min(p + 1, totalPages));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    disabled={page === totalPages}
+                    className="inline-flex items-center gap-xs px-sm sm:px-md py-sm rounded-lg font-label-md text-label-md transition-all duration-200 border border-outline-variant/35 text-secondary hover:bg-surface-container-low hover:text-on-surface disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-secondary cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    <span className="hidden sm:inline">Next</span>
+                    <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>

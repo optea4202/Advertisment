@@ -33,8 +33,14 @@ try {
   console.warn('Algolia search client initialization skipped or failed:', err);
 }
 
+interface FeedCacheItem {
+  ads: Ad[];
+  total: number;
+  totalPages: number;
+}
+
 // Client-side in-memory caches
-const feedCache: { [key: string]: Ad[] } = {};
+const feedCache: { [key: string]: FeedCacheItem } = {};
 let myAdsCache: Ad[] | null = null;
 const adDetailCache: { [id: number]: Ad } = {};
 
@@ -81,9 +87,11 @@ export const useMyAds = () => {
   return { ads, loading, error, refresh: fetchAds };
 };
 
-export const useFeed = (category?: string, search?: string) => {
-  const cacheKey = `${category || ''}_${search || ''}`;
-  const [ads, setAds] = useState<Ad[]>(feedCache[cacheKey] || []);
+export const useFeed = (category?: string, search?: string, page: number = 1) => {
+  const cacheKey = `${category || ''}_${search || ''}_${page}`;
+  const [ads, setAds] = useState<Ad[]>(feedCache[cacheKey]?.ads || []);
+  const [total, setTotal] = useState<number>(feedCache[cacheKey]?.total || 0);
+  const [totalPages, setTotalPages] = useState<number>(feedCache[cacheKey]?.totalPages || 1);
   const [loading, setLoading] = useState(feedCache[cacheKey] === undefined);
   const [error, setError] = useState<Error | null>(null);
 
@@ -105,7 +113,8 @@ export const useFeed = (category?: string, search?: string) => {
           searchParams: {
             query: search,
             filters: algoliaFilters,
-            hitsPerPage: 50
+            hitsPerPage: 12,
+            page: page - 1
           }
         });
 
@@ -131,13 +140,20 @@ export const useFeed = (category?: string, search?: string) => {
           owner_photo: hit.owner_photo || undefined
         }));
 
+        const totalCount = res.nbHits || 0;
+        const totalPgs = res.nbPages || 1;
+
         setAds(mappedAds);
-        feedCache[cacheKey] = mappedAds;
+        setTotal(totalCount);
+        setTotalPages(totalPgs);
+        feedCache[cacheKey] = { ads: mappedAds, total: totalCount, totalPages: totalPgs };
       } else {
         // Fall back to category/search database feed if no search query is typed, or if Algolia is unavailable
-        const data = await getAds({ category, search });
-        setAds(data);
-        feedCache[cacheKey] = data;
+        const data = await getAds({ category, search, page, limit: 12 });
+        setAds(data.ads);
+        setTotal(data.total);
+        setTotalPages(data.totalPages);
+        feedCache[cacheKey] = { ads: data.ads, total: data.total, totalPages: data.totalPages };
       }
       setError(null);
     } catch (err: any) {
@@ -146,13 +162,13 @@ export const useFeed = (category?: string, search?: string) => {
     } finally {
       setLoading(false);
     }
-  }, [category, search, cacheKey]);
+  }, [category, search, page, cacheKey]);
 
   useEffect(() => {
     fetchAds();
   }, [fetchAds]);
 
-  return { ads, loading, error, refresh: fetchAds };
+  return { ads, total, totalPages, loading, error, refresh: fetchAds };
 };
 
 export const useAd = (id: number) => {

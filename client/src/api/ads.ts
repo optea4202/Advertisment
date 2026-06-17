@@ -34,8 +34,16 @@ export const createAd = async (formData: FormData): Promise<Ad> => {
   return res.data.data;
 };
 
-export const getAds = async (params: { category?: string; search?: string }): Promise<Ad[]> => {
-  const res = await api.get<{ data: Ad[] }>('/api/ads', { params });
+export interface PaginatedAds {
+  ads: Ad[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export const getAds = async (params: { category?: string; search?: string; page?: number; limit?: number }): Promise<PaginatedAds> => {
+  const res = await api.get<{ data: PaginatedAds }>('/api/ads', { params });
   return res.data.data;
 };
 

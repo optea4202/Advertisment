@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { createAd, updateAd, deleteAd } from '../services/ads.js';
-import { getAdsByOwner, getAdById, getAds, getDbSuggestions } from '../db/ads.js';
+import { getAdsByOwner, getAdById, getAds, getDbSuggestions, getAdsCount } from '../db/ads.js';
 import { config } from '../config/index.js';
 import { client, adsIndexName } from '../utils/algolia.js';
 
@@ -217,7 +217,9 @@ export const handleDeleteAd = async (req: Request, res: Response, next: NextFunc
 // Zod schema for GET /api/ads query parameters
 const getAdsQuerySchema = z.object({
   category: z.string().optional(),
-  search: z.string().optional()
+  search: z.string().optional(),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().default(12)
 });
 
 export const handleGetAds = async (req: Request, res: Response, next: NextFunction) => {
@@ -232,10 +234,19 @@ export const handleGetAds = async (req: Request, res: Response, next: NextFuncti
       });
     }
 
-    const { category, search } = queryResult.data;
-    const ads = await getAds({ category, search });
+    const { category, search, page, limit } = queryResult.data;
+    const ads = await getAds({ category, search, page, limit });
+    const total = await getAdsCount({ category, search });
 
-    return res.status(200).json({ data: ads });
+    return res.status(200).json({
+      data: {
+        ads,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     next(error);
   }

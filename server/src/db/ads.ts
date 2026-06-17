@@ -162,7 +162,75 @@ export const deleteAdImagesExcept = async (adId: number, urlsToKeep: string[]): 
   await query(sql, [adId, urlsToKeep]);
 };
 
-export const getAds = async (filters: { category?: string; search?: string }): Promise<DbAd[]> => {
+export const getAds = async (filters: { category?: string; search?: string; page?: number; limit?: number }): Promise<DbAd[]> => {
+  const values: any[] = [];
+  const whereClauses: string[] = ['u.is_banned = FALSE'];
+
+  if (filters.category) {
+    values.push(filters.category);
+    whereClauses.push(`a.category IN (
+      WITH RECURSIVE subcategories AS (
+        SELECT name, id FROM categories WHERE name = $${values.length}
+        UNION ALL
+        SELECT c.name, c.id FROM categories c
+        INNER JOIN subcategories s ON c.parent_id = s.id
+      )
+      SELECT name FROM subcategories
+    )`);
+  }
+
+  if (filters.search) {
+    values.push(`%${filters.search}%`);
+    whereClauses.push(`(a.title ILIKE $${values.length} OR a.description ILIKE $${values.length})`);
+  }
+
+  const whereStr = `WHERE ${whereClauses.join(' AND ')}`;
+
+  let limitOffsetStr = '';
+  if (filters.page && filters.limit) {
+    const limit = filters.limit;
+    const offset = (filters.page - 1) * limit;
+    values.push(limit);
+    const limitParam = `$${values.length}`;
+    values.push(offset);
+    const offsetParam = `$${values.length}`;
+    limitOffsetStr = `LIMIT ${limitParam} OFFSET ${offsetParam}`;
+  }
+
+  const sql = `
+    SELECT a.*, 
+           COALESCE(
+             json_agg(
+               json_build_object(
+                 'id', img.id,
+                 'ad_id', img.ad_id,
+                 'cloudinary_url', img.cloudinary_url,
+                 'display_order', img.display_order
+               ) ORDER BY img.display_order
+             ) FILTER (WHERE img.id IS NOT NULL),
+             '[]'::json
+           ) as images,
+           u.username as owner_name,
+           u.photo_url as owner_photo
+    FROM ads a
+    LEFT JOIN ad_images img ON a.id = img.ad_id
+    LEFT JOIN users u ON a.owner_id = u.id
+    ${whereStr}
+    GROUP BY a.id, u.id
+    ORDER BY a.created_at DESC
+    ${limitOffsetStr}
+  `;
+
+  const res = await query(sql, values);
+  return res.rows.map(row => ({
+    ...row,
+    price: parseFloat(row.price),
+    latitude: row.latitude !== null ? parseFloat(row.latitude) : null,
+    longitude: row.longitude !== null ? parseFloat(row.longitude) : null,
+  }));
+};
+
+export const getAdsCount = async (filters: { category?: string; search?: string }): Promise<number> => {
   const values: any[] = [];
   const whereClauses: string[] = ['u.is_banned = FALSE'];
 
@@ -187,35 +255,14 @@ export const getAds = async (filters: { category?: string; search?: string }): P
   const whereStr = `WHERE ${whereClauses.join(' AND ')}`;
 
   const sql = `
-    SELECT a.*, 
-           COALESCE(
-             json_agg(
-               json_build_object(
-                 'id', img.id,
-                 'ad_id', img.ad_id,
-                 'cloudinary_url', img.cloudinary_url,
-                 'display_order', img.display_order
-               ) ORDER BY img.display_order
-             ) FILTER (WHERE img.id IS NOT NULL),
-             '[]'::json
-           ) as images,
-           u.username as owner_name,
-           u.photo_url as owner_photo
+    SELECT COUNT(DISTINCT a.id) as count
     FROM ads a
-    LEFT JOIN ad_images img ON a.id = img.ad_id
     LEFT JOIN users u ON a.owner_id = u.id
     ${whereStr}
-    GROUP BY a.id, u.id
-    ORDER BY a.created_at DESC
   `;
 
   const res = await query(sql, values);
-  return res.rows.map(row => ({
-    ...row,
-    price: parseFloat(row.price),
-    latitude: row.latitude !== null ? parseFloat(row.latitude) : null,
-    longitude: row.longitude !== null ? parseFloat(row.longitude) : null,
-  }));
+  return parseInt(res.rows[0].count, 10);
 };
 
 export const getAdOwnerEmailAndTitle = async (adId: number): Promise<{ email: string; title: string } | null> => {
