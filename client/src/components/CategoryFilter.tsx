@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getCategories, type Category } from '../api/categories.js';
-import { buildCategoryTree, type NestedCategory } from '../utils/categoryTree.js';
+import { buildCategoryTree, isDescendantOf, type NestedCategory } from '../utils/categoryTree.js';
 
 interface CategoryFilterProps {
   selectedCategory: string;
@@ -12,199 +12,409 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   onSelectCategory,
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [expandedIds, setExpandedIds] = useState<Record<number, boolean>>({});
+  const [hoveredCategoryId, setHoveredCategoryId] = useState<number | null>(null);
+  const [activeLevel2Id, setActiveLevel2Id] = useState<number | null>(null);
+  const [mobileOpenCategoryId, setMobileOpenCategoryId] = useState<number | null>(null);
+  const hoverTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const fetchCats = async () => {
       try {
         const list = await getCategories();
         setCategories(list);
-        
-        // Auto-expand the parent of the currently selected category, if any
-        if (selectedCategory) {
-          const activeCat = list.find(c => c.name.toLowerCase() === selectedCategory.toLowerCase());
-          if (activeCat && activeCat.parent_id !== null) {
-            setExpandedIds(prev => ({ ...prev, [activeCat.parent_id!]: true }));
-          }
-        }
       } catch (err) {
         console.error('Failed to load categories dynamically in CategoryFilter', err);
       }
     };
     fetchCats();
-  }, [selectedCategory]);
+  }, []);
 
   const tree = buildCategoryTree(categories);
 
-  const toggleExpand = (id: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setExpandedIds(prev => ({ ...prev, [id]: !prev[id] }));
+  const handleMouseEnterCategory = (catId: number, catChildren: NestedCategory[]) => {
+    if (hoverTimeoutRef.current) {
+      window.clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    setHoveredCategoryId(catId);
+    if (catChildren && catChildren.length > 0) {
+      setActiveLevel2Id(catChildren[0].id);
+    } else {
+      setActiveLevel2Id(null);
+    }
   };
 
-  // Find active parent category for mobile subcategory row
-  const activeCategoryObj = categories.find(c => c.name.toLowerCase() === selectedCategory.toLowerCase());
-  const activeParentId = activeCategoryObj
-    ? (activeCategoryObj.parent_id !== null ? activeCategoryObj.parent_id : activeCategoryObj.id)
-    : null;
-  
-  const activeParentCategory = activeParentId ? categories.find(c => c.id === activeParentId) : null;
-  const mobileSubcategories = activeParentId
-    ? categories.filter(c => c.parent_id === activeParentId)
-    : [];
+  const handleMouseLeaveCategory = () => {
+    hoverTimeoutRef.current = window.setTimeout(() => {
+      setHoveredCategoryId(null);
+      setActiveLevel2Id(null);
+    }, 150);
+  };
 
-  // Desktop recursive tree renderer
-  const renderTreeNodes = (nodes: NestedCategory[]) => {
-    return nodes.map((cat) => {
-      const isSelected = selectedCategory.toLowerCase() === cat.name.toLowerCase();
-      const hasChildren = cat.children && cat.children.length > 0;
-      const isExpanded = !!expandedIds[cat.id];
-      const icon = cat.symbol || 'category';
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        window.clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
 
-      return (
-        <div key={cat.id} className="flex flex-col w-full">
-          <div 
-            onClick={() => onSelectCategory(cat.name)}
-            className={`flex items-center gap-xs pr-sm rounded-lg font-label-md text-label-md transition-all duration-200 cursor-pointer hover:bg-surface-container-low group w-full ${
-              isSelected ? 'bg-primary text-on-primary shadow-sm font-semibold' : 'text-secondary hover:text-on-surface'
-            }`}
-          >
-            {/* Expand / Collapse Chevron */}
-            {hasChildren ? (
-              <button
-                type="button"
-                onClick={(e) => toggleExpand(cat.id, e)}
-                className={`flex items-center justify-center w-8 h-8 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-transform ${
-                  isExpanded ? 'rotate-90' : ''
-                }`}
-                aria-label={isExpanded ? 'Collapse' : 'Expand'}
-              >
-                <span className={`material-symbols-outlined text-[18px] ${isSelected ? 'text-on-primary' : 'text-secondary/70 group-hover:text-on-surface'}`}>
-                  chevron_right
-                </span>
-              </button>
-            ) : (
-              <div className="w-8 h-8 flex items-center justify-center text-secondary/35 font-mono text-[10px] select-none">
-                •
-              </div>
-            )}
-
-            {/* Category selection contents */}
-            <div className="flex items-center gap-sm py-[10px] flex-grow select-none">
-              <span className={`material-symbols-outlined text-[18px] ${isSelected ? 'text-on-primary' : 'text-secondary/70 group-hover:text-on-surface'}`}>
-                {icon}
-              </span>
-              <span>{cat.name}</span>
-            </div>
-          </div>
-
-          {/* Children block */}
-          {hasChildren && isExpanded && (
-            <div className="flex flex-col ml-md border-l border-outline-variant/30 pl-sm mt-xs gap-xs">
-              {renderTreeNodes(cat.children)}
-            </div>
-          )}
-        </div>
-      );
-    });
+  const handleSelect = (categoryName: string) => {
+    onSelectCategory(categoryName);
+    setHoveredCategoryId(null);
+    setActiveLevel2Id(null);
+    setMobileOpenCategoryId(null);
   };
 
   return (
-    <div className="flex flex-col gap-sm w-full">
-      <h3 className="font-label-md text-label-md text-secondary uppercase tracking-wider px-[4px] hidden md:block">
-        Categories
-      </h3>
-
-      {/* DESKTOP VIEW: Collapsible Tree Sidebar */}
-      <div className="hidden md:flex flex-col gap-xs w-full">
+    <div className="w-full">
+      {/* DESKTOP VIEW: Horizontal Category Menu Bar with Hover Mega Menu */}
+      <div className="hidden md:flex items-center gap-xs py-xs px-md bg-surface-container-lowest border border-outline-variant/30 rounded-2xl shadow-sm justify-start select-none w-full relative z-40">
         {/* 'All' option */}
         <button
-          onClick={() => onSelectCategory('')}
-          className={`flex items-center gap-sm px-md py-[10px] rounded-lg font-label-md text-label-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-left ${
+          onClick={() => handleSelect('')}
+          className={`flex items-center gap-xs px-sm py-[8px] rounded-lg font-label-md text-label-md uppercase tracking-wider transition-all duration-200 shrink-0 ${
             selectedCategory === ''
-              ? 'bg-primary text-on-primary font-semibold shadow-md'
-              : 'text-secondary hover:text-on-surface hover:bg-surface-container-low'
+              ? 'text-primary font-bold bg-primary-fixed/20'
+              : 'text-secondary hover:text-primary hover:bg-surface-container-low/50'
           }`}
         >
           <span className="material-symbols-outlined text-[18px]">grid_view</span>
-          <span>All Categories</span>
+          <span>All</span>
         </button>
 
-        {renderTreeNodes(tree)}
-      </div>
+        {tree.map(cat => {
+          const isSelected = selectedCategory.toLowerCase() === cat.name.toLowerCase();
+          const hasChildren = cat.children && cat.children.length > 0;
+          const isHovered = hoveredCategoryId === cat.id;
+          
+          // Check if selectedCategory is a descendant of this top level category
+          const isCatActive = isSelected || isDescendantOf(
+            categories.find(c => c.name.toLowerCase() === selectedCategory.toLowerCase())?.id || 0,
+            cat.id,
+            categories
+          );
 
-      {/* MOBILE VIEW: Nested Two-Row Horizontal Scroll */}
-      <div className="flex md:hidden flex-col gap-sm w-full">
-        {/* Row 1: Top-Level Categories */}
-        <div className="flex flex-row gap-xs overflow-x-auto pb-xs scrollbar-none w-full">
-          <button
-            onClick={() => onSelectCategory('')}
-            className={`flex items-center gap-xs whitespace-nowrap px-md py-[8px] rounded-full font-label-md text-[13px] transition-all duration-200 shrink-0 ${
-              selectedCategory === ''
-                ? 'bg-primary text-on-primary font-semibold shadow-sm'
-                : 'text-secondary bg-surface-container-low/50 border border-outline-variant/20 hover:text-on-surface'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[16px]">grid_view</span>
-            <span>All</span>
-          </button>
-
-          {tree.map(cat => {
-            // A top-level category is active if it is selected, or if its parent is active
-            const isTopLevelActive = activeParentId === cat.id || selectedCategory.toLowerCase() === cat.name.toLowerCase();
-            return (
+          return (
+            <div
+              key={cat.id}
+              className="relative"
+              onMouseEnter={() => handleMouseEnterCategory(cat.id, cat.children)}
+              onMouseLeave={handleMouseLeaveCategory}
+            >
               <button
-                key={cat.id}
-                onClick={() => onSelectCategory(cat.name)}
-                className={`flex items-center gap-xs whitespace-nowrap px-md py-[8px] rounded-full font-label-md text-[13px] transition-all duration-200 shrink-0 ${
-                  isTopLevelActive
-                    ? 'bg-primary/10 text-primary border border-primary/30 font-semibold'
-                    : 'text-secondary bg-surface-container-low/50 border border-outline-variant/20 hover:text-on-surface'
+                onClick={() => handleSelect(cat.name)}
+                className={`flex items-center gap-xs px-sm py-[8px] rounded-lg font-label-md text-label-md uppercase tracking-wider transition-all duration-200 shrink-0 ${
+                  isCatActive
+                    ? 'text-primary font-bold bg-primary-fixed/15'
+                    : 'text-secondary hover:text-primary hover:bg-surface-container-low/50'
                 }`}
               >
-                <span className="material-symbols-outlined text-[16px]">{cat.symbol || 'category'}</span>
                 <span>{cat.name}</span>
+                {hasChildren && (
+                  <span className={`material-symbols-outlined text-[16px] transition-transform duration-200 ${
+                    isHovered ? 'rotate-180 text-primary' : 'text-secondary/60'
+                  }`}>
+                    keyboard_arrow_down
+                  </span>
+                )}
               </button>
-            );
-          })}
-        </div>
 
-        {/* Row 2: Subcategories of currently active top-level category (if any exist) */}
-        {mobileSubcategories.length > 0 && (
-          <div className="flex flex-row gap-xs overflow-x-auto pb-sm scrollbar-none w-full border-t border-outline-variant/20 pt-sm animate-fade-in">
-            {/* Direct link to filter by the top-level parent itself in sub-row */}
-            {activeParentCategory && (
-              <button
-                onClick={() => onSelectCategory(activeParentCategory.name)}
-                className={`flex items-center gap-xs whitespace-nowrap px-sm py-[6px] rounded-lg font-label-sm text-[12px] transition-all shrink-0 ${
-                  selectedCategory.toLowerCase() === activeParentCategory.name.toLowerCase()
-                    ? 'bg-primary text-on-primary font-semibold shadow-sm'
-                    : 'text-secondary bg-surface-container-low/30 border border-dashed border-outline-variant/30'
-                }`}
-              >
-                <span>All {activeParentCategory.name}</span>
-              </button>
-            )}
-
-            {mobileSubcategories.map(sub => {
-              const isSubActive = selectedCategory.toLowerCase() === sub.name.toLowerCase();
-              return (
-                <button
-                  key={sub.id}
-                  onClick={() => onSelectCategory(sub.name)}
-                  className={`flex items-center gap-xs whitespace-nowrap px-sm py-[6px] rounded-lg font-label-sm text-[12px] transition-all shrink-0 ${
-                    isSubActive
-                      ? 'bg-primary text-on-primary font-semibold shadow-sm'
-                      : 'text-secondary bg-surface-container-low/60 hover:text-on-surface'
-                  }`}
+              {/* Mega Menu Dropdown */}
+              {hasChildren && isHovered && (
+                <div 
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-[6px] w-[700px] bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-2xl z-50 flex animate-fade-in-up-sheet overflow-hidden"
+                  style={{ transformOrigin: 'top center' }}
                 >
-                  <span className="material-symbols-outlined text-[14px]">{sub.symbol || 'category'}</span>
-                  <span>{sub.name}</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
+                  {/* Left column: Level 2 */}
+                  <div className="w-[40%] bg-surface-container-low/40 border-r border-outline-variant/10 p-sm flex flex-col gap-xs max-h-[380px] overflow-y-auto">
+                    <div className="text-[10px] font-bold text-secondary/40 uppercase tracking-widest px-sm pb-xs">
+                      Subcategories
+                    </div>
+                    {cat.children.map(subCat => {
+                      const isSubSelected = selectedCategory.toLowerCase() === subCat.name.toLowerCase();
+                      const isSubActive = activeLevel2Id === subCat.id;
+                      const subHasChildren = subCat.children && subCat.children.length > 0;
+                      
+                      return (
+                        <div
+                          key={subCat.id}
+                          onMouseEnter={() => setActiveLevel2Id(subCat.id)}
+                          onClick={() => handleSelect(subCat.name)}
+                          className={`flex items-center justify-between px-md py-xs rounded-lg font-label-md text-label-md cursor-pointer transition-all duration-150 ${
+                            isSubActive
+                              ? 'bg-primary/10 text-primary font-semibold'
+                              : isSubSelected
+                                ? 'bg-primary-fixed text-primary font-semibold'
+                                : 'text-secondary hover:text-on-surface hover:bg-surface-container-low'
+                          }`}
+                        >
+                          <span className="truncate">{subCat.name}</span>
+                          {subHasChildren && (
+                            <span className="material-symbols-outlined text-[16px] text-secondary/55">
+                              chevron_right
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Right column: Level 3 */}
+                  <div className="w-[60%] p-md max-h-[380px] overflow-y-auto bg-surface-container-lowest flex flex-col">
+                    {activeLevel2Id !== null ? (() => {
+                      const activeSubCat = cat.children.find(c => c.id === activeLevel2Id);
+                      const level3Items = activeSubCat?.children || [];
+                      
+                      return (
+                        <div className="flex flex-col gap-sm flex-grow">
+                          <div className="flex justify-between items-center border-b border-outline-variant/10 pb-sm">
+                            <span className="text-[10px] font-bold text-secondary/40 uppercase tracking-widest">
+                              {activeSubCat ? activeSubCat.name : ''} Items
+                            </span>
+                            {activeSubCat && (
+                              <button
+                                onClick={() => handleSelect(activeSubCat.name)}
+                                className="text-body-sm font-semibold text-primary hover:underline"
+                              >
+                                View All
+                              </button>
+                            )}
+                          </div>
+
+                          {level3Items.length > 0 ? (
+                            <div className="grid grid-cols-2 gap-xs">
+                              {level3Items.map(level3 => {
+                                const isL3Selected = selectedCategory.toLowerCase() === level3.name.toLowerCase();
+                                return (
+                                  <div
+                                    key={level3.id}
+                                    onClick={() => handleSelect(level3.name)}
+                                    className={`flex items-center gap-sm px-sm py-[8px] rounded-lg font-body-sm text-body-sm cursor-pointer transition-all duration-150 ${
+                                      isL3Selected
+                                        ? 'bg-primary-fixed text-primary font-semibold'
+                                        : 'text-secondary hover:text-primary hover:bg-surface-container-low/60'
+                                    }`}
+                                  >
+                                    <span className="material-symbols-outlined text-[16px] text-secondary/50">
+                                      {level3.symbol || 'category'}
+                                    </span>
+                                    <span className="truncate">{level3.name}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <div className="flex-grow flex flex-col items-center justify-center text-center text-secondary/35 py-xl gap-sm">
+                              <span className="material-symbols-outlined text-[28px]">category</span>
+                              <span className="text-body-sm">No sub-items</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })() : (
+                      <div className="flex-grow flex items-center justify-center text-secondary/35 py-xl">
+                        Hover a subcategory to view items
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      {/* MOBILE VIEW: Horizontally Scrollable Categories with Dropdown Triggers */}
+      <div className="flex md:hidden flex-row gap-xs overflow-x-auto pb-sm scrollbar-none w-full px-xs">
+        <button
+          onClick={() => handleSelect('')}
+          className={`flex items-center gap-xs whitespace-nowrap px-md py-[8px] rounded-full font-label-md text-[13px] transition-all duration-200 shrink-0 ${
+            selectedCategory === ''
+              ? 'bg-primary text-on-primary font-semibold shadow-sm'
+              : 'text-secondary bg-surface-container-low/60 border border-outline-variant/15 hover:text-on-surface'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[16px]">grid_view</span>
+          <span>All</span>
+        </button>
+
+        {tree.map(cat => {
+          const isSelected = selectedCategory.toLowerCase() === cat.name.toLowerCase();
+          const hasChildren = cat.children && cat.children.length > 0;
+          
+          const isCatActive = isSelected || isDescendantOf(
+            categories.find(c => c.name.toLowerCase() === selectedCategory.toLowerCase())?.id || 0,
+            cat.id,
+            categories
+          );
+
+          return (
+            <button
+              key={cat.id}
+              onClick={() => {
+                if (hasChildren) {
+                  setMobileOpenCategoryId(cat.id);
+                  setActiveLevel2Id(cat.children[0]?.id || null);
+                } else {
+                  handleSelect(cat.name);
+                }
+              }}
+              className={`flex items-center gap-xs whitespace-nowrap px-md py-[8px] rounded-full font-label-md text-[13px] transition-all duration-200 shrink-0 ${
+                isCatActive
+                  ? 'bg-primary/10 text-primary border border-primary/25 font-semibold'
+                  : 'text-secondary bg-surface-container-low/60 border border-outline-variant/15 hover:text-on-surface'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px]">{cat.symbol || 'category'}</span>
+              <span>{cat.name}</span>
+              {hasChildren && (
+                <span className="material-symbols-outlined text-[14px] opacity-70">
+                  keyboard_arrow_down
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* MOBILE DRILL-DOWN BOTTOM DRAWER */}
+      {mobileOpenCategoryId !== null && (() => {
+        const activeTopCat = tree.find(c => c.id === mobileOpenCategoryId);
+        if (!activeTopCat) return null;
+
+        return (
+          <>
+            {/* Backdrop overlay */}
+            <div 
+              className="fixed inset-0 bg-black/60 z-50 transition-opacity"
+              onClick={() => setMobileOpenCategoryId(null)}
+            />
+
+            {/* Bottom sheet */}
+            <div 
+              className="fixed inset-x-0 bottom-0 bg-surface-container-lowest rounded-t-2xl shadow-2xl z-50 flex flex-col max-h-[70vh] animate-fade-in-up-sheet border-t border-outline-variant/30"
+              style={{ paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-md py-sm border-b border-outline-variant/10">
+                <div className="flex items-center gap-sm">
+                  <span className="material-symbols-outlined text-primary text-[20px]">
+                    {activeTopCat.symbol || 'category'}
+                  </span>
+                  <span className="font-bold text-on-surface text-body-md uppercase tracking-wide">
+                    {activeTopCat.name}
+                  </span>
+                </div>
+                <button 
+                  onClick={() => setMobileOpenCategoryId(null)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high text-secondary"
+                >
+                  <span className="material-symbols-outlined text-[20px]">close</span>
+                </button>
+              </div>
+
+              {/* Drawer Body (Split Panel) */}
+              <div className="flex flex-grow h-[320px] overflow-hidden">
+                {/* Left column (Level 2 subcategories) */}
+                <div className="w-[40%] bg-surface-container-low/40 border-r border-outline-variant/10 overflow-y-auto py-xs flex flex-col gap-[2px]">
+                  <div
+                    onClick={() => handleSelect(activeTopCat.name)}
+                    className="px-sm py-sm mx-xs rounded-lg text-body-sm font-bold text-center text-primary border border-dashed border-primary/20 bg-primary/5 mb-sm transition-all"
+                  >
+                    All {activeTopCat.name}
+                  </div>
+
+                  {activeTopCat.children.map(subCat => {
+                    const isSubSelected = selectedCategory.toLowerCase() === subCat.name.toLowerCase();
+                    const isSubActive = activeLevel2Id === subCat.id;
+
+                    return (
+                      <div
+                        key={subCat.id}
+                        onClick={() => {
+                          setActiveLevel2Id(subCat.id);
+                          if (!subCat.children || subCat.children.length === 0) {
+                            handleSelect(subCat.name);
+                          }
+                        }}
+                        className={`px-sm py-[8px] mx-xs rounded-lg font-label-sm text-[13px] cursor-pointer transition-all ${
+                          isSubActive
+                            ? 'bg-primary/10 text-primary font-bold shadow-sm'
+                            : isSubSelected
+                              ? 'bg-primary-fixed text-primary font-bold'
+                              : 'text-secondary hover:bg-surface-container-low'
+                        }`}
+                      >
+                        <div className="truncate text-center">{subCat.name}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Right column (Level 3 subcategories) */}
+                <div className="w-[60%] overflow-y-auto p-sm bg-surface-container-lowest">
+                  {activeLevel2Id !== null ? (() => {
+                    const activeSubCat = activeTopCat.children.find(c => c.id === activeLevel2Id);
+                    const level3Items = activeSubCat?.children || [];
+
+                    return (
+                      <div className="flex flex-col gap-sm">
+                        {activeSubCat && (
+                          <div className="flex justify-between items-center border-b border-outline-variant/10 pb-xs">
+                            <span className="text-[10px] font-bold text-secondary/60 uppercase tracking-wider">
+                              {activeSubCat.name} Sub-items
+                            </span>
+                            <button
+                              onClick={() => handleSelect(activeSubCat.name)}
+                              className="text-[11px] font-semibold text-primary hover:underline"
+                            >
+                              All
+                            </button>
+                          </div>
+                        )}
+
+                        {level3Items.length > 0 ? (
+                          <div className="flex flex-col gap-[2px]">
+                            {level3Items.map(level3 => {
+                              const isL3Selected = selectedCategory.toLowerCase() === level3.name.toLowerCase();
+                              return (
+                                <div
+                                  key={level3.id}
+                                  onClick={() => handleSelect(level3.name)}
+                                  className={`flex items-center gap-sm px-sm py-[8px] rounded-lg font-body-sm text-[13px] cursor-pointer transition-all ${
+                                    isL3Selected
+                                      ? 'bg-primary-fixed text-primary font-semibold'
+                                      : 'text-secondary hover:text-primary hover:bg-surface-container-low/40'
+                                  }`}
+                                >
+                                  <span className="material-symbols-outlined text-[16px] text-secondary/50">
+                                    {level3.symbol || 'category'}
+                                  </span>
+                                  <span className="truncate">{level3.name}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-center text-secondary/35 py-xl gap-sm">
+                            <span className="material-symbols-outlined text-[28px]">category</span>
+                            <span className="text-[11px]">Tap options on left to load parts</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })() : (
+                    <div className="flex items-center justify-center text-center text-secondary/35 h-full py-xl">
+                      Select subcategory
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 };
