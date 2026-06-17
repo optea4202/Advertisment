@@ -168,7 +168,15 @@ export const getAds = async (filters: { category?: string; search?: string }): P
 
   if (filters.category) {
     values.push(filters.category);
-    whereClauses.push(`a.category = $${values.length}`);
+    whereClauses.push(`a.category IN (
+      WITH RECURSIVE subcategories AS (
+        SELECT name, id FROM categories WHERE name = $${values.length}
+        UNION ALL
+        SELECT c.name, c.id FROM categories c
+        INNER JOIN subcategories s ON c.parent_id = s.id
+      )
+      SELECT name FROM subcategories
+    )`);
   }
 
   if (filters.search) {

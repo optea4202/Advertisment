@@ -10,7 +10,9 @@ import {
 const categorySchema = z.object({
   name: z.string({
     required_error: 'Category name is required',
-  }).min(1, 'Category name must not be empty').max(100, 'Category name must be under 100 characters')
+  }).min(1, 'Category name must not be empty').max(100, 'Category name must be under 100 characters'),
+  symbol: z.string().min(1, 'Category symbol must not be empty').max(50, 'Category symbol must be under 50 characters').optional().default('category'),
+  parent_id: z.number().nullable().optional()
 });
 
 export const handleGetCategories = async (req: Request, res: Response, next: NextFunction) => {
@@ -36,12 +38,23 @@ export const handleCreateCategory = async (req: Request, res: Response, next: Ne
       });
     }
 
-    const category = await createCategory(parseResult.data.name);
+    const category = await createCategory(
+      parseResult.data.name, 
+      parseResult.data.symbol,
+      parseResult.data.parent_id ?? null
+    );
     return res.status(201).json({
       data: category
     });
   } catch (error: any) {
-    if (error.message === 'Category already exists' || error.message === 'Category name cannot be empty') {
+    if (
+      error.message === 'Category already exists' || 
+      error.message === 'Category name cannot be empty' ||
+      error.message === 'Category symbol cannot be empty' ||
+      error.message === 'Parent category not found' ||
+      error.message === 'A category cannot be its own parent' ||
+      error.message === 'Cyclic dependency: parent category is a child of this category'
+    ) {
       return res.status(400).json({
         error: { message: error.message, code: 'BAD_REQUEST' }
       });
@@ -69,7 +82,12 @@ export const handleUpdateCategory = async (req: Request, res: Response, next: Ne
       });
     }
 
-    const updated = await updateCategory(id, parseResult.data.name);
+    const updated = await updateCategory(
+      id, 
+      parseResult.data.name, 
+      parseResult.data.symbol,
+      parseResult.data.parent_id ?? null
+    );
     return res.status(200).json({
       data: updated
     });
@@ -84,7 +102,11 @@ export const handleUpdateCategory = async (req: Request, res: Response, next: Ne
       error.message === 'Category name already exists' ||
       error.message === 'Cannot edit the Other category' ||
       error.message === 'Cannot rename a category to Other' ||
-      error.message === 'Category name cannot be empty'
+      error.message === 'Category name cannot be empty' ||
+      error.message === 'Category symbol cannot be empty' ||
+      error.message === 'Parent category not found' ||
+      error.message === 'A category cannot be its own parent' ||
+      error.message === 'Cyclic dependency: parent category is a child of this category'
     ) {
       return res.status(400).json({
         error: { message: error.message, code: 'BAD_REQUEST' }

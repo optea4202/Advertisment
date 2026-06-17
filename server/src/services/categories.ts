@@ -8,14 +8,38 @@ import {
   DbCategory
 } from '../db/categories.js';
 
+const isAncestor = async (potentialAncestorId: number, targetParentId: number | null): Promise<boolean> => {
+  let currentParentId = targetParentId;
+  while (currentParentId !== null) {
+    if (currentParentId === potentialAncestorId) {
+      return true;
+    }
+    const parent = await getCategoryById(currentParentId);
+    currentParentId = parent ? parent.parent_id : null;
+  }
+  return false;
+};
+
 export const getCategories = async (): Promise<DbCategory[]> => {
   return await dbGetCategories();
 };
 
-export const createCategory = async (name: string): Promise<DbCategory> => {
+export const createCategory = async (name: string, symbol: string, parentId: number | null): Promise<DbCategory> => {
   const trimmed = name.trim();
   if (!trimmed) {
     throw new Error('Category name cannot be empty');
+  }
+
+  const trimmedSymbol = symbol ? symbol.trim() : 'category';
+  if (!trimmedSymbol) {
+    throw new Error('Category symbol cannot be empty');
+  }
+
+  if (parentId !== null) {
+    const parent = await getCategoryById(parentId);
+    if (!parent) {
+      throw new Error('Parent category not found');
+    }
   }
 
   const existing = await getCategoryByName(trimmed);
@@ -23,13 +47,18 @@ export const createCategory = async (name: string): Promise<DbCategory> => {
     throw new Error('Category already exists');
   }
 
-  return await dbCreateCategory(trimmed);
+  return await dbCreateCategory(trimmed, trimmedSymbol, parentId);
 };
 
-export const updateCategory = async (id: number, name: string): Promise<DbCategory> => {
+export const updateCategory = async (id: number, name: string, symbol: string, parentId: number | null): Promise<DbCategory> => {
   const trimmed = name.trim();
   if (!trimmed) {
     throw new Error('Category name cannot be empty');
+  }
+
+  const trimmedSymbol = symbol ? symbol.trim() : 'category';
+  if (!trimmedSymbol) {
+    throw new Error('Category symbol cannot be empty');
   }
 
   const category = await getCategoryById(id);
@@ -50,7 +79,21 @@ export const updateCategory = async (id: number, name: string): Promise<DbCatego
     throw new Error('Category name already exists');
   }
 
-  return await dbUpdateCategory(id, trimmed);
+  if (parentId !== null) {
+    if (parentId === id) {
+      throw new Error('A category cannot be its own parent');
+    }
+    const parent = await getCategoryById(parentId);
+    if (!parent) {
+      throw new Error('Parent category not found');
+    }
+    const cyclic = await isAncestor(id, parentId);
+    if (cyclic) {
+      throw new Error('Cyclic dependency: parent category is a child of this category');
+    }
+  }
+
+  return await dbUpdateCategory(id, trimmed, trimmedSymbol, parentId);
 };
 
 export const deleteCategory = async (id: number): Promise<void> => {

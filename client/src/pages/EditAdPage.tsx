@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { getAdById, updateAd } from '../api/ads.js';
 import { compressImage } from '../utils/imageCompressor.js';
-import { getCategories } from '../api/categories.js';
+import { getCategories, type Category } from '../api/categories.js';
+import { buildCategoryTree, flattenCategoryTree } from '../utils/categoryTree.js';
 
 
 export const EditAdPage: React.FC = () => {
@@ -17,7 +18,7 @@ export const EditAdPage: React.FC = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [price, setPrice] = useState('');
   const [location, setLocation] = useState('');
   const [contactInfo, setContactInfo] = useState('');
@@ -63,10 +64,16 @@ export const EditAdPage: React.FC = () => {
     const fetchCats = async () => {
       try {
         const list = await getCategories();
-        setCategories(list.map(c => c.name));
+        setCategories(list);
       } catch (err) {
         console.error('Failed to load categories in EditAdPage', err);
-        setCategories(['Electronics', 'Furniture', 'Vehicles', 'Services', 'Other']);
+        setCategories([
+          { id: 1, name: 'Electronics', symbol: 'devices', parent_id: null, created_at: '' },
+          { id: 2, name: 'Furniture', symbol: 'chair', parent_id: null, created_at: '' },
+          { id: 3, name: 'Vehicles', symbol: 'directions_car', parent_id: null, created_at: '' },
+          { id: 4, name: 'Services', symbol: 'build', parent_id: null, created_at: '' },
+          { id: 5, name: 'Other', symbol: 'category', parent_id: null, created_at: '' }
+        ]);
       }
     };
     fetchCats();
@@ -345,11 +352,15 @@ export const EditAdPage: React.FC = () => {
                         required
                       >
                         <option value="" disabled>Select a category...</option>
-                        {categories.map((cat) => (
-                          <option key={cat} value={cat}>
-                            {cat}
-                          </option>
-                        ))}
+                        {flattenCategoryTree(buildCategoryTree(categories)).map((cat) => {
+                          const prefix = '\u00A0'.repeat(cat.depth * 3);
+                          const arrow = cat.depth > 0 ? '↳ ' : '';
+                          return (
+                            <option key={cat.id} value={cat.name}>
+                              {prefix}{arrow}{cat.name}
+                            </option>
+                          );
+                        })}
                       </select>
                       <span className="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-secondary pointer-events-none">expand_more</span>
                     </div>

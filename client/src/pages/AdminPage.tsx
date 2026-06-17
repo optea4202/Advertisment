@@ -22,6 +22,16 @@ import {
 } from '../api/categories.js';
 import { ConfirmModal } from '../components/ConfirmModal.js';
 import { Link, useSearchParams } from 'react-router-dom';
+import { buildCategoryTree, flattenCategoryTree, isDescendantOf } from '../utils/categoryTree.js';
+
+const AVAILABLE_SYMBOLS = [
+  'category', 'devices', 'chair', 'directions_car', 'build', 
+  'shopping_bag', 'fastfood', 'book', 'sports_esports', 'home', 
+  'pets', 'checkroom', 'face', 'spa', 'flight', 
+  'local_hospital', 'theater_comedy', 'handyman', 'school', 'celebration', 
+  'work', 'brush', 'music_note', 'redeem', 'directions_run',
+  'fitness_center', 'toys', 'videogame_asset', 'laptop_mac'
+];
 
 type Tab = 'ads' | 'reviews' | 'users' | 'reports' | 'categories';
 
@@ -40,8 +50,14 @@ export const AdminPage: React.FC = () => {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategorySymbol, setNewCategorySymbol] = useState('category');
+  const [newCategoryParentId, setNewCategoryParentId] = useState('');
+  const [showSymbolPicker, setShowSymbolPicker] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [editingName, setEditingName] = useState('');
+  const [editingSymbol, setEditingSymbol] = useState('category');
+  const [editingParentId, setEditingParentId] = useState<number | null>(null);
+  const [showEditSymbolPicker, setShowEditSymbolPicker] = useState(false);
 
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
@@ -110,9 +126,13 @@ export const AdminPage: React.FC = () => {
     e.preventDefault();
     if (!newCategoryName.trim()) return;
     try {
-      await createCategory(newCategoryName);
+      const parentId = newCategoryParentId ? parseInt(newCategoryParentId) : null;
+      await createCategory(newCategoryName, newCategorySymbol, parentId);
       showFeedback(`Successfully created category "${newCategoryName}".`);
       setNewCategoryName('');
+      setNewCategorySymbol('category');
+      setNewCategoryParentId('');
+      setShowSymbolPicker(false);
       fetchData('categories');
     } catch (err: any) {
       console.error('Failed to create category:', err);
@@ -124,10 +144,12 @@ export const AdminPage: React.FC = () => {
     e.preventDefault();
     if (!editingCategory || !editingName.trim()) return;
     try {
-      await updateCategory(editingCategory.id, editingName);
-      showFeedback(`Successfully updated category name to "${editingName}".`);
+      await updateCategory(editingCategory.id, editingName, editingSymbol, editingParentId);
+      showFeedback(`Successfully updated category to "${editingName}".`);
       setEditingCategory(null);
       setEditingName('');
+      setEditingParentId(null);
+      setShowEditSymbolPicker(false);
       fetchData('categories');
     } catch (err: any) {
       console.error('Failed to update category:', err);
@@ -682,8 +704,52 @@ export const AdminPage: React.FC = () => {
               {activeTab === 'categories' && (
                 <div className="flex flex-col gap-lg animate-fade-in-up">
                   {/* Inline creation form */}
-                  <form onSubmit={handleCreateCategory} className="flex gap-md items-end max-w-md bg-surface-container/30 p-md rounded-2xl border border-outline-variant/20">
-                    <div className="flex flex-col gap-xs flex-grow">
+                  <form onSubmit={handleCreateCategory} className="flex gap-md items-end max-w-2xl bg-surface-container/30 p-md rounded-2xl border border-outline-variant/20 flex-wrap">
+                    {/* Symbol Picker on the left */}
+                    <div className="flex flex-col gap-xs relative">
+                      <span className="font-label-sm text-label-sm text-secondary uppercase tracking-wider block">
+                        Symbol
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setShowSymbolPicker(!showSymbolPicker)}
+                        className="flex items-center justify-center w-[44px] h-[44px] rounded-xl border border-outline-variant/30 bg-surface-bright text-on-surface hover:border-primary/45 hover:bg-surface-container-low transition shadow-sm"
+                        title="Choose symbol"
+                      >
+                        <span className="material-symbols-outlined text-[24px]">
+                          {newCategorySymbol}
+                        </span>
+                      </button>
+                      
+                      {showSymbolPicker && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-40 cursor-default" 
+                            onClick={() => setShowSymbolPicker(false)}
+                          />
+                          <div className="absolute left-0 top-[76px] z-50 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-md shadow-xl w-[260px] max-h-[220px] overflow-y-auto grid grid-cols-5 gap-sm animate-fade-in">
+                            {AVAILABLE_SYMBOLS.map(sym => (
+                              <button
+                                key={sym}
+                                type="button"
+                                onClick={() => {
+                                  setNewCategorySymbol(sym);
+                                  setShowSymbolPicker(false);
+                                }}
+                                className={`flex items-center justify-center p-xs rounded-lg text-secondary hover:text-primary hover:bg-surface-container-low transition ${
+                                  newCategorySymbol === sym ? 'bg-primary-fixed text-primary font-bold border border-primary/20' : ''
+                                }`}
+                                title={sym}
+                              >
+                                <span className="material-symbols-outlined text-[20px]">{sym}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col gap-xs flex-grow min-w-[200px]">
                       <label htmlFor="new-category" className="font-label-sm text-label-sm text-secondary uppercase tracking-wider">
                         Add New Category
                       </label>
@@ -696,6 +762,30 @@ export const AdminPage: React.FC = () => {
                         className="w-full px-md py-[10px] rounded-xl border border-outline-variant/30 bg-surface-bright text-on-surface text-body-sm font-body-sm placeholder:text-secondary/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                       />
                     </div>
+
+                    {/* Parent Category Selector */}
+                    <div className="flex flex-col gap-xs min-w-[150px]">
+                      <label htmlFor="new-category-parent" className="font-label-sm text-label-sm text-secondary uppercase tracking-wider">
+                        Parent Category
+                      </label>
+                      <div className="relative">
+                        <select
+                          id="new-category-parent"
+                          value={newCategoryParentId}
+                          onChange={(e) => setNewCategoryParentId(e.target.value)}
+                          className="w-full pl-md pr-lg py-[10px] rounded-xl border border-outline-variant/30 bg-surface-bright text-on-surface text-body-sm font-body-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition appearance-none cursor-pointer"
+                        >
+                          <option value="">None (Root)</option>
+                          {flattenCategoryTree(buildCategoryTree(categories)).map(cat => (
+                            <option key={cat.id} value={cat.id}>
+                              {'\u00A0'.repeat(cat.depth * 2)}{cat.depth > 0 ? '↳ ' : ''}{cat.name}
+                            </option>
+                          ))}
+                        </select>
+                        <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-secondary pointer-events-none text-[18px]">expand_more</span>
+                      </div>
+                    </div>
+
                     <button
                       type="submit"
                       disabled={!newCategoryName.trim()}
@@ -723,7 +813,7 @@ export const AdminPage: React.FC = () => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-outline-variant/10">
-                          {categories.map((cat) => {
+                          {flattenCategoryTree(buildCategoryTree(categories)).map((cat) => {
                             const isEditing = editingCategory?.id === cat.id;
                             const isOther = cat.name.toLowerCase() === 'other';
                             return (
@@ -731,19 +821,77 @@ export const AdminPage: React.FC = () => {
                                 <td className="py-md text-secondary font-mono text-body-sm">#{cat.id}</td>
                                 <td className="py-md font-semibold text-on-surface">
                                   {isEditing ? (
-                                    <form onSubmit={handleUpdateCategory} className="flex gap-xs items-center max-w-xs">
+                                    <form onSubmit={handleUpdateCategory} className="flex gap-xs items-center max-w-sm relative">
+                                      {/* Mini symbol picker for editing */}
+                                      <div className="relative">
+                                        <button
+                                          type="button"
+                                          onClick={() => setShowEditSymbolPicker(!showEditSymbolPicker)}
+                                          className="flex items-center justify-center p-[6px] rounded-lg border border-outline-variant/30 bg-surface-bright text-on-surface hover:border-primary/45 transition shadow-sm min-w-[34px] min-h-[34px]"
+                                          title="Choose symbol"
+                                        >
+                                          <span className="material-symbols-outlined text-[18px]">
+                                            {editingSymbol}
+                                          </span>
+                                        </button>
+                                        
+                                        {showEditSymbolPicker && (
+                                          <>
+                                            <div 
+                                              className="fixed inset-0 z-40 cursor-default" 
+                                              onClick={() => setShowEditSymbolPicker(false)}
+                                            />
+                                            <div className="absolute left-0 top-[38px] z-50 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-md shadow-xl w-[260px] max-h-[220px] overflow-y-auto grid grid-cols-5 gap-sm animate-fade-in">
+                                              {AVAILABLE_SYMBOLS.map(sym => (
+                                                <button
+                                                  key={sym}
+                                                  type="button"
+                                                  onClick={() => {
+                                                    setEditingSymbol(sym);
+                                                    setShowEditSymbolPicker(false);
+                                                  }}
+                                                  className={`flex items-center justify-center p-xs rounded-lg text-secondary hover:text-primary hover:bg-surface-container-low transition ${
+                                                    editingSymbol === sym ? 'bg-primary-fixed text-primary font-bold border border-primary/20' : ''
+                                                  }`}
+                                                  title={sym}
+                                                >
+                                                  <span className="material-symbols-outlined text-[18px]">{sym}</span>
+                                                </button>
+                                              ))}
+                                            </div>
+                                          </>
+                                        )}
+                                      </div>
+
                                       <input
                                         type="text"
                                         value={editingName}
                                         onChange={(e) => setEditingName(e.target.value)}
-                                        className="w-full px-xs py-[4px] rounded-lg border border-outline-variant bg-surface-bright text-on-surface text-body-sm font-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        className="w-full min-w-[120px] px-xs py-[4px] rounded-lg border border-outline-variant bg-surface-bright text-on-surface text-body-sm font-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                                         required
                                         autoFocus
                                       />
+
+                                      {/* Parent Category Selector */}
+                                      <select
+                                        value={editingParentId === null ? '' : editingParentId}
+                                        onChange={(e) => setEditingParentId(e.target.value ? parseInt(e.target.value) : null)}
+                                        className="px-xs py-[4px] rounded-lg border border-outline-variant bg-surface-bright text-on-surface text-body-sm font-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                                      >
+                                        <option value="">None (Root)</option>
+                                        {flattenCategoryTree(buildCategoryTree(categories))
+                                          .filter(c => c.id !== cat.id && !isDescendantOf(c.id, cat.id, categories))
+                                          .map(c => (
+                                            <option key={c.id} value={c.id}>
+                                              {'\u00A0'.repeat(c.depth * 2)}{c.depth > 0 ? '↳ ' : ''}{c.name}
+                                            </option>
+                                          ))}
+                                      </select>
+
                                       <button
                                         type="submit"
                                         className="p-[6px] rounded-lg bg-primary text-on-primary hover:brightness-115 active:scale-95 transition-all flex items-center justify-center shadow-sm"
-                                        title="Save category name"
+                                        title="Save category details"
                                       >
                                         <span className="material-symbols-outlined text-[16px]">check</span>
                                       </button>
@@ -752,6 +900,8 @@ export const AdminPage: React.FC = () => {
                                         onClick={() => {
                                           setEditingCategory(null);
                                           setEditingName('');
+                                          setEditingParentId(null);
+                                          setShowEditSymbolPicker(false);
                                         }}
                                         className="p-[6px] rounded-lg bg-surface-container-highest text-secondary border border-outline-variant hover:brightness-95 active:scale-95 transition-all flex items-center justify-center"
                                         title="Cancel editing"
@@ -760,10 +910,14 @@ export const AdminPage: React.FC = () => {
                                       </button>
                                     </form>
                                   ) : (
-                                    <span className="flex items-center gap-sm">
+                                    <span className="flex items-center gap-sm" style={{ paddingLeft: `${cat.depth * 20}px` }}>
+                                      {cat.depth > 0 && <span className="text-secondary/50 font-mono">↳</span>}
+                                      <span className="material-symbols-outlined text-[18px] text-secondary/70">
+                                        {cat.symbol || 'category'}
+                                      </span>
                                       {cat.name}
                                       {isOther && (
-                                        <span className="bg-surface-container-highest text-on-surface-variant text-[10px] font-bold px-sm py-[2px] rounded-full uppercase tracking-wider">
+                                        <span className="bg-surface-container-highest text-on-surface-variant text-[10px] font-bold px-sm py-[2px] rounded-full uppercase tracking-wider font-normal">
                                           Default Fallback
                                         </span>
                                       )}
@@ -780,6 +934,9 @@ export const AdminPage: React.FC = () => {
                                         onClick={() => {
                                           setEditingCategory(cat);
                                           setEditingName(cat.name);
+                                          setEditingSymbol(cat.symbol || 'category');
+                                          setEditingParentId(cat.parent_id);
+                                          setShowEditSymbolPicker(false);
                                         }}
                                         disabled={isOther}
                                         className={`py-[6px] px-md rounded-lg text-label-sm font-label-sm border hover:brightness-95 active:scale-95 transition-all inline-flex items-center gap-xs ${
