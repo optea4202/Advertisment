@@ -3,12 +3,18 @@ import { getMyAds, getAds, getAdById, type Ad } from '../api/ads.js';
 import { algoliasearch } from 'algoliasearch';
 
 // Initialize the Algolia client using Search-Only key (v5 client)
-const searchClient = algoliasearch(
-  import.meta.env.VITE_ALGOLIA_APP_ID || '',
-  import.meta.env.VITE_ALGOLIA_SEARCH_ONLY_API_KEY || ''
-);
-
+let searchClient: any = null;
 const adsIndexName = import.meta.env.VITE_ALGOLIA_ADS_INDEX_NAME || 'fakna_ads';
+
+try {
+  const appId = import.meta.env.VITE_ALGOLIA_APP_ID || '';
+  const searchKey = import.meta.env.VITE_ALGOLIA_SEARCH_ONLY_API_KEY || '';
+  if (appId && searchKey && !appId.includes('placeholder') && !searchKey.includes('placeholder')) {
+    searchClient = algoliasearch(appId, searchKey);
+  }
+} catch (err) {
+  console.warn('Algolia search client initialization skipped or failed:', err);
+}
 
 // Client-side in-memory caches
 const feedCache: { [key: string]: Ad[] } = {};
@@ -70,7 +76,7 @@ export const useFeed = (category?: string, search?: string) => {
         setLoading(true);
       }
 
-      if (search && search.trim()) {
+      if (search && search.trim() && searchClient) {
         // Query Algolia directly for keyword searches
         let algoliaFilters = '';
         if (category) {
@@ -110,8 +116,8 @@ export const useFeed = (category?: string, search?: string) => {
         setAds(mappedAds);
         feedCache[cacheKey] = mappedAds;
       } else {
-        // Fall back to category-only database feed if no search query is typed
-        const data = await getAds({ category });
+        // Fall back to category/search database feed if no search query is typed, or if Algolia is unavailable
+        const data = await getAds({ category, search });
         setAds(data);
         feedCache[cacheKey] = data;
       }

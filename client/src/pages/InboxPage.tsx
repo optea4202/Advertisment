@@ -6,14 +6,23 @@ import { useMessages } from '../hooks/useChats.js';
 import { useChat } from '../context/ChatContext.js';
 import { deleteConversation as deleteConversationApi } from '../api/chats.js';
 import { startConversation } from '../api/chats.js';
-import type { PublicUserProfile } from '../api/users.js';
+import { searchUsers, type PublicUserProfile } from '../api/users.js';
 import { algoliasearch } from 'algoliasearch';
 
-const searchClient = algoliasearch(
-  import.meta.env.VITE_ALGOLIA_APP_ID || '',
-  import.meta.env.VITE_ALGOLIA_SEARCH_ONLY_API_KEY || ''
-);
+// Initialize the Algolia client using Search-Only key (v5 client) safely
+let searchClient: any = null;
 const usersIndexName = import.meta.env.VITE_ALGOLIA_USERS_INDEX_NAME || 'fakna_users';
+
+try {
+  const appId = import.meta.env.VITE_ALGOLIA_APP_ID || '';
+  const searchKey = import.meta.env.VITE_ALGOLIA_SEARCH_ONLY_API_KEY || '';
+  if (appId && searchKey && !appId.includes('placeholder') && !searchKey.includes('placeholder')) {
+    searchClient = algoliasearch(appId, searchKey);
+  }
+} catch (err) {
+  console.warn('Algolia user search client initialization skipped or failed:', err);
+}
+
 import type { Conversation } from '../types/Chat.js';
 
 export const InboxPage: React.FC = () => {
@@ -119,28 +128,45 @@ export const InboxPage: React.FC = () => {
     setSearchLoading(true);
     const timer = setTimeout(async () => {
       try {
-        const results = await searchClient.searchSingleIndex({
-          indexName: usersIndexName,
-          searchParams: {
-            query: searchQuery.trim(),
-            hitsPerPage: 10
-          }
-        });
+        if (searchClient) {
+          const results = await searchClient.searchSingleIndex({
+            indexName: usersIndexName,
+            searchParams: {
+              query: searchQuery.trim(),
+              hitsPerPage: 10
+            }
+          });
 
-        const mappedUsers: PublicUserProfile[] = results.hits
-          .map((hit: any) => ({
-            id: hit.id,
-            username: hit.username,
-            photo_url: hit.photo_url || null,
-            bio: hit.bio || null,
-            created_at: new Date().toISOString(),
-            is_banned: false
-          }))
-          .filter(u => u.id !== user?.id);
+          const mappedUsers: PublicUserProfile[] = results.hits
+            .map((hit: any): PublicUserProfile => ({
+              id: hit.id,
+              username: hit.username,
+              photo_url: hit.photo_url || null,
+              bio: hit.bio || null,
+              created_at: new Date().toISOString(),
+              is_banned: false
+            }))
+            .filter((u: PublicUserProfile) => u.id !== user?.id);
 
-        setSearchResults(mappedUsers);
+          setSearchResults(mappedUsers);
+        } else {
+          // Fall back to database query search
+          const results = await searchUsers(searchQuery.trim());
+          const mappedUsers: PublicUserProfile[] = results
+            .map((u: PublicUserProfile): PublicUserProfile => ({
+              id: u.id,
+              username: u.username,
+              photo_url: u.photo_url || null,
+              bio: u.bio || null,
+              created_at: u.created_at,
+              is_banned: u.is_banned
+            }))
+            .filter((u: PublicUserProfile) => u.id !== user?.id);
+
+          setSearchResults(mappedUsers);
+        }
       } catch (err) {
-        console.error('Algolia user search failed:', err);
+        console.error('User search failed:', err);
         setSearchResults([]);
       } finally {
         setSearchLoading(false);
