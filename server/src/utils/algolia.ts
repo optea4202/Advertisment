@@ -4,7 +4,18 @@ import { query } from '../db/index.js';
 import { type DbAd } from '../db/ads.js';
 
 // Initialize the Algolia client using Admin privileges for write operations
-export const client = algoliasearch(config.ALGOLIA_APP_ID || '', config.ALGOLIA_ADMIN_API_KEY || '');
+let algoliaClient: ReturnType<typeof algoliasearch> | null = null;
+try {
+  const appId = config.ALGOLIA_APP_ID || '';
+  const adminKey = config.ALGOLIA_ADMIN_API_KEY || '';
+  if (appId && adminKey && !appId.includes('placeholder') && !adminKey.includes('placeholder')) {
+    algoliaClient = algoliasearch(appId, adminKey);
+  }
+} catch (err) {
+  console.warn('Algolia client initialization failed or skipped:', err);
+}
+
+export const client = algoliaClient;
 
 export const adsIndexName = config.ALGOLIA_ADS_INDEX_NAME;
 export const usersIndexName = config.ALGOLIA_USERS_INDEX_NAME;
@@ -38,6 +49,10 @@ export const getCategoryLineage = async (categoryName: string): Promise<string[]
  */
 export const syncAdToAlgolia = async (ad: DbAd) => {
   try {
+    if (!client) {
+      console.warn('Algolia client is not initialized, skipping ad sync.');
+      return;
+    }
     const categoriesLineage = await getCategoryLineage(ad.category);
     const firstImageUrl = ad.images && ad.images.length > 0 
       ? ad.images[0].cloudinary_url 
@@ -74,6 +89,10 @@ export const syncAdToAlgolia = async (ad: DbAd) => {
  */
 export const deleteAdFromAlgolia = async (adId: number) => {
   try {
+    if (!client) {
+      console.warn('Algolia client is not initialized, skipping ad deletion.');
+      return;
+    }
     await client.deleteObject({
       indexName: adsIndexName,
       objectID: adId.toString(),
@@ -89,6 +108,10 @@ export const deleteAdFromAlgolia = async (adId: number) => {
  */
 export const syncUserToAlgolia = async (user: { id: number; username: string; photo_url: string | null; bio: string | null; is_banned: boolean }) => {
   try {
+    if (!client) {
+      console.warn('Algolia client is not initialized, skipping user sync.');
+      return;
+    }
     if (user.is_banned) {
       // Banned users are deleted from search completely
       await client.deleteObject({

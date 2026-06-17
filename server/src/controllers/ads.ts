@@ -260,14 +260,15 @@ export const handleGetSuggestions = async (req: Request, res: Response, next: Ne
     categories = dbSuggestions.categories;
 
     // 2. Attempt to fetch titles from Algolia if configured
-    const isAlgoliaEnabled = config.ALGOLIA_APP_ID && 
+    const isAlgoliaEnabled = !!(client && 
+                             config.ALGOLIA_APP_ID && 
                              config.ALGOLIA_ADMIN_API_KEY && 
                              !config.ALGOLIA_APP_ID.includes('placeholder') && 
-                             !config.ALGOLIA_ADMIN_API_KEY.includes('placeholder');
+                             !config.ALGOLIA_ADMIN_API_KEY.includes('placeholder'));
     
     let fetchedFromAlgolia = false;
 
-    if (isAlgoliaEnabled) {
+    if (isAlgoliaEnabled && client) {
       try {
         const algoliaRes = await client.searchSingleIndex({
           indexName: adsIndexName,
