@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.0.3",
+    "algoliasearch": "^5.55.0",
     "axios": "^1.7.2",
     "leaflet": "^1.9.4",
     "react": "^19.2.6",

@@ -2,6 +2,7 @@ import { clerkClient } from '@clerk/clerk-sdk-node';
 import { getUserByClerkId, createUser, updateUser, getPublicUserById, searchUsers as dbSearchUsers, type DbUser, type PublicUser } from '../db/users.js';
 import { getAdsByOwner } from '../db/ads.js';
 import type { DbAd } from '../db/ads.js';
+import { syncUserToAlgolia } from '../utils/algolia.js';
 
 /**
  * Gets the local database user by Clerk ID. If the user does not exist yet,
@@ -31,6 +32,7 @@ export const getOrCreateUser = async (clerkId: string): Promise<DbUser> => {
 
   const newUser = await createUser(clerkId, username, email, photoUrl, null, null);
   console.log(`✅ Created database record for user: ${username} (${email})`);
+  await syncUserToAlgolia(newUser);
   return newUser;
 };
 
@@ -46,7 +48,9 @@ export const updateProfile = async (
     bio?: string | null;
   }
 ): Promise<DbUser> => {
-  return await updateUser(userId, updates);
+  const updatedUser = await updateUser(userId, updates);
+  await syncUserToAlgolia(updatedUser);
+  return updatedUser;
 };
 
 export interface PublicProfileResult {

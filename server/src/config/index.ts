@@ -14,6 +14,10 @@ const configSchema = z.object({
   CLOUDINARY_API_KEY: z.string().min(1, { message: "CLOUDINARY_API_KEY is required" }),
   CLOUDINARY_API_SECRET: z.string().min(1, { message: "CLOUDINARY_API_SECRET is required" }),
   RESEND_API_KEY: z.string().min(1, { message: "RESEND_API_KEY is required" }),
+  ALGOLIA_APP_ID: z.string().min(1, { message: "ALGOLIA_APP_ID is required" }),
+  ALGOLIA_ADMIN_API_KEY: z.string().min(1, { message: "ALGOLIA_ADMIN_API_KEY is required" }),
+  ALGOLIA_ADS_INDEX_NAME: z.string().default('fakna_ads'),
+  ALGOLIA_USERS_INDEX_NAME: z.string().default('fakna_users'),
 });
 
 const parseConfig = () => {

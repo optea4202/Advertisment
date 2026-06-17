@@ -6,8 +6,14 @@ import { useMessages } from '../hooks/useChats.js';
 import { useChat } from '../context/ChatContext.js';
 import { deleteConversation as deleteConversationApi } from '../api/chats.js';
 import { startConversation } from '../api/chats.js';
-import { searchUsers } from '../api/users.js';
 import type { PublicUserProfile } from '../api/users.js';
+import { algoliasearch } from 'algoliasearch';
+
+const searchClient = algoliasearch(
+  import.meta.env.VITE_ALGOLIA_APP_ID || '',
+  import.meta.env.VITE_ALGOLIA_SEARCH_ONLY_API_KEY || ''
+);
+const usersIndexName = import.meta.env.VITE_ALGOLIA_USERS_INDEX_NAME || 'fakna_users';
 import type { Conversation } from '../types/Chat.js';
 
 export const InboxPage: React.FC = () => {
@@ -113,16 +119,35 @@ export const InboxPage: React.FC = () => {
     setSearchLoading(true);
     const timer = setTimeout(async () => {
       try {
-        const results = await searchUsers(searchQuery.trim());
-        setSearchResults(results);
-      } catch {
+        const results = await searchClient.searchSingleIndex({
+          indexName: usersIndexName,
+          searchParams: {
+            query: searchQuery.trim(),
+            hitsPerPage: 10
+          }
+        });
+
+        const mappedUsers: PublicUserProfile[] = results.hits
+          .map((hit: any) => ({
+            id: hit.id,
+            username: hit.username,
+            photo_url: hit.photo_url || null,
+            bio: hit.bio || null,
+            created_at: new Date().toISOString(),
+            is_banned: false
+          }))
+          .filter(u => u.id !== user?.id);
+
+        setSearchResults(mappedUsers);
+      } catch (err) {
+        console.error('Algolia user search failed:', err);
         setSearchResults([]);
       } finally {
         setSearchLoading(false);
       }
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, user]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

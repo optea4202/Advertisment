@@ -1,5 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getMyAds, getAds, getAdById, type Ad } from '../api/ads.js';
+import { algoliasearch } from 'algoliasearch';
+
+// Initialize the Algolia client using Search-Only key (v5 client)
+const searchClient = algoliasearch(
+  import.meta.env.VITE_ALGOLIA_APP_ID || '',
+  import.meta.env.VITE_ALGOLIA_SEARCH_ONLY_API_KEY || ''
+);
+
+const adsIndexName = import.meta.env.VITE_ALGOLIA_ADS_INDEX_NAME || 'fakna_ads';
 
 // Client-side in-memory caches
 const feedCache: { [key: string]: Ad[] } = {};
@@ -60,9 +69,52 @@ export const useFeed = (category?: string, search?: string) => {
       if (feedCache[cacheKey] === undefined) {
         setLoading(true);
       }
-      const data = await getAds({ category, search });
-      setAds(data);
-      feedCache[cacheKey] = data;
+
+      if (search && search.trim()) {
+        // Query Algolia directly for keyword searches
+        let algoliaFilters = '';
+        if (category) {
+          algoliaFilters = `categories:"${category}"`;
+        }
+
+        const res = await searchClient.searchSingleIndex({
+          indexName: adsIndexName,
+          searchParams: {
+            query: search,
+            filters: algoliaFilters,
+            hitsPerPage: 50
+          }
+        });
+
+        // Map Algolia v5 hits back into standard Ad format
+        const mappedAds: Ad[] = res.hits.map((hit: any) => ({
+          id: hit.id,
+          owner_id: hit.owner_id,
+          title: hit.title,
+          description: hit.description,
+          category: hit.category,
+          price: hit.price,
+          location: hit.location,
+          contact_info: hit.contact_info || '',
+          latitude: hit.latitude || null,
+          longitude: hit.longitude || null,
+          created_at: new Date(hit.created_at * 1000).toISOString(),
+          updated_at: new Date(hit.created_at * 1000).toISOString(),
+          images: hit.image_url 
+            ? [{ id: 0, ad_id: hit.id, cloudinary_url: hit.image_url, display_order: 0 }] 
+            : [],
+          owner_name: hit.owner_name,
+          owner_photo: hit.owner_photo
+        }));
+
+        setAds(mappedAds);
+        feedCache[cacheKey] = mappedAds;
+      } else {
+        // Fall back to category-only database feed if no search query is typed
+        const data = await getAds({ category });
+        setAds(data);
+        feedCache[cacheKey] = data;
+      }
       setError(null);
     } catch (err: any) {
       console.error('Error fetching feed ads:', err);

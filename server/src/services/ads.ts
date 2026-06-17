@@ -1,6 +1,7 @@
 import { pool } from '../db/index.js';
 import { uploadImage, deleteImageByUrl } from '../utils/cloudinary.js';
 import { DbAd, getAdById, getAdImagesByAdId, deleteAdRecord } from '../db/ads.js';
+import { syncAdToAlgolia, deleteAdFromAlgolia } from '../utils/algolia.js';
 
 interface CreateAdInput {
   title: string;
@@ -9,6 +10,8 @@ interface CreateAdInput {
   price: number;
   location: string;
   contact_info: string;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 /**
@@ -20,7 +23,7 @@ export const createAd = async (
   adInput: CreateAdInput,
   files: Express.Multer.File[]
 ): Promise<DbAd> => {
-  const { title, description, category, price, location, contact_info } = adInput;
+  const { title, description, category, price, location, contact_info, latitude, longitude } = adInput;
   
   // 1. Upload images to Cloudinary concurrently
   console.log(`🖼️ Uploading ${files.length} images for new ad "${title}" to Cloudinary...`);
@@ -33,10 +36,10 @@ export const createAd = async (
   try {
     await client.query('BEGIN');
 
-    // Insert ad
+    // Insert ad with geographic coordinates
     const adSql = `
-      INSERT INTO ads (owner_id, title, description, category, price, location, contact_info)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO ads (owner_id, title, description, category, price, location, contact_info, latitude, longitude)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     `;
     const adRes = await client.query(adSql, [
@@ -46,7 +49,9 @@ export const createAd = async (
       category,
       price,
       location,
-      contact_info
+      contact_info,
+      latitude !== undefined ? latitude : null,
+      longitude !== undefined ? longitude : null
     ]);
     const createdAd = adRes.rows[0];
 
@@ -83,12 +88,17 @@ export const createAd = async (
     const completeAdRes = await client.query(completeAdSql, [createdAd.id]);
     
     const finalAd = completeAdRes.rows[0];
-    return {
+    const adResult = {
       ...finalAd,
       price: parseFloat(finalAd.price),
       latitude: finalAd.latitude !== null ? parseFloat(finalAd.latitude) : null,
       longitude: finalAd.longitude !== null ? parseFloat(finalAd.longitude) : null,
     };
+
+    // Sync to Algolia search index
+    await syncAdToAlgolia(adResult);
+
+    return adResult;
   } catch (error) {
     await client.query('ROLLBACK');
     console.error('Ad creation transaction failed, rolling back DB records:', error);
@@ -118,6 +128,9 @@ export const deleteAd = async (adId: number): Promise<void> => {
   // 2. Delete database record
   await deleteAdRecord(adId);
   console.log(`✅ Ad ${adId} and its database references deleted.`);
+
+  // Delete from Algolia search index
+  await deleteAdFromAlgolia(adId);
 };
 
 /**
@@ -130,7 +143,7 @@ export const updateAd = async (
   keepImageUrls: string[],
   newFiles: Express.Multer.File[]
 ): Promise<DbAd> => {
-  const { title, description, category, price, location, contact_info } = adInput;
+  const { title, description, category, price, location, contact_info, latitude, longitude } = adInput;
 
   // 1. Fetch current images associated with this ad
   const currentImages = await getAdImagesByAdId(adId);
@@ -166,10 +179,10 @@ export const updateAd = async (
   try {
     await client.query('BEGIN');
 
-    // Update ad text fields
+    // Update ad text and coordinate fields
     const updateAdSql = `
       UPDATE ads
-      SET title = $2, description = $3, category = $4, price = $5, location = $6, contact_info = $7, updated_at = CURRENT_TIMESTAMP
+      SET title = $2, description = $3, category = $4, price = $5, location = $6, contact_info = $7, latitude = $8, longitude = $9, updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
     `;
     await client.query(updateAdSql, [
@@ -179,7 +192,9 @@ export const updateAd = async (
       category,
       price,
       location,
-      contact_info
+      contact_info,
+      latitude !== undefined ? latitude : null,
+      longitude !== undefined ? longitude : null
     ]);
 
     // Clear old image associations in DB
@@ -201,6 +216,10 @@ export const updateAd = async (
     if (!completeAd) {
       throw new Error('Ad update completed, but failed to fetch details.');
     }
+
+    // Sync updated details to Algolia search index
+    await syncAdToAlgolia(completeAd);
+
     return completeAd;
   } catch (error) {
     await client.query('ROLLBACK');
