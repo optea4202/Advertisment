@@ -4,7 +4,7 @@ import { query } from '../db/index.js';
 import { type DbAd } from '../db/ads.js';
 
 // Initialize the Algolia client using Admin privileges for write operations
-export const client = algoliasearch(config.ALGOLIA_APP_ID, config.ALGOLIA_ADMIN_API_KEY);
+export const client = algoliasearch(config.ALGOLIA_APP_ID || '', config.ALGOLIA_ADMIN_API_KEY || '');
 
 export const adsIndexName = config.ALGOLIA_ADS_INDEX_NAME;
 export const usersIndexName = config.ALGOLIA_USERS_INDEX_NAME;
