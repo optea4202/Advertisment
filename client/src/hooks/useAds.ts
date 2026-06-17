@@ -2,8 +2,25 @@ import { useState, useEffect, useCallback } from 'react';
 import { getMyAds, getAds, getAdById, type Ad } from '../api/ads.js';
 import { algoliasearch } from 'algoliasearch';
 
+interface AlgoliaAdHit {
+  id: number;
+  owner_id: number;
+  title: string;
+  description: string;
+  category: string;
+  price: number;
+  location: string;
+  contact_info?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  created_at: number; // Unix timestamp
+  image_url?: string;
+  owner_name?: string;
+  owner_photo?: string | null;
+}
+
 // Initialize the Algolia client using Search-Only key (v5 client)
-let searchClient: any = null;
+let searchClient: ReturnType<typeof algoliasearch> | null = null;
 const adsIndexName = import.meta.env.VITE_ALGOLIA_ADS_INDEX_NAME || 'fakna_ads';
 
 try {
@@ -93,7 +110,8 @@ export const useFeed = (category?: string, search?: string) => {
         });
 
         // Map Algolia v5 hits back into standard Ad format
-        const mappedAds: Ad[] = res.hits.map((hit: any) => ({
+        // Assert res.hits as unknown then as AlgoliaAdHit[] to safely type the external SDK result without using any
+        const mappedAds: Ad[] = (res.hits as unknown as AlgoliaAdHit[]).map((hit): Ad => ({
           id: hit.id,
           owner_id: hit.owner_id,
           title: hit.title,
@@ -110,7 +128,7 @@ export const useFeed = (category?: string, search?: string) => {
             ? [{ id: 0, ad_id: hit.id, cloudinary_url: hit.image_url, display_order: 0 }] 
             : [],
           owner_name: hit.owner_name,
-          owner_photo: hit.owner_photo
+          owner_photo: hit.owner_photo || undefined
         }));
 
         setAds(mappedAds);

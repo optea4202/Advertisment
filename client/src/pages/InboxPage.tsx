@@ -9,8 +9,15 @@ import { startConversation } from '../api/chats.js';
 import { searchUsers, type PublicUserProfile } from '../api/users.js';
 import { algoliasearch } from 'algoliasearch';
 
+interface AlgoliaUserHit {
+  id: number;
+  username: string;
+  photo_url?: string | null;
+  bio?: string | null;
+}
+
 // Initialize the Algolia client using Search-Only key (v5 client) safely
-let searchClient: any = null;
+let searchClient: ReturnType<typeof algoliasearch> | null = null;
 const usersIndexName = import.meta.env.VITE_ALGOLIA_USERS_INDEX_NAME || 'fakna_users';
 
 try {
@@ -137,8 +144,9 @@ export const InboxPage: React.FC = () => {
             }
           });
 
-          const mappedUsers: PublicUserProfile[] = results.hits
-            .map((hit: any): PublicUserProfile => ({
+          // Assert results.hits as unknown then as AlgoliaUserHit[] to safely type the external SDK result without using any
+          const mappedUsers: PublicUserProfile[] = (results.hits as unknown as AlgoliaUserHit[])
+            .map((hit): PublicUserProfile => ({
               id: hit.id,
               username: hit.username,
               photo_url: hit.photo_url || null,
