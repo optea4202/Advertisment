@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { createAd, updateAd, deleteAd } from '../services/ads.js';
-import { getAdsByOwner, getAdById, getAds } from '../db/ads.js';
+import { getAdsByOwner, getAdById, getAds, getDbSuggestions } from '../db/ads.js';
+import { config } from '../config/index.js';
+import { client, adsIndexName } from '../utils/algolia.js';
 
 // Ad creation input validation schema
 const createAdSchema = z.object({
@@ -234,6 +236,70 @@ export const handleGetAds = async (req: Request, res: Response, next: NextFuncti
     const ads = await getAds({ category, search });
 
     return res.status(200).json({ data: ads });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const handleGetSuggestions = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const q = req.query.q;
+    const queryStr = typeof q === 'string' ? q.trim() : '';
+
+    if (!queryStr) {
+      return res.status(200).json({
+        data: { categories: [], titles: [] }
+      });
+    }
+
+    let categories: string[] = [];
+    let titles: string[] = [];
+
+    // 1. Always fetch categories from DB since there are few categories and it's fast
+    const dbSuggestions = await getDbSuggestions(queryStr);
+    categories = dbSuggestions.categories;
+
+    // 2. Attempt to fetch titles from Algolia if configured
+    const isAlgoliaEnabled = config.ALGOLIA_APP_ID && 
+                             config.ALGOLIA_ADMIN_API_KEY && 
+                             !config.ALGOLIA_APP_ID.includes('placeholder') && 
+                             !config.ALGOLIA_ADMIN_API_KEY.includes('placeholder');
+    
+    let fetchedFromAlgolia = false;
+
+    if (isAlgoliaEnabled) {
+      try {
+        const algoliaRes = await client.searchSingleIndex({
+          indexName: adsIndexName,
+          searchParams: {
+            query: queryStr,
+            hitsPerPage: 10,
+          }
+        });
+
+        if (algoliaRes && algoliaRes.hits) {
+          const uniqueTitles = new Set<string>();
+          for (const hit of algoliaRes.hits) {
+            if ((hit as any).title) {
+              uniqueTitles.add((hit as any).title);
+            }
+          }
+          titles = Array.from(uniqueTitles).slice(0, 5);
+          fetchedFromAlgolia = true;
+        }
+      } catch (algoliaError) {
+        console.warn('Algolia search suggestions failed, falling back to DB:', algoliaError);
+      }
+    }
+
+    // 3. Fall back to PostgreSQL titles search if Algolia was not queried or failed
+    if (!fetchedFromAlgolia) {
+      titles = dbSuggestions.titles;
+    }
+
+    return res.status(200).json({
+      data: { categories, titles }
+    });
   } catch (error) {
     next(error);
   }

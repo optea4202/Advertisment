@@ -1,6 +1,14 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { handleCreateAd, handleGetMyAds, handleGetAdById, handleUpdateAd, handleDeleteAd, handleGetAds } from '../controllers/ads.js';
+import { 
+  handleCreateAd, 
+  handleGetMyAds, 
+  handleGetAdById, 
+  handleUpdateAd, 
+  handleDeleteAd, 
+  handleGetAds,
+  handleGetSuggestions
+} from '../controllers/ads.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 import { optionalAuth } from '../middleware/optionalAuth.js';
 import { requireNotBanned } from '../middleware/requireNotBanned.js';
@@ -23,6 +31,9 @@ router.get('/', optionalAuth, requireNotBanned, handleGetAds);
 
 // GET /api/ads/mine - Retrieve all ads owned by the current authenticated user
 router.get('/mine', requireAuth, requireNotBanned, handleGetMyAds);
+
+// GET /api/ads/suggestions - Retrieve autocomplete suggestions matching a query
+router.get('/suggestions', optionalAuth, requireNotBanned, handleGetSuggestions);
 
 // GET /api/ads/:id - Retrieve details of a single advertisement
 router.get('/:id', optionalAuth, requireNotBanned, handleGetAdById);

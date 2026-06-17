@@ -62,3 +62,11 @@ export const updateAd = async (id: number, formData: FormData): Promise<Ad> => {
   });
   return res.data.data;
 };
+
+export const getSearchSuggestions = async (q: string): Promise<{ categories: string[]; titles: string[] }> => {
+  const res = await api.get<{ data: { categories: string[]; titles: string[] } }>('/api/ads/suggestions', {
+    params: { q }
+  });
+  return res.data.data;
+};
+

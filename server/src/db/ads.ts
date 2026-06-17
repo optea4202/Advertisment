@@ -234,6 +234,34 @@ export const getAllAds = async (): Promise<DbAd[]> => {
   return getAds({});
 };
 
+export const getDbSuggestions = async (queryStr: string): Promise<{ categories: string[]; titles: string[] }> => {
+  const cleanQuery = `%${queryStr}%`;
+
+  // 1. Fetch matching categories
+  const categoriesSql = `
+    SELECT name 
+    FROM categories 
+    WHERE name ILIKE $1 
+    LIMIT 5
+  `;
+  const categoriesRes = await query(categoriesSql, [cleanQuery]);
+  const categories = categoriesRes.rows.map((r: any) => r.name);
+
+  // 2. Fetch matching unique ad titles from active ads (non-banned sellers)
+  const titlesSql = `
+    SELECT DISTINCT a.title 
+    FROM ads a
+    JOIN users u ON a.owner_id = u.id
+    WHERE u.is_banned = FALSE AND a.title ILIKE $1
+    LIMIT 5
+  `;
+  const titlesRes = await query(titlesSql, [cleanQuery]);
+  const titles = titlesRes.rows.map((r: any) => r.title);
+
+  return { categories, titles };
+};
+
+
 
 
 

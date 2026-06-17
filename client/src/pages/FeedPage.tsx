@@ -163,7 +163,7 @@ export const FeedPage: React.FC = () => {
         {/* Search Bar & Category Bar Rows */}
         <div className="w-full flex flex-col gap-sm">
           <div className="w-full flex gap-md items-center">
-            <SearchBar initialSearch={search} onSearchChange={setSearch} />
+            <SearchBar initialSearch={search} onSearchChange={setSearch} onSelectCategory={setCategory} />
           </div>
 
           <CategoryFilter selectedCategory={category} onSelectCategory={setCategory} />
