@@ -21,6 +21,27 @@ export const adsIndexName = config.ALGOLIA_ADS_INDEX_NAME;
 export const usersIndexName = config.ALGOLIA_USERS_INDEX_NAME;
 
 /**
+ * Configures attributesForFaceting for the ads index.
+ */
+export const configureIndexSettings = async () => {
+  try {
+    if (!algoliaClient) {
+      console.warn('Algolia client is not initialized, skipping index settings configuration.');
+      return;
+    }
+    await algoliaClient.setSettings({
+      indexName: adsIndexName,
+      indexSettings: {
+        attributesForFaceting: ['searchable(categories)', 'searchable(category)'],
+      },
+    });
+    console.log(`📡 Algolia index settings configured for "${adsIndexName}".`);
+  } catch (error) {
+    console.error('❌ Failed to configure Algolia index settings:', error);
+  }
+};
+
+/**
  * Resolves the hierarchical category tree lineage for an ad's category name.
  * E.g., if category is "PC Graphics Card", resolves to ["PC", "PC Components", "PC Graphics Card"].
  * This ensures searching parent categories matches sub-category ads in Algolia.

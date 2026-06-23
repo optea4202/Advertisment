@@ -34,15 +34,30 @@ export const createOrGetConversation = async (
   sellerId: number,
   adId: number | null
 ): Promise<DbConversation> => {
-  // Attempt to find an existing conversation first
+  // Attempt to find an existing conversation first, matching participant IDs in either direction
   const findSql = `
     SELECT * FROM conversations
-    WHERE buyer_id = $1 AND seller_id = $2 AND (ad_id = $3 OR ($3 IS NULL AND ad_id IS NULL))
+    WHERE (buyer_id = $1 AND seller_id = $2)
+       OR (buyer_id = $2 AND seller_id = $1)
     LIMIT 1
   `;
-  const existing = await query(findSql, [buyerId, sellerId, adId]);
+  const existing = await query(findSql, [buyerId, sellerId]);
   if (existing.rows.length > 0) {
-    return existing.rows[0];
+    const conv = existing.rows[0];
+    
+    // If adId is provided and different from the current ad_id on the conversation, update it
+    if (adId !== null && conv.ad_id !== adId) {
+      const updateSql = `
+        UPDATE conversations
+        SET ad_id = $1
+        WHERE id = $2
+        RETURNING *
+      `;
+      const updated = await query(updateSql, [adId, conv.id]);
+      return updated.rows[0];
+    }
+    
+    return conv;
   }
 
   // Otherwise create a new one
@@ -53,6 +68,19 @@ export const createOrGetConversation = async (
   `;
   const res = await query(insertSql, [buyerId, sellerId, adId]);
   return res.rows[0];
+};
+
+export const getLastMessageInConversation = async (
+  conversationId: number
+): Promise<DbMessage | null> => {
+  const sql = `
+    SELECT * FROM messages
+    WHERE conversation_id = $1
+    ORDER BY created_at DESC
+    LIMIT 1
+  `;
+  const res = await query(sql, [conversationId]);
+  return res.rows[0] || null;
 };
 
 export const getConversationsForUser = async (userId: number): Promise<DbConversation[]> => {

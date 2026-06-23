@@ -13,6 +13,7 @@ import { DashboardPage } from './pages/DashboardPage.js';
 import { CreateAdPage } from './pages/CreateAdPage.js';
 import { EditAdPage } from './pages/EditAdPage.js';
 import { FeedPage } from './pages/FeedPage.js';
+import { SearchPage } from './pages/SearchPage.js';
 import { AdDetailPage } from './pages/AdDetailPage.js';
 import { AdminPage } from './pages/AdminPage.js';
 import { AdminHomePage } from './pages/AdminHomePage.js';
@@ -118,6 +119,12 @@ function App() {
                     <AdminHomePage />
                   </AdminRoute>
                 }
+              />
+
+               {/* Search Page */}
+              <Route
+                path="/search"
+                element={<SearchPage />}
               />
 
               {/* Main Landing Page (Ad Feed) */}

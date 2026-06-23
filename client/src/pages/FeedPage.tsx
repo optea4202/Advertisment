@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { Footer } from '../components/Footer.js';
-import { SearchBar } from '../components/SearchBar.js';
 import { CategoryFilter } from '../components/CategoryFilter.js';
 import { AdCard } from '../components/AdCard.js';
 import { useFeed } from '../hooks/useAds.js';
@@ -18,12 +17,35 @@ export const FeedPage: React.FC = () => {
     }
   }, [user, navigate]);
 
-  const [category, setCategory] = useState('');
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const category = searchParams.get('category') || '';
+  const search = searchParams.get('search') || '';
+  const page = parseInt(searchParams.get('page') || '1', 10);
   const [spotlightIndex, setSpotlightIndex] = useState(0);
 
-  const { ads, total, totalPages, loading, error, refresh } = useFeed(category, search, page);
+  // Redirect to search page if search or category parameters exist
+  useEffect(() => {
+    if (category || search) {
+      navigate(`/search?${searchParams.toString()}`, { replace: true });
+    }
+  }, [category, search, searchParams, navigate]);
+
+  const { ads, total, totalPages, loading, error, refresh } = useFeed('', '', page);
+
+  const setCategory = (cat: string) => {
+    if (cat) {
+      navigate(`/search?category=${encodeURIComponent(cat)}${search ? `&search=${encodeURIComponent(search)}` : ''}`);
+    }
+  };
+
+  const setPage = (p: number | ((prev: number) => number)) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      const newPage = typeof p === 'function' ? p(page) : p;
+      next.set('page', newPage.toString());
+      return next;
+    });
+  };
 
   // Spotlight rotation effect (cycles through top 5 ads every 4 seconds)
   useEffect(() => {
@@ -34,17 +56,6 @@ export const FeedPage: React.FC = () => {
     }, 4000);
     return () => clearInterval(interval);
   }, [ads]);
-
-  // Reset page to 1 whenever filters change
-  useEffect(() => {
-    setPage(1);
-  }, [category, search]);
-
-  const handleResetFilters = () => {
-    setCategory('');
-    setSearch('');
-    setPage(1);
-  };
 
   const getPageNumbers = () => {
     const range = [];
@@ -78,14 +89,16 @@ export const FeedPage: React.FC = () => {
   const spotlightAds = ads ? ads.slice(0, 5) : [];
   const currentSpotlightAd = spotlightAds[spotlightIndex];
 
-  const startIndex = (page - 1) * 12 + 1;
-  const endIndex = Math.min(page * 12, total);
-
   return (
     <div className="bg-surface text-on-surface min-h-screen flex flex-col">
       <Navbar />
 
       <main className="flex-grow w-full max-w-container-max mx-auto px-md md:px-xl py-xl flex flex-col gap-lg">
+        {/* Mobile Category Bar Row (Mobile Only) */}
+        <div className="flex flex-col gap-sm md:hidden">
+          <CategoryFilter selectedCategory={category} onSelectCategory={setCategory} />
+        </div>
+
         {/* Banner/Header - Premium Hero Showcase */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-moving p-lg md:p-xl flex flex-col gap-lg border border-outline-variant/20 shadow-md bg-grid-pattern">
           {/* Responsive Grid inside Hero */}
@@ -199,41 +212,6 @@ export const FeedPage: React.FC = () => {
           <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-tertiary/10 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
         </div>
 
-        {/* Search Bar & Category Bar Rows */}
-        <div className="w-full flex flex-col gap-sm">
-          <div className="w-full flex gap-md items-center">
-            <SearchBar initialSearch={search} onSearchChange={setSearch} onSelectCategory={setCategory} />
-          </div>
-
-          <CategoryFilter selectedCategory={category} onSelectCategory={setCategory} />
-
-          {/* Active Filters Summary */}
-          {(category || search) && (
-            <div className="flex items-center justify-between bg-surface-container-low/40 px-md py-sm rounded-xl border border-outline-variant/15 mt-xs animate-fade-in-up-sheet">
-              <div className="flex items-center gap-sm flex-wrap">
-                <span className="font-label-sm text-label-sm text-secondary">Active Filters:</span>
-                {category && (
-                  <span className="bg-primary/10 text-primary text-[12px] font-semibold px-sm py-[4px] rounded-full flex items-center gap-[4px] border border-primary/20">
-                    {category}
-                    <button onClick={() => setCategory('')} className="hover:text-error text-[14px] font-bold ml-xs">×</button>
-                  </span>
-                )}
-                {search && (
-                  <span className="bg-tertiary/15 text-tertiary text-[12px] font-semibold px-sm py-[4px] rounded-full flex items-center gap-[4px] border border-tertiary/20 max-w-[200px] truncate">
-                    "{search}"
-                    <button onClick={() => setSearch('')} className="hover:text-error text-[14px] font-bold ml-xs">×</button>
-                  </span>
-                )}
-              </div>
-              <button 
-                onClick={handleResetFilters}
-                className="font-label-sm text-label-sm text-primary hover:underline font-bold"
-              >
-                Clear All
-              </button>
-            </div>
-          )}
-        </div>
 
         {/* Layout: Main Full-Width Grid */}
         <div className="flex flex-col gap-lg min-h-[400px] mt-xs">
@@ -271,25 +249,12 @@ export const FeedPage: React.FC = () => {
                   We couldn't find any advertisements matching your current search or category filters.
                 </p>
               </div>
-              {(category || search) && (
-                <button 
-                  onClick={handleResetFilters}
-                  className="mt-sm bg-primary text-on-primary font-label-md text-label-md px-xl py-md rounded-lg hover:brightness-110 active:scale-[0.98] transition-all"
-                >
-                  Reset Filters
-                </button>
-              )}
             </div>
           )}
 
           {!error && !loading && ads.length > 0 && (
             <>
               <div className="flex flex-col gap-md">
-                {search.trim() && (
-                  <div className="text-body-md font-medium text-secondary/90 animate-fade-in-up-sheet">
-                    {startIndex}-{endIndex} of {total} results for <span className="text-primary font-bold">"{search}"</span>
-                  </div>
-                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
                   {ads.map((ad, idx) => (
                     <div key={ad.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 75, 450)}ms` }}>

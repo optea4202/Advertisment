@@ -540,7 +540,15 @@ export const InboxPage: React.FC = () => {
                         </span>
                       )}
                       <span className="font-body-sm text-body-sm text-on-surface-variant truncate mt-[2px]">
-                        {conv.last_message ?? 'Start the conversation…'}
+                        {conv.last_message ? (
+                          conv.last_message.startsWith('__AD_INQUIRY__:') ? (
+                            `Inquiry about: ${conv.last_message.split(':').slice(2).join(':')}`
+                          ) : (
+                            conv.last_message
+                          )
+                        ) : (
+                          'Start the conversation…'
+                        )}
                       </span>
                     </div>
                   </button>
@@ -655,6 +663,24 @@ export const InboxPage: React.FC = () => {
                 const isEditing = editingMessageId === msg.id;
                 const isConfirmingDelete = deletingMessageId === msg.id;
                 const canEdit = isMe && !!msg.message_text;
+
+                const isAdInquiry = msg.message_text?.startsWith('__AD_INQUIRY__:');
+                if (isAdInquiry) {
+                  const parts = msg.message_text.split(':');
+                  const adId = parts[1];
+                  const adTitle = parts.slice(2).join(':');
+                  return (
+                    <div key={msg.id} className="w-full flex justify-center my-sm md:my-md animate-fade-in-up-sheet">
+                      <Link
+                        to={`/ads/${adId}`}
+                        className="inline-flex items-center gap-xs bg-primary-fixed/30 hover:bg-primary-fixed/50 text-on-primary-fixed text-label-sm font-semibold px-md py-[6px] rounded-full border border-primary/15 shadow-sm transition-all hover:scale-[1.01] no-underline"
+                      >
+                        <span className="material-symbols-outlined text-[16px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
+                        <span>Interested in ad: <span className="underline">{adTitle}</span></span>
+                      </Link>
+                    </div>
+                  );
+                }
 
                 return (
                   <div key={msg.id} className={`group flex items-end gap-sm ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>

@@ -10,6 +10,7 @@ import chatRoutes from './routes/chats.js';
 import wishlistRoutes from './routes/wishlist.js';
 import reportRoutes from './routes/reports.js';
 import categoryRoutes from './routes/categories.js';
+import { configureIndexSettings } from './utils/algolia.js';
 
 const app = express();
 
@@ -62,4 +63,5 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 const PORT = config.PORT;
 app.listen(PORT, () => {
   console.log(`🚀 Fakna Server running on port ${PORT}`);
+  configureIndexSettings();
 });

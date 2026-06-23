@@ -1,9 +1,12 @@
 import { query } from '../db/index.js';
 import { getAds } from '../db/ads.js';
-import { syncAdToAlgolia, syncUserToAlgolia } from '../utils/algolia.js';
+import { syncAdToAlgolia, syncUserToAlgolia, configureIndexSettings } from '../utils/algolia.js';
 
 const backfill = async () => {
   console.log('🔄 Starting Algolia index backfill...');
+  
+  // Configure index settings first
+  await configureIndexSettings();
 
   // 1. Migrate Ads (only non-banned)
   try {

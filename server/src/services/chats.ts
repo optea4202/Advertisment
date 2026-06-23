@@ -9,6 +9,7 @@ import {
   deleteMessageById,
   getMessageImageUrlsForConversation,
   deleteConversationById,
+  getLastMessageInConversation,
   type DbConversation,
   type DbMessage,
 } from '../db/chats.js';
@@ -28,8 +29,9 @@ export const startOrFetchConversation = async (
   }
 
   // If adId is provided, verify it exists
+  let ad: any = null;
   if (adId !== null) {
-    const ad = await getAdById(adId);
+    ad = await getAdById(adId);
     if (!ad) {
       const error = new Error('Advertisement not found');
       (error as any).code = 'AD_NOT_FOUND';
@@ -37,7 +39,20 @@ export const startOrFetchConversation = async (
     }
   }
 
-  return createOrGetConversation(requestingUserId, sellerId, adId);
+  const conv = await createOrGetConversation(requestingUserId, sellerId, adId);
+
+  // If adId is provided and ad is verified, insert inquiry marker message
+  if (adId !== null && ad) {
+    const markerText = `__AD_INQUIRY__:${adId}:${ad.title}`;
+    
+    // Retrieve the last message in this conversation to avoid duplicate consecutive markers
+    const lastMsg = await getLastMessageInConversation(conv.id);
+    if (!lastMsg || lastMsg.message_text !== markerText) {
+      await insertMessage(conv.id, requestingUserId, markerText);
+    }
+  }
+
+  return conv;
 };
 
 export const fetchConversationsForUser = async (userId: number): Promise<DbConversation[]> => {
