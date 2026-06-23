@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSignUp } from '@clerk/clerk-react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -13,9 +13,37 @@ export const SignUpPage: React.FC = () => {
   // Verification states
   const [pendingVerification, setPendingVerification] = useState(false);
   const [code, setCode] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendSuccess, setResendSuccess] = useState(false);
   
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    let timer: any;
+    if (resendCooldown > 0) {
+      timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
+  const handleResendCode = async () => {
+    if (!isLoaded) return;
+    setErrorMsg(null);
+    setResendSuccess(false);
+    setIsSubmitting(true);
+
+    try {
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
+      setResendSuccess(true);
+      setResendCooldown(60); // 60s cooldown to prevent API spamming
+    } catch (err: any) {
+      console.error('Resend code error:', err);
+      setErrorMsg(err.errors?.[0]?.message || 'Failed to resend verification code.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -272,34 +300,71 @@ export const SignUpPage: React.FC = () => {
             </>
           ) : (
             /* Email Code Verification Screen */
-            <form onSubmit={handleVerify} className="flex flex-col gap-lg">
-              <div className="flex flex-col gap-sm">
-                <label className="font-label-md text-label-md text-on-surface" htmlFor="code">Verification Code</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none">
-                    <span className="material-symbols-outlined text-secondary text-[20px]">key</span>
+            <div className="flex flex-col gap-lg">
+              <form onSubmit={handleVerify} className="flex flex-col gap-lg">
+                <div className="flex flex-col gap-sm">
+                  <label className="font-label-md text-label-md text-on-surface" htmlFor="code">Verification Code</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none">
+                      <span className="material-symbols-outlined text-secondary text-[20px]">key</span>
+                    </div>
+                    <input 
+                      className="w-full pl-10 pr-md py-[10px] bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface font-body-md placeholder-secondary focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 transition-all shadow-sm" 
+                      id="code" 
+                      placeholder="Enter the 6-digit code..." 
+                      type="text"
+                      value={code}
+                      onChange={(e) => setCode(e.target.value)}
+                      required
+                    />
                   </div>
-                  <input 
-                    className="w-full pl-10 pr-md py-[10px] bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface font-body-md placeholder-secondary focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 transition-all shadow-sm" 
-                    id="code" 
-                    placeholder="Enter the 6-digit code..." 
-                    type="text"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    required
-                  />
                 </div>
-              </div>
 
-              <button 
-                className="w-full mt-sm py-[12px] px-md bg-primary text-on-primary font-label-md text-label-md rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.05)] border-t border-white/20 hover:bg-surface-tint hover:shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-sm" 
-                type="submit"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Verifying...' : 'Verify Code'}
-                <span className="material-symbols-outlined text-[18px]">done</span>
-              </button>
-            </form>
+                <button 
+                  className="w-full mt-sm py-[12px] px-md bg-primary text-on-primary font-label-md text-label-md rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.05)] border-t border-white/20 hover:bg-surface-tint hover:shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-sm" 
+                  type="submit"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Verifying...' : 'Verify Code'}
+                  <span className="material-symbols-outlined text-[18px]">done</span>
+                </button>
+              </form>
+
+              {/* Resend and Change Email controls */}
+              <div className="flex flex-col gap-sm mt-sm">
+                <div className="flex w-full items-center justify-between font-label-md text-label-md">
+                  <button
+                    type="button"
+                    onClick={handleResendCode}
+                    disabled={isSubmitting || resendCooldown > 0}
+                    className="text-primary hover:text-surface-tint disabled:text-secondary hover:underline transition-colors flex items-center gap-xs focus:outline-none"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">refresh</span>
+                    {resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : 'Resend Code'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPendingVerification(false);
+                      setResendSuccess(false);
+                      setErrorMsg(null);
+                    }}
+                    className="text-secondary hover:text-on-surface hover:underline transition-colors flex items-center gap-xs focus:outline-none"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                    Change Email
+                  </button>
+                </div>
+
+                {resendSuccess && (
+                  <p className="text-emerald-600 dark:text-emerald-400 font-label-sm text-label-sm flex items-center gap-xs mt-xs justify-center animate-fade-in">
+                    <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                    A new code has been sent to your email.
+                  </p>
+                )}
+              </div>
+            </div>
           )}
 
           <p className="text-center font-body-sm text-body-sm text-secondary mt-xl">
