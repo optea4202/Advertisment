@@ -100,7 +100,7 @@ export const Navbar: React.FC = () => {
             </Link>
 
             {/* Global Search Bar (resizing it to be larger/flex-grow next to Fakna logo) */}
-            {!user?.is_admin && (
+            {!user?.is_admin && (location.pathname === '/' || location.pathname === '/search') && (
               <div className="hidden md:flex items-center flex-grow max-w-[800px] mx-lg">
                 <SearchBar initialSearch={search} onSearchChange={handleSearchChange} onSelectCategory={handleCategorySelect} />
               </div>
@@ -338,13 +338,13 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* Mobile Search Bar Row (Row 2 - Mobile Only, Admin Excluded) */}
-        {!user?.is_admin && (
+        {!user?.is_admin && (location.pathname === '/' || location.pathname === '/search') && (
           <div className="block md:hidden w-full px-sm pb-sm bg-surface-container-lowest">
             <SearchBar initialSearch={search} onSearchChange={handleSearchChange} onSelectCategory={handleCategorySelect} />
           </div>
         )}
         {/* Categories Bar Row (Row 2 - Desktop Only, Admin Excluded) */}
-        {!user?.is_admin && (
+        {!user?.is_admin && (location.pathname === '/' || location.pathname === '/search') && (
           <div className="hidden md:block w-full border-t border-outline-variant/10 bg-surface-container-lowest">
             <div className="max-w-container-max mx-auto px-md lg:px-lg py-xs">
               <CategoryFilter selectedCategory={category} onSelectCategory={handleCategorySelect} />
