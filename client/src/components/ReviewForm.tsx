@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
 
 interface ReviewFormProps {
-  onSubmit: (rating: number, comment: string) => Promise<void>;
+  onSubmit: (comment: string) => Promise<void>;
 }
 
 export const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
-  const [rating, setRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (rating === 0) {
-      setErrorMsg('Please select a star rating.');
+    if (!comment.trim()) {
+      setErrorMsg('Please write a comment.');
       return;
     }
 
@@ -22,12 +20,11 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
     setErrorMsg(null);
 
     try {
-      await onSubmit(rating, comment.trim() || '');
-      setRating(0);
+      await onSubmit(comment.trim());
       setComment('');
     } catch (err: any) {
-      console.error('Failed to submit review:', err);
-      const apiError = err.response?.data?.error?.message || 'Failed to submit your review. Please try again.';
+      console.error('Failed to submit comment:', err);
+      const apiError = err.response?.data?.error?.message || 'Failed to submit your comment. Please try again.';
       setErrorMsg(apiError);
     } finally {
       setIsSubmitting(false);
@@ -37,7 +34,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
   return (
     <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-md md:p-lg flex flex-col gap-md">
       <h4 className="font-label-md text-label-md text-on-surface font-semibold">
-        Leave a Review
+        Leave a Comment
       </h4>
       
       {errorMsg && (
@@ -47,48 +44,17 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-md">
-        {/* Star Rating Selectors */}
-        <div className="flex flex-col gap-xs">
-          <span className="font-label-sm text-label-sm text-secondary">Your Rating</span>
-          <div className="flex items-center gap-xs">
-            {[1, 2, 3, 4, 5].map((star) => {
-              const isActive = star <= (hoverRating || rating);
-              return (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => setRating(star)}
-                  onMouseEnter={() => setHoverRating(star)}
-                  onMouseLeave={() => setHoverRating(0)}
-                  className="text-[28px] focus:outline-none transition-transform active:scale-95 duration-100 p-[2px]"
-                  title={`${star} star${star > 1 ? 's' : ''}`}
-                >
-                  <span 
-                    className="material-symbols-outlined select-none block"
-                    style={{
-                      fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
-                      color: isActive ? '#ffb700' : 'var(--color-outline-variant)'
-                    }}
-                  >
-                    star
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Written review comment */}
+        {/* Written comment */}
         <div className="flex flex-col gap-xs">
           <label className="font-label-sm text-label-sm text-secondary" htmlFor="review-comment">
-            Written Comment (Optional)
+            Comment
           </label>
           <div className="relative input-glow rounded-md transition-shadow duration-200">
             <textarea
               id="review-comment"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Share your experience with this item or service..."
+              placeholder="Share your comments on this item or service..."
               rows={3}
               className="w-full bg-surface-bright border border-outline-variant rounded-md px-md py-sm font-body-md text-body-md text-on-surface placeholder:text-secondary/60 focus:border-primary focus:outline-none transition-colors resize-y"
               maxLength={1000}
@@ -104,7 +70,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ onSubmit }) => {
             disabled={isSubmitting}
             className="bg-primary text-on-primary font-label-md text-label-md px-xl py-md rounded-lg btn-primary-inner hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
-            {isSubmitting ? 'Submitting...' : 'Submit Review'}
+            {isSubmitting ? 'Submitting...' : 'Submit Comment'}
             <span className="material-symbols-outlined text-[16px]">check</span>
           </button>
         </div>

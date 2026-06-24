@@ -1,13 +1,12 @@
 import { insertReview, type DbReview } from '../db/reviews.js';
 import { getAdById, getAdOwnerEmailAndTitle } from '../db/ads.js';
 import { getUserById } from '../db/users.js';
-import { sendReviewNotificationEmail } from '../utils/resend.js';
+import { sendCommentNotificationEmail } from '../utils/resend.js';
 
 export const createReview = async (
   adId: number,
   reviewerId: number,
-  starRating: number,
-  reviewText: string | null
+  reviewText: string
 ): Promise<DbReview> => {
   // 1. Fetch advertisement to check existence and ownership
   const ad = await getAdById(adId);
@@ -25,7 +24,7 @@ export const createReview = async (
   }
 
   // 3. Insert review record in database
-  const review = await insertReview(adId, reviewerId, starRating, reviewText);
+  const review = await insertReview(adId, reviewerId, reviewText);
 
   // 4. Trigger email synchronously but non-blockingly (errors logged non-blockingly)
   Promise.all([
@@ -33,12 +32,11 @@ export const createReview = async (
     getAdOwnerEmailAndTitle(adId)
   ]).then(([reviewer, ownerInfo]) => {
     if (reviewer && ownerInfo) {
-      sendReviewNotificationEmail(
+      sendCommentNotificationEmail(
         ownerInfo.email,
         ownerInfo.title,
         reviewer.username,
-        starRating,
-        reviewText || ''
+        reviewText
       );
     }
   }).catch(err => {

@@ -5,8 +5,7 @@ import { getReviewsByAdId } from '../db/reviews.js';
 
 const createReviewSchema = z.object({
   ad_id: z.coerce.number().positive({ message: 'ad_id must be a positive number' }),
-  star_rating: z.coerce.number().min(1).max(5, { message: 'star_rating must be between 1 and 5' }),
-  review_text: z.string().max(1000, { message: 'review_text cannot exceed 1000 characters' }).nullable().optional()
+  review_text: z.string().min(1, { message: 'comment content cannot be empty' }).max(1000, { message: 'comment content cannot exceed 1000 characters' })
 });
 
 const getReviewsQuerySchema = z.object({
@@ -27,16 +26,16 @@ export const handleCreateReview = async (req: Request, res: Response, next: Next
     if (!bodyResult.success) {
       return res.status(400).json({
         error: {
-          message: 'Invalid review payload details.',
+          message: 'Invalid comment payload details.',
           details: bodyResult.error.format()
         }
       });
     }
 
-    const { ad_id, star_rating, review_text } = bodyResult.data;
+    const { ad_id, review_text } = bodyResult.data;
 
     // 3. Delegate to service layer
-    const newReview = await createReview(ad_id, req.user.id, star_rating, review_text || null);
+    const newReview = await createReview(ad_id, req.user.id, review_text);
 
     return res.status(201).json({ data: newReview });
   } catch (error: any) {

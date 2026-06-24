@@ -21,9 +21,9 @@ export const useReviews = (adId: number) => {
     }
   }, [adId]);
 
-  const addReview = async (starRating: number, reviewText: string | null) => {
+  const addReview = async (reviewText: string) => {
     try {
-      const newReview = await postReviewApi(adId, starRating, reviewText);
+      const newReview = await postReviewApi(adId, reviewText);
       setReviews((prev) => [newReview, ...prev]);
       return newReview;
     } catch (err: any) {

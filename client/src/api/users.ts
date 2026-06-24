@@ -26,6 +26,8 @@ export interface PublicUserProfile {
 export interface PublicProfileData {
   user: PublicUserProfile;
   ads: import('./ads.js').Ad[];
+  avg_rating: number;
+  total_reviews: number;
 }
 
 export const fetchMe = async (): Promise<UserProfile> => {

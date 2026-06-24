@@ -4,8 +4,7 @@ export interface DbReview {
   id: number;
   ad_id: number;
   reviewer_id: number;
-  star_rating: number;
-  review_text: string | null;
+  review_text: string;
   created_at: Date;
   reviewer_name?: string;
   reviewer_photo?: string | null;
@@ -14,15 +13,14 @@ export interface DbReview {
 export const insertReview = async (
   adId: number,
   reviewerId: number,
-  starRating: number,
-  reviewText: string | null
+  reviewText: string
 ): Promise<DbReview> => {
   const sql = `
-    INSERT INTO reviews (ad_id, reviewer_id, star_rating, review_text)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO reviews (ad_id, reviewer_id, review_text)
+    VALUES ($1, $2, $3)
     RETURNING *
   `;
-  const res = await query(sql, [adId, reviewerId, starRating, reviewText]);
+  const res = await query(sql, [adId, reviewerId, reviewText]);
   return res.rows[0];
 };
 

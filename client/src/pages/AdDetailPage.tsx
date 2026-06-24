@@ -105,8 +105,8 @@ export const AdDetailPage: React.FC = () => {
     }
   };
 
-  const handleReviewSubmit = async (rating: number, comment: string) => {
-    await addReview(rating, comment);
+  const handleReviewSubmit = async (comment: string) => {
+    await addReview(comment);
   };
 
   return (
@@ -382,7 +382,7 @@ export const AdDetailPage: React.FC = () => {
             {/* Reviews Section */}
             <div className="bg-surface-container-lowest rounded-2xl elevation-1 border border-outline-variant/20 p-xl flex flex-col gap-lg">
               <h3 className="font-headline-md text-[20px] font-semibold text-on-surface border-b border-outline-variant/10 pb-sm">
-                Ratings & Reviews
+                Comments
               </h3>
 
               {/* Leave review form (Hidden for guests and the ad owner) */}

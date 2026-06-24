@@ -55,7 +55,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ type, itemId, onClose 
     switch (type) {
       case 'ad': return 'Report this Advertisement';
       case 'user': return 'Report this User Profile';
-      case 'review': return 'Report this Review';
+      case 'review': return 'Report this Comment';
       default: return 'Report Content';
     }
   };

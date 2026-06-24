@@ -60,9 +60,7 @@ export const AdminHomePage: React.FC = () => {
   const bannedUsers = users.filter(u => u.is_banned).length;
   const activeUsers = totalUsers - bannedUsers;
   
-  const avgRating = totalReviews > 0 
-    ? (reviews.reduce((sum, r) => sum + r.star_rating, 0) / totalReviews).toFixed(1) 
-    : '0.0';
+
 
   // Compute category distribution
   const categoryCounts = categories.reduce((acc, cat) => {
@@ -155,22 +153,21 @@ export const AdminHomePage: React.FC = () => {
                 </div>
               </Link>
 
-              {/* Reviews & Average Rating */}
+              {/* Comments */}
               <Link to="/admin?tab=reviews" className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-lg shadow-sm hover:border-primary/30 transition-all group flex flex-col justify-between min-h-[140px]">
                 <div className="flex justify-between items-start">
                   <div className="flex flex-col">
-                    <span className="text-secondary font-label-sm text-label-sm uppercase tracking-wider">Total Reviews</span>
+                    <span className="text-secondary font-label-sm text-label-sm uppercase tracking-wider">Total Comments</span>
                     <span className="font-headline-lg text-[36px] font-bold text-on-surface mt-xs leading-none">
                       {totalReviews}
                     </span>
                   </div>
                   <div className="w-10 h-10 rounded-xl bg-secondary-fixed/50 text-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <span className="material-symbols-outlined text-[24px]">rate_review</span>
+                    <span className="material-symbols-outlined text-[24px]">chat</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-xs mt-md text-secondary text-body-sm font-semibold">
-                  <span className="material-symbols-outlined text-[#ffb700] fill-1 text-[18px]">star</span>
-                  <span>{avgRating} Avg Star Rating</span>
+                <div className="flex items-center gap-xs mt-md text-secondary text-body-sm">
+                  <span>User comments on ads</span>
                 </div>
               </Link>
 

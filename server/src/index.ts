@@ -3,6 +3,7 @@ import cors from 'cors';
 import { config } from './config/index.js';
 import { query } from './db/index.js';
 import userRoutes from './routes/users.js';
+import userReviewRoutes from './routes/user_reviews.js';
 import adRoutes from './routes/ads.js';
 import reviewRoutes from './routes/reviews.js';
 import adminRoutes from './routes/admin.js';
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Mounting routes
+app.use('/api/users', userReviewRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/ads', adRoutes);
 app.use('/api/reviews', reviewRoutes);

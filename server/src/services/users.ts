@@ -2,6 +2,7 @@ import { clerkClient } from '@clerk/clerk-sdk-node';
 import { getUserByClerkId, createUser, updateUser, getPublicUserById, searchUsers as dbSearchUsers, type DbUser, type PublicUser } from '../db/users.js';
 import { getAdsByOwner } from '../db/ads.js';
 import type { DbAd } from '../db/ads.js';
+import { getUserReviewsStats } from '../db/user_reviews.js';
 import { syncUserToAlgolia } from '../utils/algolia.js';
 
 /**
@@ -56,6 +57,8 @@ export const updateProfile = async (
 export interface PublicProfileResult {
   user: PublicUser;
   ads: DbAd[];
+  avg_rating: number;
+  total_reviews: number;
 }
 
 /**
@@ -67,7 +70,13 @@ export const getPublicProfile = async (userId: number): Promise<PublicProfileRes
   if (!user) return null;
 
   const ads = await getAdsByOwner(userId);
-  return { user, ads };
+  const stats = await getUserReviewsStats(userId);
+  return { 
+    user, 
+    ads,
+    avg_rating: stats.avg_rating,
+    total_reviews: stats.total_reviews
+  };
 };
 
 /**

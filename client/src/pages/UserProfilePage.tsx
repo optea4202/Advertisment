@@ -10,6 +10,9 @@ import { startConversation } from '../api/chats.js';
 import { getWishlist } from '../api/wishlist.js';
 import { useWishlist } from '../context/WishlistContext.js';
 import { ReportModal } from '../components/ReportModal.js';
+import { useUserReviews } from '../hooks/useUserReviews.js';
+import { ProfileReviewForm } from '../components/ProfileReviewForm.js';
+import { ProfileReviewList } from '../components/ProfileReviewList.js';
 
 export const UserProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,10 +27,37 @@ export const UserProfilePage: React.FC = () => {
 
   // Wishlist state and hooks
   const { wishlistIds } = useWishlist();
-  const [activeTab, setActiveTab] = useState<'ads' | 'wishlist'>('ads');
+  const [activeTab, setActiveTab] = useState<'ads' | 'wishlist' | 'reviews'>('ads');
   const [wishlistAds, setWishlistAds] = useState<Ad[]>([]);
   const [loadingWishlist, setLoadingWishlist] = useState(false);
   const [wishlistError, setWishlistError] = useState<Error | null>(null);
+
+  // Profile reviews hook
+  const { 
+    reviews: profileReviews, 
+    loading: loadingProfileReviews, 
+    error: errorProfileReviews, 
+    addUserReview, 
+    removeUserReview 
+  } = useUserReviews(numericId);
+
+  const existingReview = profileReviews.find(r => r.reviewer_id === currentUser?.id);
+
+  const handleProfileReviewSubmit = async (rating: number, comment: string) => {
+    await addUserReview(rating, comment);
+    await refresh(); // refresh the profile header stats
+  };
+
+  const handleDeleteProfileReview = async (reviewId: number, reviewerName: string) => {
+    if (window.confirm(`Are you sure you want to delete the review by "${reviewerName}"?`)) {
+      try {
+        await removeUserReview(reviewId);
+        await refresh(); // refresh the stats in the profile header
+      } catch (err) {
+        console.error('Failed to delete review:', err);
+      }
+    }
+  };
 
   const fetchWishlistAds = async () => {
     setLoadingWishlist(true);
@@ -228,6 +258,10 @@ export const UserProfilePage: React.FC = () => {
                       <span className="material-symbols-outlined text-[16px]">campaign</span>
                       {profile.ads.length} {profile.ads.length === 1 ? 'advertisement' : 'advertisements'}
                     </span>
+                    <span className="flex items-center gap-xs font-label-sm text-label-sm text-secondary">
+                      <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1", color: '#ffb700' }}>star</span>
+                      {profile.avg_rating !== undefined && profile.avg_rating !== null ? Number(profile.avg_rating).toFixed(1) : '0.0'} ({profile.total_reviews || 0} {profile.total_reviews === 1 ? 'review' : 'reviews'})
+                    </span>
                   </div>
                 </div>
               </div>
@@ -235,31 +269,20 @@ export const UserProfilePage: React.FC = () => {
 
             {/* Ads Grid Section */}
             <div className="flex flex-col gap-lg">
-              {!isOwnProfile && (
-                <div className="flex items-center justify-between">
-                  <h2 className="font-headline-md text-headline-md text-on-surface">
-                    {`Ads by ${profile.user.username}`}
-                  </h2>
-                  <span className="font-label-sm text-label-sm text-secondary bg-surface-container px-sm py-[4px] rounded-full">
-                    {profile.ads.length}
-                  </span>
-                </div>
-              )}
-
-              {/* Tabs for Own Profile */}
-              {isOwnProfile && (
-                <div className="flex border-b border-outline-variant/30 gap-md mb-xs">
-                  <button
-                    onClick={() => setActiveTab('ads')}
-                    className={`pb-sm font-label-md text-label-md transition-all border-b-2 px-xs flex items-center gap-xs ${
-                      activeTab === 'ads'
-                        ? 'border-primary text-primary font-bold'
-                        : 'border-transparent text-secondary hover:text-on-surface'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[18px]">campaign</span>
-                    My Ads ({profile.ads.length})
-                  </button>
+              {/* Tabs selection */}
+              <div className="flex border-b border-outline-variant/30 gap-md mb-xs">
+                <button
+                  onClick={() => setActiveTab('ads')}
+                  className={`pb-sm font-label-md text-label-md transition-all border-b-2 px-xs flex items-center gap-xs ${
+                    activeTab === 'ads'
+                      ? 'border-primary text-primary font-bold'
+                      : 'border-transparent text-secondary hover:text-on-surface'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">campaign</span>
+                  {isOwnProfile ? 'My Ads' : 'Ads'} ({profile.ads.length})
+                </button>
+                {isOwnProfile && (
                   <button
                     onClick={() => setActiveTab('wishlist')}
                     className={`pb-sm font-label-md text-label-md transition-all border-b-2 px-xs flex items-center gap-xs ${
@@ -271,11 +294,21 @@ export const UserProfilePage: React.FC = () => {
                     <span className="material-symbols-outlined text-[18px]">favorite</span>
                     My Wishlist ({wishlistIds.size})
                   </button>
-                </div>
-              )}
+                )}
+                <button
+                  onClick={() => setActiveTab('reviews')}
+                  className={`pb-sm font-label-md text-label-md transition-all border-b-2 px-xs flex items-center gap-xs ${
+                    activeTab === 'reviews'
+                      ? 'border-primary text-primary font-bold'
+                      : 'border-transparent text-secondary hover:text-on-surface'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">rate_review</span>
+                  Reviews ({profile.total_reviews || 0})
+                </button>
+              </div>
 
-              {activeTab === 'ads' ? (
-                // My Ads Tab
+              {activeTab === 'ads' && (
                 profile.ads.length === 0 ? (
                   <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl py-[80px] px-xl flex flex-col items-center justify-center text-center gap-md shadow-1">
                     <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-secondary">
@@ -310,8 +343,9 @@ export const UserProfilePage: React.FC = () => {
                     ))}
                   </div>
                 )
-              ) : (
-                // My Wishlist Tab (only accessible if isOwnProfile === true)
+              )}
+
+              {activeTab === 'wishlist' && isOwnProfile && (
                 loadingWishlist ? (
                   <div className="flex flex-col items-center justify-center py-[80px] gap-md">
                     <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
@@ -351,6 +385,28 @@ export const UserProfilePage: React.FC = () => {
                     ))}
                   </div>
                 )
+              )}
+
+              {activeTab === 'reviews' && (
+                <div className="flex flex-col gap-lg animate-fade-in">
+                  {currentUser && !isOwnProfile && (
+                    <div className="mb-md">
+                      <ProfileReviewForm 
+                        onSubmit={handleProfileReviewSubmit}
+                        initialRating={existingReview?.star_rating || 0}
+                        initialComment={existingReview?.review_text || ''}
+                        isUpdate={!!existingReview}
+                      />
+                    </div>
+                  )}
+
+                  <ProfileReviewList 
+                    reviews={profileReviews}
+                    loading={loadingProfileReviews}
+                    error={errorProfileReviews}
+                    onDeleteReview={handleDeleteProfileReview}
+                  />
+                </div>
               )}
             </div>
           </>

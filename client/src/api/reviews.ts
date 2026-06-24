@@ -4,8 +4,7 @@ export interface Review {
   id: number;
   ad_id: number;
   reviewer_id: number;
-  star_rating: number;
-  review_text: string | null;
+  review_text: string;
   created_at: string;
   reviewer_name: string;
   reviewer_photo: string | null;
@@ -13,12 +12,10 @@ export interface Review {
 
 export const postReview = async (
   adId: number,
-  starRating: number,
-  reviewText: string | null
+  reviewText: string
 ): Promise<Review> => {
   const res = await api.post<{ data: Review }>('/api/reviews', {
     ad_id: adId,
-    star_rating: starRating,
     review_text: reviewText,
   });
   return res.data.data;

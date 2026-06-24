@@ -20,10 +20,10 @@ const features = [
     color: 'bg-tertiary-fixed text-tertiary',
   },
   {
-    icon: 'star',
-    title: 'Ratings & Reviews',
+    icon: 'chat',
+    title: 'Ad Comments',
     description:
-      'Leave honest star ratings and written reviews on any ad. Transparent feedback builds trust between buyers and sellers.',
+      'Leave comments on any ad. Public comments build trust and help clarify details about advertisements.',
     color: 'bg-secondary-container text-secondary',
   },
   {
@@ -37,7 +37,7 @@ const features = [
     icon: 'notifications',
     title: 'Email Notifications',
     description:
-      'Ad owners get instant email alerts whenever a new review is posted on one of their listings — stay informed at all times.',
+      'Ad owners get instant email alerts whenever a new comment is posted on one of their listings — stay informed at all times.',
     color: 'bg-tertiary-fixed text-tertiary',
   },
   {
@@ -53,7 +53,7 @@ const steps = [
   { step: '01', title: 'Create an Account', description: 'Sign up with your email or Google in seconds via Clerk.' },
   { step: '02', title: 'Set Up Your Profile', description: 'Add your username, photo, phone number, and a short bio.' },
   { step: '03', title: 'Post Your First Ad', description: 'Fill in the details, upload photos, and go live instantly.' },
-  { step: '04', title: 'Connect & Sell', description: 'Other users browse, review, and contact you directly.' },
+  { step: '04', title: 'Connect & Sell', description: 'Other users browse, comment, and contact you directly.' },
 ];
 
 export const DashboardPage: React.FC = () => {

@@ -9,6 +9,11 @@ import {
   adminGetUsers, 
   adminBanUser 
 } from '../api/admin.js';
+import { 
+  adminGetAllUserReviews, 
+  deleteUserReview as adminDeleteUserReview,
+  type UserReview
+} from '../api/userReviews.js';
 import { type Ad } from '../api/ads.js';
 import { type Review } from '../api/reviews.js';
 import { type UserProfile } from '../api/users.js';
@@ -33,7 +38,7 @@ const AVAILABLE_SYMBOLS = [
   'fitness_center', 'toys', 'videogame_asset', 'laptop_mac'
 ];
 
-type Tab = 'ads' | 'reviews' | 'users' | 'reports' | 'categories';
+type Tab = 'ads' | 'reviews' | 'users' | 'reports' | 'categories' | 'profile_reviews';
 
 export const AdminPage: React.FC = () => {
   const { user: currentUser } = useAuth();
@@ -47,6 +52,8 @@ export const AdminPage: React.FC = () => {
   const [adsSearch, setAdsSearch] = useState('');
   const [reviewsSearch, setReviewsSearch] = useState('');
   const [usersSearch, setUsersSearch] = useState('');
+  const [profileReviews, setProfileReviews] = useState<UserReview[]>([]);
+  const [profileReviewsSearch, setProfileReviewsSearch] = useState('');
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -113,6 +120,9 @@ export const AdminPage: React.FC = () => {
       } else if (tab === 'categories') {
         const data = await getCategories();
         setCategories(data);
+      } else if (tab === 'profile_reviews') {
+        const data = await adminGetAllUserReviews();
+        setProfileReviews(data);
       }
     } catch (err: any) {
       console.error(`Error fetching admin ${tab}:`, err);
@@ -212,18 +222,36 @@ export const AdminPage: React.FC = () => {
     );
   };
 
-  const handleDeleteReview = async (id: number, reviewer: string) => {
+  const handleDeleteReview = async (id: number, commenter: string) => {
     openConfirm(
-      'Delete Review',
-      `Are you sure you want to delete the review by "${reviewer}"?`,
+      'Delete Comment',
+      `Are you sure you want to delete the comment by "${commenter}"?`,
       async () => {
         try {
           await adminDeleteReview(id);
-          showFeedback(`Successfully deleted review by "${reviewer}".`);
+          showFeedback(`Successfully deleted comment by "${commenter}".`);
           fetchData(activeTab);
         } catch (err: any) {
-          console.error('Admin delete review failed:', err);
-          showFeedback(null, 'Failed to delete review.');
+          console.error('Admin delete comment failed:', err);
+          showFeedback(null, 'Failed to delete comment.');
+        }
+      },
+      true
+    );
+  };
+
+  const handleDeleteProfileReview = async (id: number, reviewer: string, target: string) => {
+    openConfirm(
+      'Delete Profile Review',
+      `Are you sure you want to delete the profile review by "${reviewer}" on "${target}"?`,
+      async () => {
+        try {
+          await adminDeleteUserReview(id);
+          showFeedback(`Successfully deleted profile review by "${reviewer}".`);
+          fetchData(activeTab);
+        } catch (err: any) {
+          console.error('Admin delete profile review failed:', err);
+          showFeedback(null, 'Failed to delete profile review.');
         }
       },
       true
@@ -273,7 +301,7 @@ export const AdminPage: React.FC = () => {
             Moderation Dashboard
           </h1>
           <p className="font-body-md text-body-md text-secondary">
-            Manage active advertisements, user ratings, and configure account access bans.
+            Manage active advertisements, user comments, and configure account access bans.
           </p>
         </div>
 
@@ -384,7 +412,7 @@ export const AdminPage: React.FC = () => {
                 </div>
               )}
 
-              {/* REVIEWS TAB */}
+              {/* COMMENTS TAB */}
               {activeTab === 'reviews' && (
                 <div className="flex flex-col gap-md">
                   {/* Search bar */}
@@ -415,15 +443,14 @@ export const AdminPage: React.FC = () => {
                         : reviews;
                       return filtered.length === 0 ? (
                         <div className="py-xl text-center text-secondary font-body-md">
-                          {reviewsSearch.trim() ? `No reviews match "${reviewsSearch}".` : 'No reviews exist on the platform.'}
+                          {reviewsSearch.trim() ? `No comments match "${reviewsSearch}".` : 'No comments exist on the platform.'}
                         </div>
                       ) : (
                         <table className="w-full text-left font-body-md border-collapse">
                           <thead>
                             <tr className="border-b border-outline-variant/20 text-secondary text-label-sm font-label-sm uppercase tracking-wider">
-                              <th className="pb-md">Reviewer</th>
+                              <th className="pb-md">Commenter</th>
                               <th className="pb-md">Ad Title</th>
-                              <th className="pb-md">Rating</th>
                               <th className="pb-md">Comment</th>
                               <th className="pb-md text-right">Actions</th>
                             </tr>
@@ -435,24 +462,8 @@ export const AdminPage: React.FC = () => {
                                 <td className="py-md text-secondary">
                                   <span className="block max-w-[150px] truncate">{(rev as any).ad_title}</span>
                                 </td>
-                                <td className="py-md">
-                                  <div className="flex items-center gap-[1px]">
-                                    {[1,2,3,4,5].map(s => (
-                                      <span
-                                        key={s}
-                                        className="material-symbols-outlined text-[16px] select-none"
-                                        style={{
-                                          fontVariationSettings: s <= rev.star_rating ? "'FILL' 1" : "'FILL' 0",
-                                          color: s <= rev.star_rating ? '#ffb700' : 'var(--color-outline-variant)'
-                                        }}
-                                      >
-                                        star
-                                      </span>
-                                    ))}
-                                  </div>
-                                </td>
                                 <td className="py-md text-secondary max-w-[250px] truncate">
-                                  {rev.review_text || <span className="italic opacity-50">No text comment</span>}
+                                  {rev.review_text}
                                 </td>
                                 <td className="py-md text-right">
                                   <button
@@ -619,7 +630,7 @@ export const AdminPage: React.FC = () => {
                           } else if (rep.reported_item_type === 'review' && rep.review_id) {
                             previewContent = (
                               <div className="flex flex-col gap-xs max-w-[250px]">
-                                <span className="font-semibold text-on-surface">Review Comment</span>
+                                <span className="font-semibold text-on-surface">Comment</span>
                                 <p className="text-secondary text-body-sm italic truncate">"{rep.review_text || 'No comment text'}"</p>
                               </div>
                             );
@@ -971,6 +982,101 @@ export const AdminPage: React.FC = () => {
                         </tbody>
                       </table>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {/* PROFILE REVIEWS TAB */}
+              {activeTab === 'profile_reviews' && (
+                <div className="flex flex-col gap-md animate-fade-in">
+                  {/* Search bar */}
+                  <div className="relative max-w-sm">
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-secondary pointer-events-none">search</span>
+                    <input
+                      id="admin-profile-reviews-search"
+                      type="text"
+                      value={profileReviewsSearch}
+                      onChange={(e) => setProfileReviewsSearch(e.target.value)}
+                      placeholder="Search by commenter or target…"
+                      className="w-full pl-9 pr-4 py-2 rounded-xl border border-outline-variant/30 bg-surface-container text-on-surface text-body-sm font-body-sm placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
+                    />
+                    {profileReviewsSearch && (
+                      <button
+                        onClick={() => setProfileReviewsSearch('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-on-surface transition"
+                        aria-label="Clear search"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">close</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    {(() => {
+                      const filtered = profileReviewsSearch.trim()
+                        ? profileReviews.filter(
+                            (r) =>
+                              (r.reviewer_name || '').toLowerCase().includes(profileReviewsSearch.toLowerCase()) ||
+                              (r.target_username || '').toLowerCase().includes(profileReviewsSearch.toLowerCase()) ||
+                              (r.review_text || '').toLowerCase().includes(profileReviewsSearch.toLowerCase())
+                          )
+                        : profileReviews;
+                      return filtered.length === 0 ? (
+                        <div className="py-xl text-center text-secondary font-body-md">
+                          {profileReviewsSearch.trim()
+                            ? `No profile reviews match "${profileReviewsSearch}".`
+                            : 'No profile reviews exist on the platform.'}
+                        </div>
+                      ) : (
+                        <table className="w-full text-left font-body-md border-collapse">
+                          <thead>
+                            <tr className="border-b border-outline-variant/20 text-secondary text-label-sm font-label-sm uppercase tracking-wider">
+                              <th className="pb-md">Reviewer</th>
+                              <th className="pb-md">Target User</th>
+                              <th className="pb-md">Rating</th>
+                              <th className="pb-md">Comment</th>
+                              <th className="pb-md text-right">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-outline-variant/10">
+                            {filtered.map((rev) => (
+                              <tr key={rev.id} className="hover:bg-surface-container-low/20 transition-colors">
+                                <td className="py-md font-semibold text-on-surface">{rev.reviewer_name}</td>
+                                <td className="py-md text-secondary">@{rev.target_username}</td>
+                                <td className="py-md">
+                                  <div className="flex items-center gap-[1px]">
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                      <span
+                                        key={s}
+                                        className="material-symbols-outlined text-[16px] select-none"
+                                        style={{
+                                          fontVariationSettings: s <= rev.star_rating ? "'FILL' 1" : "'FILL' 0",
+                                          color: s <= rev.star_rating ? '#ffb700' : 'var(--color-outline-variant)'
+                                        }}
+                                      >
+                                        star
+                                      </span>
+                                    ))}
+                                  </div>
+                                </td>
+                                <td className="py-md text-secondary max-w-[250px] truncate">
+                                  {rev.review_text}
+                                </td>
+                                <td className="py-md text-right">
+                                  <button
+                                    onClick={() => handleDeleteProfileReview(rev.id, rev.reviewer_name || 'Anonymous', rev.target_username || 'User')}
+                                    className="py-[6px] px-md rounded-lg text-label-sm font-label-sm bg-error-container text-on-error-container border border-error/10 hover:brightness-95 active:scale-95 transition-all flex items-center gap-xs inline-flex"
+                                  >
+                                    <span className="material-symbols-outlined text-[16px]">delete</span>
+                                    Delete
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      );
+                    })()}
                   </div>
                 </div>
               )}
