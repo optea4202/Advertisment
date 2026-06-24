@@ -3,7 +3,6 @@ import cors from 'cors';
 import { config } from './config/index.js';
 import { query } from './db/index.js';
 import userRoutes from './routes/users.js';
-import userReviewRoutes from './routes/user_reviews.js';
 import adRoutes from './routes/ads.js';
 import reviewRoutes from './routes/reviews.js';
 import adminRoutes from './routes/admin.js';
@@ -11,6 +10,7 @@ import chatRoutes from './routes/chats.js';
 import wishlistRoutes from './routes/wishlist.js';
 import reportRoutes from './routes/reports.js';
 import categoryRoutes from './routes/categories.js';
+import userReviewRoutes from './routes/user_reviews.js';
 import { configureIndexSettings } from './utils/algolia.js';
 
 const app = express();
@@ -21,8 +21,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Mounting routes
+// userReviewRoutes MUST be mounted before userRoutes to avoid clashing with the /:id wildcard!
 app.use('/api/users', userReviewRoutes);
 app.use('/api/users', userRoutes);
+
 app.use('/api/ads', adRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);

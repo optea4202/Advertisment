@@ -39,6 +39,41 @@ interface FeedCacheItem {
   totalPages: number;
 }
 
+// ----- localStorage persistence helpers -----
+const LS_FEED_PREFIX = 'fakna_feed_';
+const LS_FEED_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+interface PersistedFeed {
+  data: FeedCacheItem;
+  savedAt: number;
+}
+
+const saveFeedToStorage = (key: string, item: FeedCacheItem) => {
+  try {
+    const payload: PersistedFeed = { data: item, savedAt: Date.now() };
+    localStorage.setItem(LS_FEED_PREFIX + key, JSON.stringify(payload));
+  } catch {
+    // Ignore storage quota errors
+  }
+};
+
+const loadFeedFromStorage = (key: string): FeedCacheItem | null => {
+  try {
+    const raw = localStorage.getItem(LS_FEED_PREFIX + key);
+    if (!raw) return null;
+    const parsed: PersistedFeed = JSON.parse(raw);
+    // Discard if older than 24 hours
+    if (Date.now() - parsed.savedAt > LS_FEED_MAX_AGE_MS) {
+      localStorage.removeItem(LS_FEED_PREFIX + key);
+      return null;
+    }
+    return parsed.data;
+  } catch {
+    return null;
+  }
+};
+// ----- end localStorage helpers -----
+
 // Client-side in-memory caches
 const feedCache: { [key: string]: FeedCacheItem } = {};
 let myAdsCache: Ad[] | null = null;
@@ -55,8 +90,18 @@ export const clearAdsCache = () => {
   for (const key in adDetailCache) {
     delete adDetailCache[Number(key)];
   }
+  // Clear persisted feed from localStorage
+  try {
+    const toDelete: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(LS_FEED_PREFIX)) toDelete.push(k);
+    }
+    toDelete.forEach(k => localStorage.removeItem(k));
+  } catch { /* ignore */ }
   console.log('🧹 Ads cache cleared.');
 };
+
 
 export const useMyAds = () => {
   const [ads, setAds] = useState<Ad[]>(myAdsCache || []);
@@ -89,15 +134,23 @@ export const useMyAds = () => {
 
 export const useFeed = (category?: string, search?: string, page: number = 1) => {
   const cacheKey = `${category || ''}_${search || ''}_${page}`;
-  const [ads, setAds] = useState<Ad[]>(feedCache[cacheKey]?.ads || []);
-  const [total, setTotal] = useState<number>(feedCache[cacheKey]?.total || 0);
-  const [totalPages, setTotalPages] = useState<number>(feedCache[cacheKey]?.totalPages || 1);
-  const [loading, setLoading] = useState(feedCache[cacheKey] === undefined);
+
+  // Load persisted data immediately so offline refresh shows stale ads instantly
+  const storedFeed = feedCache[cacheKey] || loadFeedFromStorage(cacheKey);
+  if (storedFeed && !feedCache[cacheKey]) {
+    feedCache[cacheKey] = storedFeed;
+  }
+
+  const [ads, setAds] = useState<Ad[]>(storedFeed?.ads || []);
+  const [total, setTotal] = useState<number>(storedFeed?.total || 0);
+  const [totalPages, setTotalPages] = useState<number>(storedFeed?.totalPages || 1);
+  const [loading, setLoading] = useState(storedFeed === null || storedFeed === undefined);
   const [error, setError] = useState<Error | null>(null);
+  const [fromCache, setFromCache] = useState(false);
 
   const fetchAds = useCallback(async () => {
     try {
-      if (feedCache[cacheKey] === undefined) {
+      if (!feedCache[cacheKey]) {
         setLoading(true);
       }
 
@@ -133,8 +186,8 @@ export const useFeed = (category?: string, search?: string, page: number = 1) =>
           longitude: hit.longitude || null,
           created_at: new Date(hit.created_at * 1000).toISOString(),
           updated_at: new Date(hit.created_at * 1000).toISOString(),
-          images: hit.image_url 
-            ? [{ id: 0, ad_id: hit.id, cloudinary_url: hit.image_url, display_order: 0 }] 
+          images: hit.image_url
+            ? [{ id: 0, ad_id: hit.id, cloudinary_url: hit.image_url, display_order: 0 }]
             : [],
           owner_name: hit.owner_name,
           owner_photo: hit.owner_photo || undefined
@@ -142,23 +195,42 @@ export const useFeed = (category?: string, search?: string, page: number = 1) =>
 
         const totalCount = res.nbHits || 0;
         const totalPgs = res.nbPages || 1;
+        const item: FeedCacheItem = { ads: mappedAds, total: totalCount, totalPages: totalPgs };
 
         setAds(mappedAds);
         setTotal(totalCount);
         setTotalPages(totalPgs);
-        feedCache[cacheKey] = { ads: mappedAds, total: totalCount, totalPages: totalPgs };
+        feedCache[cacheKey] = item;
+        saveFeedToStorage(cacheKey, item);
+        setFromCache(false);
       } else {
-        // Fall back to category/search database feed if no search query is typed, or if Algolia is unavailable
+        // Fall back to category/search database feed if no search query, or Algolia unavailable
         const data = await getAds({ category, search, page, limit: 12 });
+        const item: FeedCacheItem = { ads: data.ads, total: data.total, totalPages: data.totalPages };
         setAds(data.ads);
         setTotal(data.total);
         setTotalPages(data.totalPages);
-        feedCache[cacheKey] = { ads: data.ads, total: data.total, totalPages: data.totalPages };
+        feedCache[cacheKey] = item;
+        saveFeedToStorage(cacheKey, item);
+        setFromCache(false);
       }
       setError(null);
     } catch (err: any) {
-      console.error('Error fetching feed ads:', err);
-      setError(err);
+      console.warn('Feed fetch failed, checking localStorage cache...', err.message);
+      // Try localStorage fallback when offline or network error
+      const persisted = loadFeedFromStorage(cacheKey);
+      if (persisted && persisted.ads.length > 0) {
+        setAds(persisted.ads);
+        setTotal(persisted.total);
+        setTotalPages(persisted.totalPages);
+        feedCache[cacheKey] = persisted;
+        setFromCache(true);
+        setError(null);
+        console.log(`📦 Loaded ${persisted.ads.length} ads from offline cache.`);
+      } else {
+        setError(err);
+        setFromCache(false);
+      }
     } finally {
       setLoading(false);
     }
@@ -168,7 +240,7 @@ export const useFeed = (category?: string, search?: string, page: number = 1) =>
     fetchAds();
   }, [fetchAds]);
 
-  return { ads, total, totalPages, loading, error, refresh: fetchAds };
+  return { ads, total, totalPages, loading, error, fromCache, refresh: fetchAds };
 };
 
 export const useAd = (id: number) => {

@@ -20,6 +20,8 @@ import { AdminHomePage } from './pages/AdminHomePage.js';
 import { AdminRoute } from './components/AdminRoute.js';
 import { InboxPage } from './pages/InboxPage.js';
 import { WishlistProvider } from './context/WishlistContext.js';
+import { InstallBanner } from './components/InstallBanner.js';
+import { OfflineBanner } from './components/OfflineBanner.js';
 
 // Get publishable key from environment
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -141,6 +143,10 @@ function App() {
           </WishlistProvider>
         </AuthProvider>
       </ClerkProvider>
+      {/* PWA install banner for iOS and Android */}
+      <InstallBanner />
+      {/* Offline status banner */}
+      <OfflineBanner />
     </ThemeProvider>
   );
 }
