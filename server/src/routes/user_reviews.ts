@@ -10,14 +10,14 @@ import {
 
 const router = Router();
 
+// Admin-only route (defined before :id/reviews wildcard to prevent routing collision)
+router.get('/admin/reviews', requireAuth, requireAdmin, handleGetAllUserReviews);
+
 // Public routes
 router.get('/:id/reviews', handleGetUserReviews);
 
 // Protected routes
 router.post('/:id/reviews', requireAuth, handleCreateUserReview);
 router.delete('/reviews/:reviewId', requireAuth, handleDeleteUserReview);
-
-// Admin-only route
-router.get('/admin/reviews', requireAuth, requireAdmin, handleGetAllUserReviews);
 
 export default router;

@@ -18,7 +18,7 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 const POLL_INTERVAL_MS = 3500;
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loadingConvs, setLoadingConvs] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -34,7 +34,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const fetchConversations = useCallback(async () => {
-    if (!user) return;
+    if (!user || !isAuthenticated) return;
     try {
       const data = await getConversations();
       setConversations(data);
@@ -45,11 +45,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoadingConvs(false);
     }
-  }, [user]);
+  }, [user, isAuthenticated]);
 
   // Initial fetch and polling
   useEffect(() => {
-    if (!user) {
+    if (!user || !isAuthenticated) {
       setConversations([]);
       setLoadingConvs(false);
       return;
@@ -60,7 +60,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const intervalId = setInterval(fetchConversations, POLL_INTERVAL_MS);
     return () => clearInterval(intervalId);
-  }, [user, fetchConversations]);
+  }, [user, isAuthenticated, fetchConversations]);
 
   const markAsRead = useCallback((conversationId: number) => {
     setLastReadTimes((prev) => {
