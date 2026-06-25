@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Block admin and private user pages from being indexed
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /inbox
+Disallow: /profile-setup
+
+# Sitemap (uncomment and update when you add one)
+# Sitemap: https://fakna.vercel.app/sitemap.xml

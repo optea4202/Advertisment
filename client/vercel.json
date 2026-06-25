@@ -1,5 +1,19 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/ads/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebookcatalog|twitterbot|whatsapp|linkedinbot|slackbot|discordbot|telegrambot|googlebot|bingbot|applebot|pinterest|snapchat|vkshare|outbrain|msnbot).*"
+        }
+      ],
+      "destination": "https://advertisment-6saz.onrender.com/og/ads/:id"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

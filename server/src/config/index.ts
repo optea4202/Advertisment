@@ -18,6 +18,9 @@ const configSchema = z.object({
   ALGOLIA_ADMIN_API_KEY: z.string().optional(),
   ALGOLIA_ADS_INDEX_NAME: z.string().default('fakna_ads'),
   ALGOLIA_USERS_INDEX_NAME: z.string().default('fakna_users'),
+  // The production frontend URL (e.g. https://fakna.vercel.app)
+  // Used by the OG preview route to build absolute page and image URLs.
+  FRONTEND_URL: z.string().url().optional(),
 });
 
 const parseConfig = () => {

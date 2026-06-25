@@ -11,6 +11,7 @@ import wishlistRoutes from './routes/wishlist.js';
 import reportRoutes from './routes/reports.js';
 import categoryRoutes from './routes/categories.js';
 import userReviewRoutes from './routes/user_reviews.js';
+import ogRoutes from './routes/og.js';
 import { configureIndexSettings } from './utils/algolia.js';
 
 const app = express();
@@ -32,6 +33,10 @@ app.use('/api/chats', chatRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/categories', categoryRoutes);
+
+// OG preview endpoint — used by social bot rewrites (Vercel edge)
+// Returns minimal HTML with Open Graph / Twitter Card meta tags for link previews
+app.use('/og', ogRoutes);
 
 // Health check endpoint (checks database connectivity)
 app.get('/health', async (req: Request, res: Response, next: NextFunction) => {
