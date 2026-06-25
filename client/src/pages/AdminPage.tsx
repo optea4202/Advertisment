@@ -28,7 +28,6 @@ import {
 import { 
   getPages, 
   updatePage, 
-  deletePage, 
   type PageContent 
 } from '../api/pages.js';
 import { ConfirmModal } from '../components/ConfirmModal.js';
@@ -44,7 +43,7 @@ const AVAILABLE_SYMBOLS = [
   'fitness_center', 'toys', 'videogame_asset', 'laptop_mac'
 ];
 
-type Tab = 'ads' | 'reviews' | 'users' | 'reports' | 'categories' | 'profile_reviews' | 'pages';
+type Tab = 'ads' | 'reviews' | 'users' | 'reports' | 'categories' | 'profile_reviews' | 'pages' | 'featured';
 
 export const AdminPage: React.FC = () => {
   const { user: currentUser } = useAuth();
@@ -73,13 +72,17 @@ export const AdminPage: React.FC = () => {
   const [showEditSymbolPicker, setShowEditSymbolPicker] = useState(false);
 
   const [pages, setPages] = useState<PageContent[]>([]);
-  const [pagesSearch, setPagesSearch] = useState('');
 
   const [editingPage, setEditingPage] = useState<PageContent | null>(null);
   const [editingPageSlug, setEditingPageSlug] = useState('');
   const [editingPageTitle, setEditingPageTitle] = useState('');
   const [editingPageContent, setEditingPageContent] = useState('');
   const [editingFeaturedAdIds, setEditingFeaturedAdIds] = useState<number[]>(Array(8).fill(0));
+
+  // Featured Ads tab state
+  const [featuredAdIds, setFeaturedAdIds] = useState<number[]>([]);
+  const [featuredSearch, setFeaturedSearch] = useState('');
+  const [featuredSaving, setFeaturedSaving] = useState(false);
 
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
@@ -143,6 +146,14 @@ export const AdminPage: React.FC = () => {
         setPages(data);
         const adsData = await adminGetAds();
         setAds(adsData);
+      } else if (tab === 'featured') {
+        const adsData = await adminGetAds();
+        setAds(adsData);
+        // Load current featured_ad_ids from home page
+        const pagesData = await getPages();
+        setPages(pagesData);
+        const homePage = pagesData.find((p) => p.slug === 'home');
+        setFeaturedAdIds(homePage?.featured_ad_ids || []);
       }
     } catch (err: any) {
       console.error(`Error fetching admin ${tab}:`, err);
@@ -211,6 +222,24 @@ export const AdminPage: React.FC = () => {
 
 
 
+  const handleSaveFeaturedAds = async () => {
+    const homePage = pages.find((p) => p.slug === 'home');
+    if (!homePage) {
+      showFeedback(null, 'Home page not found.');
+      return;
+    }
+    setFeaturedSaving(true);
+    try {
+      await updatePage(homePage.id, homePage.slug, homePage.title, homePage.content, featuredAdIds);
+      showFeedback('Featured ads updated successfully.');
+    } catch (err: any) {
+      console.error('Failed to save featured ads:', err);
+      showFeedback(null, err.response?.data?.error?.message || 'Failed to save featured ads.');
+    } finally {
+      setFeaturedSaving(false);
+    }
+  };
+
   const handleUpdatePage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPage || !editingPageSlug.trim() || !editingPageTitle.trim() || !editingPageContent.trim()) {
@@ -235,23 +264,7 @@ export const AdminPage: React.FC = () => {
     }
   };
 
-  const handleDeletePage = async (id: number, title: string) => {
-    openConfirm(
-      'Delete Page',
-      `Are you sure you want to delete the page "${title}"? This cannot be undone.`,
-      async () => {
-        try {
-          await deletePage(id);
-          showFeedback(`Successfully deleted page "${title}".`);
-          fetchData('pages');
-        } catch (err: any) {
-          console.error('Failed to delete page:', err);
-          showFeedback(null, err.response?.data?.error?.message || 'Failed to delete page.');
-        }
-      },
-      true
-    );
-  };
+
 
   useEffect(() => {
     fetchData(activeTab);
@@ -1265,21 +1278,169 @@ export const AdminPage: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Search and Table Grid */}
-                  <div className="flex flex-col gap-md">
+                  {/* Two Square Box Pages Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-lg max-w-2xl mt-md">
+                    {['home', 'about'].map((slug) => {
+                      const p = pages.find((page) => page.slug === slug);
+                      if (!p) return null;
+                      const isHome = slug === 'home';
+                      return (
+                        <div
+                          key={p.id}
+                          onClick={() => {
+                            setEditingPage(p);
+                            setEditingPageSlug(p.slug);
+                            setEditingPageTitle(p.title);
+                            setEditingPageContent(p.content);
+                            if (p.slug === 'home') {
+                              const ids = p.featured_ad_ids || [];
+                              setEditingFeaturedAdIds(
+                                Array.from({ length: 8 }, (_, i) => ids[i] || 0)
+                              );
+                            } else {
+                              setEditingFeaturedAdIds(Array(8).fill(0));
+                            }
+                          }}
+                          className={`aspect-square flex flex-col justify-between p-lg rounded-2xl border border-outline-variant/30 bg-surface-container-low hover:bg-surface-container-high/85 cursor-pointer transition-all shadow-sm active:scale-[0.98] select-none ${
+                            editingPage?.id === p.id ? 'ring-2 ring-primary border-primary bg-surface-container-high' : ''
+                          }`}
+                        >
+                          <div className="flex flex-col gap-md">
+                            <div className="flex items-center justify-between">
+                              <span className={`material-symbols-outlined text-[36px] ${isHome ? 'text-primary' : 'text-tertiary'}`}>
+                                {isHome ? 'home' : 'info'}
+                              </span>
+                              <span className="material-symbols-outlined text-secondary hover:text-primary transition text-[20px]">
+                                edit
+                              </span>
+                            </div>
+                            <div>
+                              <h4 className="font-headline-sm text-[18px] font-bold text-on-surface capitalize">
+                                {slug} Page
+                              </h4>
+                              <p className="text-secondary text-body-sm line-clamp-3 mt-xs">
+                                {p.title || 'No title set'}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="border-t border-outline-variant/20 pt-sm mt-md flex justify-between items-center">
+                            <span className="text-secondary text-[11px] font-mono uppercase">
+                              /{slug}
+                            </span>
+                            <span className="text-secondary text-[11px] font-body-sm">
+                              Updated: {new Date(p.updated_at || p.created_at).toLocaleDateString(undefined, { dateStyle: 'short' })}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* FEATURED ADS TAB */}
+              {activeTab === 'featured' && (
+                <div className="flex flex-col gap-lg animate-fade-in">
+
+                  {/* Header + Save */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-md border-b border-outline-variant/20 pb-md">
+                    <div>
+                      <h3 className="font-headline-md text-[18px] font-semibold text-on-surface flex items-center gap-xs">
+                        <span className="material-symbols-outlined text-[20px] text-tertiary" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                        Featured Ads — Home Page
+                      </h3>
+                      <p className="text-secondary text-body-sm mt-xs">
+                        Select up to <span className="font-semibold text-primary">8 ads</span> to showcase in the Featured Listings section on the home page.
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleSaveFeaturedAds}
+                      disabled={featuredSaving}
+                      className="py-[10px] px-lg rounded-xl text-label-md font-label-md bg-primary text-on-primary hover:brightness-110 active:scale-95 transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-xs shrink-0"
+                    >
+                      {featuredSaving ? (
+                        <>
+                          <span className="w-4 h-4 border-2 border-on-primary/30 border-t-on-primary rounded-full animate-spin" />
+                          Saving…
+                        </>
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined text-[18px]">save</span>
+                          Save Changes
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Current Featured Slots */}
+                  <div className="flex flex-col gap-sm">
+                    <h4 className="font-label-sm text-[12px] font-semibold text-secondary uppercase tracking-wider flex items-center gap-xs">
+                      <span className="material-symbols-outlined text-[14px]">format_list_numbered</span>
+                      Current Featured Slots ({featuredAdIds.length}/8)
+                    </h4>
+
+                    {featuredAdIds.length === 0 ? (
+                      <div className="py-lg text-center text-secondary text-body-sm border border-dashed border-outline-variant/40 rounded-2xl bg-surface-container-low/30">
+                        <span className="material-symbols-outlined text-[32px] block mb-xs text-outline-variant">star_border</span>
+                        No featured ads selected yet. Pick ads from the list below.
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-sm">
+                        {featuredAdIds.map((id, idx) => {
+                          const ad = ads.find((a) => a.id === id);
+                          if (!ad) return null;
+                          const thumb = ad.images?.[0]?.cloudinary_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop';
+                          return (
+                            <div
+                              key={id}
+                              className="flex items-center gap-sm p-sm rounded-xl border border-primary/20 bg-primary-fixed/10 relative group"
+                            >
+                              <span className="absolute top-xs left-xs bg-primary text-on-primary text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center z-10 shrink-0">
+                                {idx + 1}
+                              </span>
+                              <div className="w-14 h-12 rounded-lg overflow-hidden border border-outline-variant/20 shrink-0 mt-[2px]">
+                                <img src={thumb} alt="" className="w-full h-full object-cover" />
+                              </div>
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="font-semibold text-on-surface text-[13px] truncate block">{ad.title}</span>
+                                <span className="text-primary text-[12px] font-semibold">₹{ad.price.toLocaleString()}</span>
+                                <span className="text-secondary text-[11px] truncate">{ad.category}</span>
+                              </div>
+                              <button
+                                onClick={() => setFeaturedAdIds((prev) => prev.filter((fid) => fid !== id))}
+                                className="shrink-0 w-7 h-7 rounded-full bg-error-container text-on-error-container flex items-center justify-center hover:brightness-95 active:scale-95 transition-all opacity-70 group-hover:opacity-100"
+                                title="Remove from featured"
+                              >
+                                <span className="material-symbols-outlined text-[14px]">close</span>
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Ad Picker */}
+                  <div className="flex flex-col gap-sm">
+                    <h4 className="font-label-sm text-[12px] font-semibold text-secondary uppercase tracking-wider flex items-center gap-xs">
+                      <span className="material-symbols-outlined text-[14px]">add_circle</span>
+                      All Ads — Click to Add / Remove
+                    </h4>
+
+                    {/* Search */}
                     <div className="relative max-w-sm">
                       <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-secondary pointer-events-none">search</span>
                       <input
-                        id="admin-pages-search"
+                        id="admin-featured-search"
                         type="text"
-                        value={pagesSearch}
-                        onChange={(e) => setPagesSearch(e.target.value)}
-                        placeholder="Search pages by title or slug…"
+                        value={featuredSearch}
+                        onChange={(e) => setFeaturedSearch(e.target.value)}
+                        placeholder="Search ads by title or category…"
                         className="w-full pl-9 pr-4 py-2 rounded-xl border border-outline-variant/30 bg-surface-container text-on-surface text-body-sm font-body-sm placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
                       />
-                      {pagesSearch && (
+                      {featuredSearch && (
                         <button
-                          onClick={() => setPagesSearch('')}
+                          onClick={() => setFeaturedSearch('')}
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-on-surface transition"
                           aria-label="Clear search"
                         >
@@ -1288,91 +1449,94 @@ export const AdminPage: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="overflow-x-auto">
-                      {(() => {
-                        const filtered = pagesSearch.trim()
-                          ? pages.filter(
-                              (p) =>
-                                p.slug.toLowerCase().includes(pagesSearch.toLowerCase()) ||
-                                p.title.toLowerCase().includes(pagesSearch.toLowerCase())
-                            )
-                          : pages;
-                        return filtered.length === 0 ? (
-                          <div className="py-xl text-center text-secondary font-body-md">
-                            {pagesSearch.trim() ? `No pages match "${pagesSearch}".` : 'No custom pages exist.'}
-                          </div>
-                        ) : (
-                          <table className="w-full text-left font-body-md border-collapse">
-                            <thead>
-                              <tr className="border-b border-outline-variant/20 text-secondary text-label-sm font-label-sm uppercase tracking-wider">
-                                <th className="pb-md">Slug</th>
-                                <th className="pb-md">Title</th>
-                                <th className="pb-md">Last Updated</th>
-                                <th className="pb-md text-right">Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-outline-variant/10">
-                              {filtered.map((p) => {
-                                const isHomeOrAbout = p.slug === 'home' || p.slug === 'about';
-                                return (
-                                  <tr key={p.id} className="hover:bg-surface-container-low/20 transition-colors">
-                                    <td className="py-md font-semibold text-on-surface">
-                                      <span className="px-sm py-[2px] rounded-full bg-surface-container-highest text-secondary text-[12px] font-mono">
-                                        {p.slug}
-                                      </span>
-                                    </td>
-                                    <td className="py-md font-medium text-on-surface max-w-[250px] truncate">{p.title}</td>
-                                    <td className="py-md text-secondary text-body-sm">
-                                      {new Date(p.updated_at || p.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
-                                    </td>
-                                    <td className="py-md text-right">
-                                      <div className="flex items-center gap-xs justify-end">
-                                        <button
-                                          onClick={() => {
-                                            setEditingPage(p);
-                                            setEditingPageSlug(p.slug);
-                                            setEditingPageTitle(p.title);
-                                            setEditingPageContent(p.content);
-                                            if (p.slug === 'home') {
-                                              const ids = p.featured_ad_ids || [];
-                                              setEditingFeaturedAdIds(
-                                                Array.from({ length: 8 }, (_, i) => ids[i] || 0)
-                                              );
-                                            } else {
-                                              setEditingFeaturedAdIds(Array(8).fill(0));
-                                            }
-                                          }}
-                                          className="py-[6px] px-md rounded-lg text-label-sm font-label-sm border bg-surface-bright text-secondary border-outline-variant/40 hover:text-primary hover:border-primary/45 shadow-sm active:scale-95 transition-all inline-flex items-center gap-xs"
-                                        >
-                                          <span className="material-symbols-outlined text-[16px]">edit</span>
-                                          Edit
-                                        </button>
-                                        <button
-                                          onClick={() => handleDeletePage(p.id, p.title)}
-                                          disabled={isHomeOrAbout}
-                                          className={`py-[6px] px-md rounded-lg text-label-sm font-label-sm border active:scale-95 transition-all inline-flex items-center gap-xs ${
-                                            isHomeOrAbout
-                                              ? 'opacity-40 cursor-not-allowed bg-surface-container-low text-secondary/50 border-outline-variant/10'
-                                              : 'bg-error-container text-on-error-container border-error/15 font-semibold'
-                                          }`}
-                                          title={isHomeOrAbout ? 'Core system pages cannot be deleted' : 'Delete page'}
-                                        >
-                                          <span className="material-symbols-outlined text-[16px]">delete</span>
-                                          Delete
-                                        </button>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        );
-                      })()}
-                    </div>
+                    {/* Ad Grid */}
+                    {(() => {
+                      const filtered = featuredSearch.trim()
+                        ? ads.filter(
+                            (a) =>
+                              a.title.toLowerCase().includes(featuredSearch.toLowerCase()) ||
+                              a.category.toLowerCase().includes(featuredSearch.toLowerCase())
+                          )
+                        : ads;
+                      return filtered.length === 0 ? (
+                        <div className="py-xl text-center text-secondary font-body-md">
+                          {featuredSearch.trim() ? `No ads match "${featuredSearch}".` : 'No advertisements found.'}
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-sm max-h-[520px] overflow-y-auto pr-xs">
+                          {filtered.map((ad) => {
+                            const isFeatured = featuredAdIds.includes(ad.id);
+                            const atLimit = featuredAdIds.length >= 8 && !isFeatured;
+                            const thumb = ad.images?.[0]?.cloudinary_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop';
+                            const slotNumber = featuredAdIds.indexOf(ad.id) + 1;
+                            return (
+                              <button
+                                key={ad.id}
+                                disabled={atLimit}
+                                onClick={() => {
+                                  if (isFeatured) {
+                                    setFeaturedAdIds((prev) => prev.filter((id) => id !== ad.id));
+                                  } else if (featuredAdIds.length < 8) {
+                                    setFeaturedAdIds((prev) => [...prev, ad.id]);
+                                  }
+                                }}
+                                className={`text-left rounded-xl border p-sm flex flex-col gap-xs transition-all duration-200 relative group ${
+                                  isFeatured
+                                    ? 'border-primary bg-primary-fixed/15 shadow-sm ring-2 ring-primary/10'
+                                    : atLimit
+                                    ? 'border-outline-variant/20 bg-surface-container-low/30 opacity-40 cursor-not-allowed'
+                                    : 'border-outline-variant/20 bg-surface-container-lowest hover:border-primary/40 hover:bg-primary-fixed/5 hover:shadow-sm active:scale-[0.99]'
+                                }`}
+                                title={atLimit ? 'Maximum 8 featured ads reached' : isFeatured ? 'Click to remove from featured' : 'Click to add to featured'}
+                              >
+                                {/* Featured badge / slot number */}
+                                {isFeatured && (
+                                  <span className="absolute top-xs right-xs bg-primary text-on-primary text-[9px] font-bold px-xs py-[1px] rounded-full flex items-center gap-[2px] z-10">
+                                    <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                    #{slotNumber}
+                                  </span>
+                                )}
+
+                                {/* Thumbnail */}
+                                <div className="relative aspect-video rounded-lg overflow-hidden bg-surface-container">
+                                  <img src={thumb} alt="" className="w-full h-full object-cover" />
+                                  {/* Overlay on hover for non-featured */}
+                                  {!isFeatured && !atLimit && (
+                                    <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                      <span className="material-symbols-outlined text-primary text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>add_circle</span>
+                                    </div>
+                                  )}
+                                  {isFeatured && (
+                                    <div className="absolute inset-0 bg-error/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                      <span className="material-symbols-outlined text-error text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>remove_circle</span>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Info */}
+                                <div className="flex flex-col min-w-0 px-[2px]">
+                                  <span className="text-[12px] font-bold text-on-surface truncate block leading-tight">{ad.title}</span>
+                                  <div className="flex items-center justify-between mt-[2px]">
+                                    <span className="text-[11px] text-secondary truncate">{ad.category}</span>
+                                    <span className="text-[11px] font-semibold text-primary shrink-0 ml-xs">₹{ad.price.toLocaleString()}</span>
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                    {featuredAdIds.length >= 8 && (
+                      <p className="text-[12px] text-secondary text-center bg-surface-container-low border border-outline-variant/20 rounded-lg px-md py-sm">
+                        Maximum of 8 featured ads reached. Remove a slot above to add a different ad.
+                      </p>
+                    )}
                   </div>
+
                 </div>
               )}
+
             </>
           )}
 
