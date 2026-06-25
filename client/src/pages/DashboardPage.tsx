@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { Footer } from '../components/Footer.js';
 import { useAuth } from '../context/AuthContext.js';
+import { getPageBySlug, type PageContent } from '../api/pages.js';
 
 const features = [
   {
@@ -59,6 +60,19 @@ const steps = [
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [pageData, setPageData] = React.useState<PageContent | null>(null);
+
+  React.useEffect(() => {
+    const fetchPageContent = async () => {
+      try {
+        const data = await getPageBySlug('about');
+        setPageData(data);
+      } catch (err) {
+        console.error('Failed to fetch about page copy from database, using fallback:', err);
+      }
+    };
+    fetchPageContent();
+  }, []);
 
   React.useEffect(() => {
     if (user?.is_admin) {
@@ -86,13 +100,21 @@ export const DashboardPage: React.FC = () => {
             </span>
 
             <h1 className="font-headline-lg text-headline-lg md:text-[44px] md:leading-[54px] text-on-surface tracking-tight max-w-[700px] font-bold">
-              Your Personal Marketplace,{' '}
-              <span className="text-primary">Built for Everyone</span>
+              {pageData ? (
+                pageData.title.includes('<span') ? (
+                  <span dangerouslySetInnerHTML={{ __html: pageData.title }} />
+                ) : (
+                  pageData.title
+                )
+              ) : (
+                <>
+                  Your Personal Marketplace, <span className="text-primary">Built for Everyone</span>
+                </>
+              )}
             </h1>
 
             <p className="font-body-lg text-body-lg text-secondary max-w-[560px]">
-              Fakna is a secure, community-driven advertisement platform where you can buy, sell, and discover goods
-              and services posted by real people — all in one elegant feed.
+              {pageData ? pageData.content : 'Fakna is a secure, community-driven advertisement platform where you can buy, sell, and discover goods and services posted by real people — all in one elegant feed.'}
             </p>
 
             <div className="flex flex-wrap gap-md justify-center mt-sm">

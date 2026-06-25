@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { Footer } from '../components/Footer.js';
@@ -6,10 +6,25 @@ import { CategoryFilter } from '../components/CategoryFilter.js';
 import { AdCard } from '../components/AdCard.js';
 import { useFeed } from '../hooks/useAds.js';
 import { useAuth } from '../context/AuthContext.js';
+import { getPageBySlug } from '../api/pages.js';
 
 export const SearchPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const [featuredAdIds, setFeaturedAdIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    const fetchFeaturedIds = async () => {
+      try {
+        const data = await getPageBySlug('home');
+        setFeaturedAdIds(data.featured_ad_ids || []);
+      } catch (err) {
+        console.error('Failed to fetch featured ad ids:', err);
+      }
+    };
+    fetchFeaturedIds();
+  }, []);
 
   useEffect(() => {
     if (user?.is_admin) {
@@ -218,7 +233,7 @@ export const SearchPage: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
                   {ads.map((ad, idx) => (
                     <div key={ad.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 75, 450)}ms` }}>
-                      <AdCard ad={ad} />
+                      <AdCard ad={ad} isFeatured={featuredAdIds.includes(ad.id)} />
                     </div>
                   ))}
                 </div>

@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import multer from 'multer';
 import { config } from './config/index.js';
 import { query } from './db/index.js';
 import userRoutes from './routes/users.js';
@@ -12,6 +13,7 @@ import reportRoutes from './routes/reports.js';
 import categoryRoutes from './routes/categories.js';
 import userReviewRoutes from './routes/user_reviews.js';
 import ogRoutes from './routes/og.js';
+import pageRoutes from './routes/pages.js';
 import { configureIndexSettings } from './utils/algolia.js';
 
 const app = express();
@@ -33,6 +35,7 @@ app.use('/api/chats', chatRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/pages', pageRoutes);
 
 // OG preview endpoint — used by social bot rewrites (Vercel edge)
 // Returns minimal HTML with Open Graph / Twitter Card meta tags for link previews
@@ -60,6 +63,15 @@ app.get('/health', async (req: Request, res: Response, next: NextFunction) => {
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('Unhandled Server Error:', err);
   
+  if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({
+      error: {
+        message: 'File size limit exceeded. Maximum allowed size is 500KB.',
+        code: 'FILE_SIZE_LIMIT_EXCEEDED'
+      }
+    });
+  }
+
   res.status(500).json({
     error: {
       message: 'Internal Server Error',

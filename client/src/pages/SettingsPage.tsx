@@ -44,6 +44,10 @@ export const SettingsPage: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.type === 'image/gif' && file.size > 500 * 1024) {
+        setErrorMsg('GIF images must be smaller than 500KB.');
+        return;
+      }
       if (file.size > 10 * 1024 * 1024) {
         setErrorMsg('Image size must be less than 10MB.');
         return;
@@ -84,6 +88,10 @@ export const SettingsPage: React.FC = () => {
       
       if (selectedFile) {
         const compressedFile = await compressImage(selectedFile, 400, 0.8);
+        if (compressedFile.size > 500 * 1024) {
+          setErrorMsg('The profile photo is larger than 500KB. Please choose a smaller image.');
+          return;
+        }
         formData.append('photo', compressedFile);
       }
 

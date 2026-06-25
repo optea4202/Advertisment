@@ -25,6 +25,12 @@ import {
   deleteCategory, 
   type Category 
 } from '../api/categories.js';
+import { 
+  getPages, 
+  updatePage, 
+  deletePage, 
+  type PageContent 
+} from '../api/pages.js';
 import { ConfirmModal } from '../components/ConfirmModal.js';
 import { Link, useSearchParams } from 'react-router-dom';
 import { buildCategoryTree, flattenCategoryTree, isDescendantOf } from '../utils/categoryTree.js';
@@ -38,7 +44,7 @@ const AVAILABLE_SYMBOLS = [
   'fitness_center', 'toys', 'videogame_asset', 'laptop_mac'
 ];
 
-type Tab = 'ads' | 'reviews' | 'users' | 'reports' | 'categories' | 'profile_reviews';
+type Tab = 'ads' | 'reviews' | 'users' | 'reports' | 'categories' | 'profile_reviews' | 'pages';
 
 export const AdminPage: React.FC = () => {
   const { user: currentUser } = useAuth();
@@ -65,6 +71,15 @@ export const AdminPage: React.FC = () => {
   const [editingSymbol, setEditingSymbol] = useState('category');
   const [editingParentId, setEditingParentId] = useState<number | null>(null);
   const [showEditSymbolPicker, setShowEditSymbolPicker] = useState(false);
+
+  const [pages, setPages] = useState<PageContent[]>([]);
+  const [pagesSearch, setPagesSearch] = useState('');
+
+  const [editingPage, setEditingPage] = useState<PageContent | null>(null);
+  const [editingPageSlug, setEditingPageSlug] = useState('');
+  const [editingPageTitle, setEditingPageTitle] = useState('');
+  const [editingPageContent, setEditingPageContent] = useState('');
+  const [editingFeaturedAdIds, setEditingFeaturedAdIds] = useState<number[]>(Array(8).fill(0));
 
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
@@ -123,6 +138,11 @@ export const AdminPage: React.FC = () => {
       } else if (tab === 'profile_reviews') {
         const data = await adminGetAllUserReviews();
         setProfileReviews(data);
+      } else if (tab === 'pages') {
+        const data = await getPages();
+        setPages(data);
+        const adsData = await adminGetAds();
+        setAds(adsData);
       }
     } catch (err: any) {
       console.error(`Error fetching admin ${tab}:`, err);
@@ -183,6 +203,50 @@ export const AdminPage: React.FC = () => {
         } catch (err: any) {
           console.error('Failed to delete category:', err);
           showFeedback(null, err.response?.data?.error?.message || 'Failed to delete category.');
+        }
+      },
+      true
+    );
+  };
+
+
+
+  const handleUpdatePage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPage || !editingPageSlug.trim() || !editingPageTitle.trim() || !editingPageContent.trim()) {
+      showFeedback(null, 'Slug, title, and content are required.');
+      return;
+    }
+    try {
+      const featuredIds = editingPageSlug === 'home' 
+        ? editingFeaturedAdIds.filter(id => id > 0) 
+        : null;
+      await updatePage(editingPage.id, editingPageSlug, editingPageTitle, editingPageContent, featuredIds);
+      showFeedback(`Successfully updated page "${editingPageTitle}".`);
+      setEditingPage(null);
+      setEditingPageSlug('');
+      setEditingPageTitle('');
+      setEditingPageContent('');
+      setEditingFeaturedAdIds(Array(8).fill(0));
+      fetchData('pages');
+    } catch (err: any) {
+      console.error('Failed to update page:', err);
+      showFeedback(null, err.response?.data?.error?.message || 'Failed to update page.');
+    }
+  };
+
+  const handleDeletePage = async (id: number, title: string) => {
+    openConfirm(
+      'Delete Page',
+      `Are you sure you want to delete the page "${title}"? This cannot be undone.`,
+      async () => {
+        try {
+          await deletePage(id);
+          showFeedback(`Successfully deleted page "${title}".`);
+          fetchData('pages');
+        } catch (err: any) {
+          console.error('Failed to delete page:', err);
+          showFeedback(null, err.response?.data?.error?.message || 'Failed to delete page.');
         }
       },
       true
@@ -1077,6 +1141,235 @@ export const AdminPage: React.FC = () => {
                         </table>
                       );
                     })()}
+                  </div>
+                </div>
+              )}
+
+              {/* PAGES TAB */}
+              {activeTab === 'pages' && (
+                <div className="flex flex-col gap-lg animate-fade-in">
+                  
+                  {/* Edit Page Form */}
+                  {editingPage && (
+                    <div className="bg-surface-container-low/35 p-md md:p-lg rounded-2xl border border-outline-variant/15 flex flex-col gap-md">
+                      <h3 className="font-headline-md text-[18px] font-semibold text-on-surface flex items-center gap-xs">
+                        <span className="material-symbols-outlined text-[20px] text-primary">
+                          edit_document
+                        </span>
+                        Edit Page: {editingPage.title}
+                      </h3>
+                      
+                      <form onSubmit={handleUpdatePage} className="grid grid-cols-1 md:grid-cols-12 gap-md items-start">
+                        <div className="md:col-span-4 flex flex-col gap-xs">
+                          <label htmlFor="page-slug" className="font-label-sm text-label-sm text-secondary uppercase tracking-wider">
+                            Page Slug
+                          </label>
+                          <input
+                            id="page-slug"
+                            type="text"
+                            value={editingPageSlug}
+                            onChange={(e) => setEditingPageSlug(e.target.value)}
+                            placeholder="e.g. home, about, policy..."
+                            disabled={editingPage.slug === 'home' || editingPage.slug === 'about'}
+                            className={`w-full px-md py-[10px] rounded-xl border border-outline-variant/30 bg-surface-bright text-on-surface text-body-sm font-body-sm placeholder:text-secondary/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition ${
+                              editingPage.slug === 'home' || editingPage.slug === 'about' ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
+                          />
+                        </div>
+                        
+                        <div className="md:col-span-8 flex flex-col gap-xs">
+                          <label htmlFor="page-title" className="font-label-sm text-label-sm text-secondary uppercase tracking-wider">
+                            Page Title
+                          </label>
+                          <input
+                            id="page-title"
+                            type="text"
+                            value={editingPageTitle}
+                            onChange={(e) => setEditingPageTitle(e.target.value)}
+                            placeholder="e.g. Discover & Promote Advertisements Instantly..."
+                            className="w-full px-md py-[10px] rounded-xl border border-outline-variant/30 bg-surface-bright text-on-surface text-body-sm font-body-sm placeholder:text-secondary/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+                          />
+                        </div>
+                        
+                        <div className="md:col-span-12 flex flex-col gap-xs">
+                          <label htmlFor="page-content" className="font-label-sm text-label-sm text-secondary uppercase tracking-wider">
+                            Page Content
+                          </label>
+                          <textarea
+                            id="page-content"
+                            rows={4}
+                            value={editingPageContent}
+                            onChange={(e) => setEditingPageContent(e.target.value)}
+                            placeholder="Provide descriptive page copywriting or markdown..."
+                            className="w-full px-md py-[10px] rounded-xl border border-outline-variant/30 bg-surface-bright text-on-surface text-body-sm font-body-sm placeholder:text-secondary/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition resize-y"
+                          />
+                        </div>
+                        
+                        {editingPageSlug === 'home' && (
+                          <div className="md:col-span-12 flex flex-col gap-sm border-t border-outline-variant/20 pt-md mt-xs">
+                            <h4 className="font-label-sm text-[12px] font-semibold text-secondary uppercase tracking-wider">
+                              Select Featured Ads (Up to 8)
+                            </h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-md">
+                              {Array.from({ length: 8 }).map((_, index) => (
+                                <div key={index} className="flex flex-col gap-xs">
+                                  <label className="font-label-sm text-secondary text-[12px]">
+                                    Slot {index + 1}
+                                  </label>
+                                  <select
+                                    value={editingFeaturedAdIds[index] || 0}
+                                    onChange={(e) => {
+                                      const val = parseInt(e.target.value, 10);
+                                      setEditingFeaturedAdIds((prev) => {
+                                        const next = [...prev];
+                                        next[index] = val;
+                                        return next;
+                                      });
+                                    }}
+                                    className="w-full px-md py-[10px] rounded-xl border border-outline-variant/30 bg-surface-bright text-on-surface text-body-sm font-body-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+                                  >
+                                    <option value={0}>-- None --</option>
+                                    {ads.map((ad) => (
+                                      <option key={ad.id} value={ad.id}>
+                                        {ad.title} (₹{ad.price})
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="md:col-span-12 flex items-center gap-sm justify-end mt-xs">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingPage(null);
+                              setEditingPageSlug('');
+                              setEditingPageTitle('');
+                              setEditingPageContent('');
+                            }}
+                            className="py-[10px] px-lg rounded-xl text-label-md font-label-md bg-surface-container-highest text-secondary border border-outline-variant hover:brightness-95 active:scale-95 transition-all"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            className="py-[10px] px-lg rounded-xl text-label-md font-label-md bg-primary text-on-primary hover:brightness-110 active:scale-95 transition-all shadow-sm"
+                          >
+                            Save Changes
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
+
+                  {/* Search and Table Grid */}
+                  <div className="flex flex-col gap-md">
+                    <div className="relative max-w-sm">
+                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-secondary pointer-events-none">search</span>
+                      <input
+                        id="admin-pages-search"
+                        type="text"
+                        value={pagesSearch}
+                        onChange={(e) => setPagesSearch(e.target.value)}
+                        placeholder="Search pages by title or slug…"
+                        className="w-full pl-9 pr-4 py-2 rounded-xl border border-outline-variant/30 bg-surface-container text-on-surface text-body-sm font-body-sm placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
+                      />
+                      {pagesSearch && (
+                        <button
+                          onClick={() => setPagesSearch('')}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-on-surface transition"
+                          aria-label="Clear search"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">close</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      {(() => {
+                        const filtered = pagesSearch.trim()
+                          ? pages.filter(
+                              (p) =>
+                                p.slug.toLowerCase().includes(pagesSearch.toLowerCase()) ||
+                                p.title.toLowerCase().includes(pagesSearch.toLowerCase())
+                            )
+                          : pages;
+                        return filtered.length === 0 ? (
+                          <div className="py-xl text-center text-secondary font-body-md">
+                            {pagesSearch.trim() ? `No pages match "${pagesSearch}".` : 'No custom pages exist.'}
+                          </div>
+                        ) : (
+                          <table className="w-full text-left font-body-md border-collapse">
+                            <thead>
+                              <tr className="border-b border-outline-variant/20 text-secondary text-label-sm font-label-sm uppercase tracking-wider">
+                                <th className="pb-md">Slug</th>
+                                <th className="pb-md">Title</th>
+                                <th className="pb-md">Last Updated</th>
+                                <th className="pb-md text-right">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-outline-variant/10">
+                              {filtered.map((p) => {
+                                const isHomeOrAbout = p.slug === 'home' || p.slug === 'about';
+                                return (
+                                  <tr key={p.id} className="hover:bg-surface-container-low/20 transition-colors">
+                                    <td className="py-md font-semibold text-on-surface">
+                                      <span className="px-sm py-[2px] rounded-full bg-surface-container-highest text-secondary text-[12px] font-mono">
+                                        {p.slug}
+                                      </span>
+                                    </td>
+                                    <td className="py-md font-medium text-on-surface max-w-[250px] truncate">{p.title}</td>
+                                    <td className="py-md text-secondary text-body-sm">
+                                      {new Date(p.updated_at || p.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                                    </td>
+                                    <td className="py-md text-right">
+                                      <div className="flex items-center gap-xs justify-end">
+                                        <button
+                                          onClick={() => {
+                                            setEditingPage(p);
+                                            setEditingPageSlug(p.slug);
+                                            setEditingPageTitle(p.title);
+                                            setEditingPageContent(p.content);
+                                            if (p.slug === 'home') {
+                                              const ids = p.featured_ad_ids || [];
+                                              setEditingFeaturedAdIds(
+                                                Array.from({ length: 8 }, (_, i) => ids[i] || 0)
+                                              );
+                                            } else {
+                                              setEditingFeaturedAdIds(Array(8).fill(0));
+                                            }
+                                          }}
+                                          className="py-[6px] px-md rounded-lg text-label-sm font-label-sm border bg-surface-bright text-secondary border-outline-variant/40 hover:text-primary hover:border-primary/45 shadow-sm active:scale-95 transition-all inline-flex items-center gap-xs"
+                                        >
+                                          <span className="material-symbols-outlined text-[16px]">edit</span>
+                                          Edit
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeletePage(p.id, p.title)}
+                                          disabled={isHomeOrAbout}
+                                          className={`py-[6px] px-md rounded-lg text-label-sm font-label-sm border active:scale-95 transition-all inline-flex items-center gap-xs ${
+                                            isHomeOrAbout
+                                              ? 'opacity-40 cursor-not-allowed bg-surface-container-low text-secondary/50 border-outline-variant/10'
+                                              : 'bg-error-container text-on-error-container border-error/15 font-semibold'
+                                          }`}
+                                          title={isHomeOrAbout ? 'Core system pages cannot be deleted' : 'Delete page'}
+                                        >
+                                          <span className="material-symbols-outlined text-[16px]">delete</span>
+                                          Delete
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        );
+                      })()}
+                    </div>
                   </div>
                 </div>
               )}

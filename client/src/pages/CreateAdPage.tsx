@@ -101,7 +101,14 @@ export const CreateAdPage: React.FC = () => {
       return;
     }
 
-    // Check size limit (10MB per image)
+    // Check size limit for non-compressible formats like GIFs
+    const overSizedGif = imageFiles.some(file => file.type === 'image/gif' && file.size > 500 * 1024);
+    if (overSizedGif) {
+      setErrorMsg('GIF images must be smaller than 500KB as they cannot be compressed.');
+      return;
+    }
+
+    // Check size limit (10MB per image for others, since they will be compressed)
     const overSized = imageFiles.some(file => file.size > 10 * 1024 * 1024);
     if (overSized) {
       setErrorMsg('Each image must be smaller than 10MB.');
@@ -171,6 +178,14 @@ export const CreateAdPage: React.FC = () => {
       // Compress images before uploading
       const compressedFilesPromises = selectedFiles.map((file) => compressImage(file, 1200, 0.8));
       const compressedFiles = await Promise.all(compressedFilesPromises);
+
+      // Verify that all compressed images are within the 500KB limit
+      const overSizedCompressed = compressedFiles.some(file => file.size > 500 * 1024);
+      if (overSizedCompressed) {
+        setErrorMsg('One or more images exceed the 500KB size limit after compression. Please upload smaller images or lower resolution files.');
+        setIsSubmitting(false);
+        return;
+      }
 
       // Append all compressed images
       compressedFiles.forEach((file) => {
@@ -388,7 +403,7 @@ export const CreateAdPage: React.FC = () => {
                   <span className="font-label-md text-label-md text-primary font-semibold">Click to upload</span>
                   <span className="font-body-md text-body-md text-secondary"> or drag and drop</span>
                 </div>
-                <span className="font-body-sm text-body-sm text-secondary/70">PNG, JPG, WEBP up to 10MB</span>
+                <span className="font-body-sm text-body-sm text-secondary/70">PNG, JPG, WEBP, GIF (max 500KB per image)</span>
                 <input
                   type="file"
                   ref={fileInputRef}

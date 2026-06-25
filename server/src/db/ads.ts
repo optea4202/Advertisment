@@ -308,6 +308,38 @@ export const getDbSuggestions = async (queryStr: string): Promise<{ categories: 
   return { categories, titles };
 };
 
+export const getAdsByIds = async (ids: number[]): Promise<DbAd[]> => {
+  if (!ids || ids.length === 0) return [];
+  const sql = `
+    SELECT a.*, 
+           COALESCE(
+             json_agg(
+               json_build_object(
+                 'id', img.id,
+                 'ad_id', img.ad_id,
+                 'cloudinary_url', img.cloudinary_url,
+                 'display_order', img.display_order
+               ) ORDER BY img.display_order
+             ) FILTER (WHERE img.id IS NOT NULL),
+             '[]'::json
+           ) as images,
+           u.username as owner_name,
+           u.photo_url as owner_photo
+    FROM ads a
+    LEFT JOIN ad_images img ON a.id = img.ad_id
+    LEFT JOIN users u ON a.owner_id = u.id
+    WHERE a.id = ANY($1) AND u.is_banned = FALSE
+    GROUP BY a.id, u.id
+  `;
+  const res = await query(sql, [ids]);
+  return res.rows.map(row => ({
+    ...row,
+    price: parseFloat(row.price),
+    latitude: row.latitude !== null ? parseFloat(row.latitude) : null,
+    longitude: row.longitude !== null ? parseFloat(row.longitude) : null,
+  }));
+};
+
 
 
 

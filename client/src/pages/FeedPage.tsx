@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
 import { Footer } from '../components/Footer.js';
@@ -6,10 +6,65 @@ import { CategoryFilter } from '../components/CategoryFilter.js';
 import { AdCard } from '../components/AdCard.js';
 import { useFeed } from '../hooks/useAds.js';
 import { useAuth } from '../context/AuthContext.js';
+import { getPageBySlug, type PageContent } from '../api/pages.js';
 
 export const FeedPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [pageData, setPageData] = useState<PageContent | null>(null);
+  const [featuredTick, setFeaturedTick] = useState(0);
+
+  // Reset tick when pageData loads
+  useEffect(() => {
+    setFeaturedTick(0);
+  }, [pageData?.featured_ads]);
+
+  // Featured ads rotation effect (simply increments tick every 4 seconds)
+  useEffect(() => {
+    if (!pageData?.featured_ads || pageData.featured_ads.length <= 1) return;
+    const interval = setInterval(() => {
+      setFeaturedTick((prev) => prev + 1);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [pageData?.featured_ads]);
+
+  const { visibleFeaturedAds, featuredIndex } = useMemo(() => {
+    if (!pageData?.featured_ads || pageData.featured_ads.length === 0) {
+      return { visibleFeaturedAds: [], featuredIndex: 0 };
+    }
+    const pool = pageData.featured_ads;
+    
+    if (pool.length <= 4) {
+      return {
+        visibleFeaturedAds: pool,
+        featuredIndex: featuredTick % pool.length
+      };
+    }
+    
+    const featuredIndex = featuredTick % 4;
+    const pageNumber = Math.floor(featuredTick / 4);
+    const groupOffset = (pageNumber * 4) % pool.length;
+    
+    const visible = [];
+    for (let i = 0; i < 4; i++) {
+      const idx = (groupOffset + i) % pool.length;
+      visible.push(pool[idx]);
+    }
+    
+    return { visibleFeaturedAds: visible, featuredIndex };
+  }, [pageData?.featured_ads, featuredTick]);
+
+  useEffect(() => {
+    const fetchPageContent = async () => {
+      try {
+        const data = await getPageBySlug('home');
+        setPageData(data);
+      } catch (err) {
+        console.error('Failed to fetch home page copy from database, using fallback:', err);
+      }
+    };
+    fetchPageContent();
+  }, []);
 
   useEffect(() => {
     if (user?.is_admin) {
@@ -111,11 +166,21 @@ export const FeedPage: React.FC = () => {
               </div>
               
               <h1 className="text-[32px] md:text-[48px] font-bold leading-tight tracking-tight text-on-surface">
-                Discover & Promote <span className="text-gradient">Advertisements</span> Instantly
+                {pageData ? (
+                  pageData.title.includes('<span') ? (
+                    <span dangerouslySetInnerHTML={{ __html: pageData.title }} />
+                  ) : (
+                    pageData.title
+                  )
+                ) : (
+                  <>
+                    Discover & Promote <span className="text-gradient">Advertisements</span> Instantly
+                  </>
+                )}
               </h1>
               
               <p className="text-secondary max-w-[540px] text-body-md md:text-body-lg">
-                Browse local services, premium products, and verified stores posted by the Fakna community. Build trust and grow your audience.
+                {pageData ? pageData.content : 'Browse local services, premium products, and verified stores posted by the Fakna community. Build trust and grow your audience.'}
               </p>
 
               {/* Metrics Grid */}
@@ -212,6 +277,47 @@ export const FeedPage: React.FC = () => {
           <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-tertiary/10 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
         </div>
 
+        {visibleFeaturedAds && visibleFeaturedAds.length > 0 && (
+          <div className="bg-surface-container-low border border-outline-variant/20 rounded-3xl p-md shadow-sm relative overflow-hidden flex flex-col gap-sm">
+            <div className="flex items-center gap-xs text-[12px] font-bold text-primary uppercase tracking-wider pl-xs">
+              <span className="material-symbols-outlined text-[16px] animate-pulse">star</span>
+              <span>Featured Listings</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-sm">
+              {visibleFeaturedAds.map((ad, idx) => {
+                const isActive = idx === featuredIndex;
+                const thumb = ad.images?.[0]?.cloudinary_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop';
+                return (
+                  <Link
+                    key={ad.id}
+                    to={`/ads/${ad.id}`}
+                    className={`animate-fade-in flex flex-col gap-xs rounded-xl p-[6px] border transition-all duration-300 relative no-underline text-inherit cursor-pointer ${
+                      isActive 
+                        ? 'bg-surface-container-lowest border-primary shadow-lg scale-[1.03] ring-2 ring-primary/10' 
+                        : 'bg-surface-container-lowest/50 border-outline-variant/20 opacity-80 hover:opacity-100'
+                    }`}
+                  >
+                    <div className="relative aspect-video rounded-lg overflow-hidden bg-surface-container">
+                      <img src={thumb} alt="" className="w-full h-full object-cover" />
+                      {isActive && <div className="absolute inset-0 bg-primary/5 animate-pulse pointer-events-none" />}
+                      
+                      {/* Featured Marker Overlay */}
+                      <div className="absolute bottom-xs left-xs bg-tertiary text-on-tertiary font-label-sm text-[9px] px-xs py-[1px] rounded-full uppercase tracking-wider flex items-center gap-[2px] shadow-sm z-10 animate-pulse">
+                        <span className="material-symbols-outlined text-[10px]">star</span>
+                        Featured
+                      </div>
+                    </div>
+                    <div className="flex flex-col min-w-0 px-[2px]">
+                      <span className="text-[12px] font-bold truncate text-on-surface block leading-tight">{ad.title}</span>
+                      <span className="text-[11px] font-semibold text-primary block mt-[1px]">₹{ad.price}</span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
 
         {/* Layout: Main Full-Width Grid */}
         <div className="flex flex-col gap-lg min-h-[400px] mt-xs">
@@ -255,10 +361,14 @@ export const FeedPage: React.FC = () => {
           {!error && !loading && ads.length > 0 && (
             <>
               <div className="flex flex-col gap-md">
+                <div className="flex items-center gap-xs text-[15px] font-bold text-primary uppercase tracking-wider pl-xs mb-xs">
+                  <span className="material-symbols-outlined text-[18px]">schedule</span>
+                  <span>Recent Post</span>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
                   {ads.map((ad, idx) => (
                     <div key={ad.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 75, 450)}ms` }}>
-                      <AdCard ad={ad} />
+                      <AdCard ad={ad} isFeatured={pageData?.featured_ad_ids?.includes(ad.id)} />
                     </div>
                   ))}
                 </div>

@@ -9,13 +9,15 @@ interface AdCardProps {
   showActions?: boolean;
   onDeleteClick?: (id: number) => void;
   onEditClick?: (id: number) => void;
+  isFeatured?: boolean;
 }
 
 export const AdCard: React.FC<AdCardProps> = ({
   ad,
   showActions = false,
   onDeleteClick,
-  onEditClick
+  onEditClick,
+  isFeatured = false
 }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -191,6 +193,14 @@ export const AdCard: React.FC<AdCardProps> = ({
                 {copied ? 'Link copied!' : 'Copy link'}
               </span>
             </button>
+          </div>
+        )}
+        
+        {/* Featured Marker Overlay */}
+        {isFeatured && (
+          <div className="absolute bottom-[54px] left-md bg-tertiary text-on-tertiary font-label-sm text-[10px] px-sm py-[2px] rounded-full uppercase tracking-wider flex items-center gap-[2px] shadow-sm z-10 animate-pulse">
+            <span className="material-symbols-outlined text-[12px]">star</span>
+            Featured
           </div>
         )}
         

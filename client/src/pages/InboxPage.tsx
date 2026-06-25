@@ -92,6 +92,9 @@ export const InboxPage: React.FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Photo attachment error state
+  const [imageError, setImageError] = useState<string | null>(null);
+
   const { messages, loading: loadingMsgs, sending, send, editMsg, deleteMsg } = useMessages(activeConvId);
 
   // Monitor visual viewport to handle mobile keyboards without shifting page or scroll issues
@@ -263,7 +266,13 @@ export const InboxPage: React.FC = () => {
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    setImageError(null);
     if (file) {
+      if (file.size > 500 * 1024) {
+        setImageError('Image size exceeds the 500KB limit.');
+        e.target.value = '';
+        return;
+      }
       setSelectedPhoto(file);
       setPhotoPreviewUrl(URL.createObjectURL(file));
     }
@@ -274,6 +283,7 @@ export const InboxPage: React.FC = () => {
     setSelectedPhoto(null);
     if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
     setPhotoPreviewUrl(null);
+    setImageError(null);
   };
 
   const handleSend = async () => {
@@ -827,23 +837,33 @@ export const InboxPage: React.FC = () => {
             {activeConvId && (
               <div className="flex flex-col border-t border-outline-variant/20 bg-surface-container-lowest flex-shrink-0 z-10">
                 {/* Photo preview strip */}
-                {photoPreviewUrl && (
+                {(photoPreviewUrl || imageError) && (
                   <div className="flex items-center gap-sm px-lg pt-sm pb-xs">
-                    <div className="relative inline-block">
-                      <img
-                        src={photoPreviewUrl}
-                        alt="Photo preview"
-                        className="h-16 w-16 object-cover rounded-xl border border-outline-variant/30"
-                      />
-                      <button
-                        onClick={handleRemovePhoto}
-                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-error text-on-error rounded-full flex items-center justify-center hover:brightness-110 transition-all"
-                        title="Remove photo"
-                      >
-                        <span className="material-symbols-outlined text-[13px]">close</span>
-                      </button>
-                    </div>
-                    <span className="font-label-sm text-label-sm text-on-surface-variant">{selectedPhoto?.name}</span>
+                    {photoPreviewUrl ? (
+                      <>
+                        <div className="relative inline-block">
+                          <img
+                            src={photoPreviewUrl}
+                            alt="Photo preview"
+                            className="h-16 w-16 object-cover rounded-xl border border-outline-variant/30"
+                          />
+                          <button
+                            onClick={handleRemovePhoto}
+                            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-error text-on-error rounded-full flex items-center justify-center hover:brightness-110 transition-all"
+                            title="Remove photo"
+                          >
+                            <span className="material-symbols-outlined text-[13px]">close</span>
+                          </button>
+                        </div>
+                        <span className="font-label-sm text-label-sm text-on-surface-variant">{selectedPhoto?.name}</span>
+                      </>
+                    ) : null}
+                    {imageError && (
+                      <div className="flex items-center gap-xs text-error font-body-sm text-body-sm bg-error-container/50 px-md py-xs rounded-xl border border-error/10">
+                        <span className="material-symbols-outlined text-[16px] text-error">warning</span>
+                        <span>{imageError}</span>
+                      </div>
+                    )}
                   </div>
                 )}
 

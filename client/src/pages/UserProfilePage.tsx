@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar.js';
+import { getPageBySlug } from '../api/pages.js';
 import { Footer } from '../components/Footer.js';
 import { AdCard } from '../components/AdCard.js';
 import { usePublicProfile } from '../hooks/useUsers.js';
@@ -16,6 +17,19 @@ import { ProfileReviewList } from '../components/ProfileReviewList.js';
 
 export const UserProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const [featuredAdIds, setFeaturedAdIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    const fetchFeaturedIds = async () => {
+      try {
+        const data = await getPageBySlug('home');
+        setFeaturedAdIds(data.featured_ad_ids || []);
+      } catch (err) {
+        console.error('Failed to fetch featured ad ids:', err);
+      }
+    };
+    fetchFeaturedIds();
+  }, []);
   const numericId = Number(id);
   const { profile, loading, error, refresh } = usePublicProfile(numericId);
   const { user: currentUser } = useAuth();
@@ -339,6 +353,7 @@ export const UserProfilePage: React.FC = () => {
                         showActions={isOwnProfile}
                         onEditClick={handleEditClick}
                         onDeleteClick={handleDeleteClick}
+                        isFeatured={featuredAdIds.includes(ad.id)}
                       />
                     ))}
                   </div>
@@ -381,6 +396,7 @@ export const UserProfilePage: React.FC = () => {
                         key={ad.id}
                         ad={ad}
                         showActions={false}
+                        isFeatured={featuredAdIds.includes(ad.id)}
                       />
                     ))}
                   </div>

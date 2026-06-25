@@ -17,7 +17,7 @@ const router = Router();
 // Configure multer for memory storage (for chat image uploads)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
+  limits: { fileSize: 500 * 1024 }, // 500 KB limit
 });
 
 // POST /api/chats — Start or retrieve an existing conversation with a seller
