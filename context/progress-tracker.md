@@ -12,6 +12,8 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Optimized render-blocking resources: added `preconnect` headers for Google Fonts to [index.html](file:///x:/Advertisment/client/index.html) and removed the redundant `@import` font rule from [variables.css](file:///x:/Advertisment/client/src/styles/variables.css) to eliminate chained, blocking CSS requests and improve PageSpeed/LCP scores.
+
 - Updated the admin pages management view in `AdminPage.tsx`: removed the search bar and replaced the table view with 2 interactive, square cards for the Home and About pages. Clicking either card directly activates the corresponding page edit form. Unused states and handlers (`pagesSearch`, `handleDeletePage`, and `deletePage` API import) were cleaned up.
 
 - Added a dedicated **Featured Ads** admin tab to the admin dashboard sidebar (`Navbar.tsx`, `AdminPage.tsx`) placed below "Pages". The tab shows the current featured slots (up to 8) as dismissible card rows with numbered badges, and below that a searchable visual grid of all platform ads. Clicking any ad card toggles it in/out of the featured list (cards at the 8-slot limit become disabled). A "Save Changes" button (with spinner state) persists the selection to the home page via the existing `updatePage` API. The tab auto-loads both the full ads list and the current `featured_ad_ids` from the home page on mount.
