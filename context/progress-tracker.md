@@ -12,6 +12,8 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Implemented automatic scrolling to the top on page navigation by introducing a [ScrollToTop.tsx](file:///x:/Advertisment/client/src/components/ScrollToTop.tsx) component integrated into [App.tsx](file:///x:/Advertisment/client/src/App.tsx). This fixes the issue where clicking an advertisement card in mobile views leaves the page scrolled down near the footer on the advertisement detail page.
+
 - Replaced the mobile category horizontal slider and bottom drawer in [CategoryFilter.tsx](file:///x:/Advertisment/client/src/components/CategoryFilter.tsx) with a collapsible vertical accordion menu matching the Gameloot UI style. The accordion features toggleable items at Level 1, Level 2, and Level 3 with correct indentations, square bullets `▪`, and chevrons. It also includes "ALL" category filter selectors and auto-expansion for the parent items of the selected category.
 
 - Optimized render-blocking resources: added `preconnect` headers for Google Fonts to [index.html](file:///x:/Advertisment/client/index.html) and removed the redundant `@import` font rule from [variables.css](file:///x:/Advertisment/client/src/styles/variables.css) to eliminate chained, blocking CSS requests and improve PageSpeed/LCP scores.

@@ -21,6 +21,7 @@ import { AdminRoute } from './components/AdminRoute.js';
 import { InboxPage } from './pages/InboxPage.js';
 import { WishlistProvider } from './context/WishlistContext.js';
 import { OfflineBanner } from './components/OfflineBanner.js';
+import { ScrollToTop } from './components/ScrollToTop.js';
 
 // Get publishable key from environment
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -36,6 +37,7 @@ function App() {
         <AuthProvider>
           <WishlistProvider>
             <BrowserRouter>
+              <ScrollToTop />
               <ChatProvider>
               <Routes>
               {/* Public Auth Routes */}
