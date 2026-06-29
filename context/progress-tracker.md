@@ -12,6 +12,9 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Updated the home page recent posts grid in [FeedPage.tsx](file:///x:/Advertisment/client/src/pages/FeedPage.tsx) and the search page ads grid in [SearchPage.tsx](file:///x:/Advertisment/client/src/pages/SearchPage.tsx) to display a responsive 2-column layout on mobile viewports (instead of a single-column layout).
+- Restyled [AdCard.tsx](file:///x:/Advertisment/client/src/components/AdCard.tsx) to scale down card size and elements on mobile: shrunk container padding to `p-sm` (8px), adjusted element gap spacing, reduced title font size to `text-[14px]`, compressed description text, scaled down wishlist/share icon overlays, formatted the price tag to omit `.00` decimals on integers, and integrated native Web Share API (`navigator.share`) for a smoother native sharing experience on mobile devices.
+
 - Implemented automatic scrolling to the top on page navigation by introducing a [ScrollToTop.tsx](file:///x:/Advertisment/client/src/components/ScrollToTop.tsx) component integrated into [App.tsx](file:///x:/Advertisment/client/src/App.tsx). This fixes the issue where clicking an advertisement card in mobile views leaves the page scrolled down near the footer on the advertisement detail page.
 
 - Replaced the mobile category horizontal slider and bottom drawer in [CategoryFilter.tsx](file:///x:/Advertisment/client/src/components/CategoryFilter.tsx) with a collapsible vertical accordion menu matching the Gameloot UI style. The accordion features toggleable items at Level 1, Level 2, and Level 3 with correct indentations, square bullets `▪`, and chevrons. It also includes "ALL" category filter selectors and auto-expansion for the parent items of the selected category.

@@ -230,7 +230,7 @@ export const SearchPage: React.FC = () => {
                 <div className="text-body-md font-medium text-secondary/90">
                   Showing {startIndex}-{endIndex} of {total} results
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-sm md:gap-gutter">
                   {ads.map((ad, idx) => (
                     <div key={ad.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 75, 450)}ms` }}>
                       <AdCard ad={ad} isFeatured={featuredAdIds.includes(ad.id)} />

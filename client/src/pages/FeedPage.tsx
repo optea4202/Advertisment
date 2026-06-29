@@ -365,7 +365,7 @@ export const FeedPage: React.FC = () => {
                   <span className="material-symbols-outlined text-[18px]">schedule</span>
                   <span>Recent Post</span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-sm md:gap-gutter">
                   {ads.map((ad, idx) => (
                     <div key={ad.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 75, 450)}ms` }}>
                       <AdCard ad={ad} isFeatured={pageData?.featured_ad_ids?.includes(ad.id)} />
