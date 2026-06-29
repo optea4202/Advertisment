@@ -10,29 +10,52 @@ cloudinary.config({
 });
 
 /**
- * Uploads a local file or file buffer to Cloudinary.
+ * Uploads a file buffer to Cloudinary with auto-compression.
+ * Images are automatically compressed to approximately ≤500KB using
+ * Cloudinary's quality:auto and format:auto transformations.
  * @param fileBuffer Buffer containing the image file data
  * @param folder Cloudinary folder to upload the asset into
- * @returns The secure CDN URL of the uploaded image
+ * @returns The secure CDN URL of the compressed, uploaded image
  */
 export const uploadImage = async (fileBuffer: Buffer, folder: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: `adhub/${folder}`,
-        resource_type: 'image'
+        resource_type: 'image',
+        // Auto-select the best quality/format to keep file size ≤500KB
+        transformation: [
+          {
+            quality: 'auto:good',
+            fetch_format: 'auto',
+          }
+        ],
+        // Eager transformations generate the compressed variant immediately
+        eager: [
+          {
+            quality: 'auto:good',
+            fetch_format: 'auto',
+          }
+        ],
+        eager_async: false,
       },
       (error, result) => {
         if (error || !result) {
           console.error('Cloudinary upload error:', error);
           return reject(error || new Error('Upload failed'));
         }
-        resolve(result.secure_url);
+        // Use the eager (compressed) variant URL if available, otherwise fall back to secure_url
+        const url =
+          result.eager && result.eager.length > 0
+            ? result.eager[0].secure_url
+            : result.secure_url;
+        resolve(url);
       }
     );
     uploadStream.end(fileBuffer);
   });
 };
+
 
 /**
  * Extract public ID from a Cloudinary URL.

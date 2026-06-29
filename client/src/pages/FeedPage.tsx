@@ -154,7 +154,8 @@ export const FeedPage: React.FC = () => {
           <CategoryFilter selectedCategory={category} onSelectCategory={setCategory} />
         </div>
 
-        {/* Banner/Header - Premium Hero Showcase */}
+        {/* Banner/Header - Premium Hero Showcase (page 1 only) */}
+        {page === 1 && (
         <div className="relative overflow-hidden rounded-3xl bg-gradient-moving p-lg md:p-xl flex flex-col gap-lg border border-outline-variant/20 shadow-md bg-grid-pattern">
           {/* Responsive Grid inside Hero */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg items-center relative z-10">
@@ -276,8 +277,9 @@ export const FeedPage: React.FC = () => {
           <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-primary/10 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
           <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-tertiary/10 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
         </div>
+        )}
 
-        {visibleFeaturedAds && visibleFeaturedAds.length > 0 && (
+        {page === 1 && visibleFeaturedAds && visibleFeaturedAds.length > 0 && (
           <div className="bg-surface-container-low border border-outline-variant/20 rounded-3xl p-md shadow-sm relative overflow-hidden flex flex-col gap-sm">
             <div className="flex items-center gap-xs text-[12px] font-bold text-primary uppercase tracking-wider pl-xs">
               <span className="material-symbols-outlined text-[16px] animate-pulse">star</span>

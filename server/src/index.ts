@@ -66,7 +66,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
     return res.status(400).json({
       error: {
-        message: 'File size limit exceeded. Maximum allowed size is 500KB.',
+        message: 'File size limit exceeded. Maximum allowed upload size is 20MB per image.',
         code: 'FILE_SIZE_LIMIT_EXCEEDED'
       }
     });

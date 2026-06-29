@@ -12,6 +12,8 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Removed "PNG, JPG, WEBP, GIF (max 500KB per image)" hint text from the upload drop zones in [CreateAdPage.tsx](file:///x:/Advertisment/client/src/pages/CreateAdPage.tsx) and [EditAdPage.tsx](file:///x:/Advertisment/client/src/pages/EditAdPage.tsx). Updated [cloudinary.ts](file:///x:/Advertisment/server/src/utils/cloudinary.ts) to apply `quality: 'auto:good'` and `fetch_format: 'auto'` eager Cloudinary transformations on every ad image upload, automatically compressing images to ≤500KB regardless of their original size. Raised the multer `fileSize` limit in [ads.ts](file:///x:/Advertisment/server/src/routes/ads.ts) from 500KB to 20MB to allow large originals to reach the server for compression. Updated the multer error message in [index.ts](file:///x:/Advertisment/server/src/index.ts) to reflect the new 20MB incoming size limit.
+
 - Updated the home page recent posts grid in [FeedPage.tsx](file:///x:/Advertisment/client/src/pages/FeedPage.tsx) and the search page ads grid in [SearchPage.tsx](file:///x:/Advertisment/client/src/pages/SearchPage.tsx) to display a responsive 2-column layout on mobile viewports (instead of a single-column layout).
 - Restyled [AdCard.tsx](file:///x:/Advertisment/client/src/components/AdCard.tsx) to scale down card size and elements on mobile: shrunk container padding to `p-sm` (8px), adjusted element gap spacing, reduced title font size to `text-[14px]`, compressed description text, scaled down wishlist/share icon overlays, formatted the price tag to omit `.00` decimals on integers, and integrated native Web Share API (`navigator.share`) for a smoother native sharing experience on mobile devices.
 

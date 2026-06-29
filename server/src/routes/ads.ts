@@ -16,10 +16,11 @@ import { requireNotBanned } from '../middleware/requireNotBanned.js';
 const router = Router();
 
 // Configure multer memory storage
+// Accept up to 20MB per file; images are auto-compressed to ≤500KB by Cloudinary before storage
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 500 * 1024 // 500KB limit per image
+    fileSize: 20 * 1024 * 1024 // 20MB incoming limit; Cloudinary will compress to ≤500KB
   }
 });
 

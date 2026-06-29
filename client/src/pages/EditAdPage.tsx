@@ -511,7 +511,7 @@ export const EditAdPage: React.FC = () => {
                     <span className="font-label-md text-label-md text-primary font-semibold">Click to upload</span>
                     <span className="font-body-md text-body-md text-secondary"> or drag and drop</span>
                   </div>
-                  <span className="font-body-sm text-body-sm text-secondary/70">PNG, JPG, WEBP, GIF (max 500KB per image)</span>
+
                   <input 
                     type="file"
                     ref={fileInputRef}
