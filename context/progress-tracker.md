@@ -12,6 +12,8 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Replaced the mobile category horizontal slider and bottom drawer in [CategoryFilter.tsx](file:///x:/Advertisment/client/src/components/CategoryFilter.tsx) with a collapsible vertical accordion menu matching the Gameloot UI style. The accordion features toggleable items at Level 1, Level 2, and Level 3 with correct indentations, square bullets `▪`, and chevrons. It also includes "ALL" category filter selectors and auto-expansion for the parent items of the selected category.
+
 - Optimized render-blocking resources: added `preconnect` headers for Google Fonts to [index.html](file:///x:/Advertisment/client/index.html) and removed the redundant `@import` font rule from [variables.css](file:///x:/Advertisment/client/src/styles/variables.css) to eliminate chained, blocking CSS requests and improve PageSpeed/LCP scores.
 
 - Updated the admin pages management view in `AdminPage.tsx`: removed the search bar and replaced the table view with 2 interactive, square cards for the Home and About pages. Clicking either card directly activates the corresponding page edit form. Unused states and handlers (`pagesSearch`, `handleDeletePage`, and `deletePage` API import) were cleaned up.

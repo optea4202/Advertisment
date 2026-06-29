@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getCategories, type Category } from '../api/categories.js';
-import { buildCategoryTree, isDescendantOf } from '../utils/categoryTree.js';
+import { buildCategoryTree } from '../utils/categoryTree.js';
 
 interface CategoryFilterProps {
   selectedCategory: string;
@@ -12,11 +12,11 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   onSelectCategory,
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeLevel2Id, setActiveLevel2Id] = useState<number | null>(null);
-  const [mobileOpenCategoryId, setMobileOpenCategoryId] = useState<number | null>(null);
-  // Tracks which Level-2 item is hovered so the Level-3 panel can render
-  // OUTSIDE the scrollable Level-2 container (avoiding overflow clipping).
   const [hoveredSubCatId, setHoveredSubCatId] = useState<number | null>(null);
+  
+  // Mobile accordion states
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     const fetchCats = async () => {
@@ -30,6 +30,24 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     fetchCats();
   }, []);
 
+  // Auto-expand parents when selectedCategory changes
+  useEffect(() => {
+    if (!selectedCategory || categories.length === 0) return;
+    const activeCat = categories.find(c => c.name.toLowerCase() === selectedCategory.toLowerCase());
+    if (!activeCat) return;
+
+    setExpandedCategories(prev => {
+      const next = { ...prev };
+      let currentParentId = activeCat.parent_id;
+      while (currentParentId !== null && currentParentId !== undefined) {
+        next[currentParentId] = true;
+        const parent = categories.find(c => c.id === currentParentId);
+        currentParentId = parent?.parent_id ?? null;
+      }
+      return next;
+    });
+  }, [selectedCategory, categories]);
+
   const tree = buildCategoryTree(categories);
 
   const handleSelect = (categoryName: string) => {
@@ -38,8 +56,6 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     } else {
       onSelectCategory(categoryName);
     }
-    setActiveLevel2Id(null);
-    setMobileOpenCategoryId(null);
   };
 
   return (
@@ -161,185 +177,182 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
         </div>
       </div>
 
-      {/* MOBILE VIEW: Horizontally Scrollable Categories with Dropdown Triggers */}
-      <div className="flex md:hidden flex-row gap-xs overflow-x-auto pb-sm scrollbar-none w-full px-xs">
+      {/* MOBILE VIEW: Vertical Accordion Menu Bar */}
+      <div className="flex md:hidden flex-col w-full px-xs">
+        {/* Toggle Header Row */}
+        <div 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="flex items-center justify-between px-md py-sm bg-surface-container-lowest border border-outline-variant/35 rounded-xl shadow-sm cursor-pointer select-none active:bg-surface-container-low/40 transition-all"
+        >
+          <span className="font-bold text-on-surface text-body-md uppercase tracking-wider">
+            {selectedCategory ? `Category: ${selectedCategory}` : 'Menu'}
+          </span>
+          <span className="material-symbols-outlined text-[24px] text-secondary">
+            {isMobileMenuOpen ? 'close' : 'menu'}
+          </span>
+        </div>
 
-        {tree.map(cat => {
-          const isSelected = selectedCategory.toLowerCase() === cat.name.toLowerCase();
-          const hasChildren = cat.children && cat.children.length > 0;
-          
-          const isCatActive = isSelected || isDescendantOf(
-            categories.find(c => c.name.toLowerCase() === selectedCategory.toLowerCase())?.id || 0,
-            cat.id,
-            categories
-          );
+        {/* Vertical Accordion category list */}
+        {isMobileMenuOpen && (
+          <div className="mt-xs bg-surface-container-lowest border border-outline-variant/25 rounded-xl shadow-md overflow-hidden animate-fade-in-up-sheet flex flex-col">
+            {tree.map(cat => {
+              const hasChildren = cat.children && cat.children.length > 0;
+              const isExpanded = !!expandedCategories[cat.id];
+              const isSelected = selectedCategory.toLowerCase() === cat.name.toLowerCase();
 
-          return (
-            <button
-              key={cat.id}
-              onClick={() => {
-                if (hasChildren) {
-                  setMobileOpenCategoryId(cat.id);
-                  setActiveLevel2Id(cat.children[0]?.id || null);
-                } else {
-                  handleSelect(cat.name);
-                }
-              }}
-              className={`flex items-center gap-xs whitespace-nowrap px-md py-[8px] rounded-full font-label-md text-[13px] transition-all duration-200 shrink-0 ${
-                isCatActive
-                  ? 'bg-primary/10 text-primary border border-primary/25 font-semibold'
-                  : 'text-secondary bg-surface-container-low/60 border border-outline-variant/15 hover:text-on-surface'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[16px]">{cat.symbol || 'category'}</span>
-              <span>{cat.name}</span>
-              {hasChildren && (
-                <span className="material-symbols-outlined text-[14px] opacity-70">
-                  keyboard_arrow_down
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* MOBILE DRILL-DOWN BOTTOM DRAWER */}
-      {mobileOpenCategoryId !== null && (() => {
-        const activeTopCat = tree.find(c => c.id === mobileOpenCategoryId);
-        if (!activeTopCat) return null;
-
-        return (
-          <>
-            {/* Backdrop overlay */}
-            <div 
-              className="fixed inset-0 bg-black/60 z-50 transition-opacity"
-              onClick={() => setMobileOpenCategoryId(null)}
-            />
-
-            {/* Bottom sheet */}
-            <div 
-              className="fixed inset-x-0 bottom-0 bg-surface-container-lowest rounded-t-2xl shadow-2xl z-50 flex flex-col max-h-[70vh] animate-fade-in-up-sheet border-t border-outline-variant/30"
-              style={{ paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between px-md py-sm border-b border-outline-variant/10">
-                <div className="flex items-center gap-sm">
-                  <span className="material-symbols-outlined text-primary text-[20px]">
-                    {activeTopCat.symbol || 'category'}
-                  </span>
-                  <span className="font-bold text-on-surface text-body-md uppercase tracking-wide">
-                    {activeTopCat.name}
-                  </span>
-                </div>
-                <button 
-                  onClick={() => setMobileOpenCategoryId(null)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high text-secondary"
-                >
-                  <span className="material-symbols-outlined text-[20px]">close</span>
-                </button>
-              </div>
-
-              {/* Drawer Body (Split Panel) */}
-              <div className="flex flex-grow h-[320px] overflow-hidden">
-                {/* Left column (Level 2 subcategories) */}
-                <div className="w-[40%] bg-surface-container-low/40 border-r border-outline-variant/10 overflow-y-auto py-xs flex flex-col gap-[2px]">
-                  <div
-                    onClick={() => handleSelect(activeTopCat.name)}
-                    className="px-sm py-sm mx-xs rounded-lg text-body-sm font-bold text-center text-primary border border-dashed border-primary/20 bg-primary/5 mb-sm transition-all"
+              return (
+                <div key={cat.id} className="flex flex-col border-b border-outline-variant/10 last:border-b-0">
+                  {/* Level 1 Item */}
+                  <div 
+                    className={`flex items-center justify-between px-md py-[14px] cursor-pointer transition-all duration-150 ${
+                      isExpanded ? 'bg-surface-container/40' : 'hover:bg-surface-container-low/40'
+                    }`}
+                    onClick={() => {
+                      if (hasChildren) {
+                        setExpandedCategories(prev => ({
+                          ...prev,
+                          [cat.id]: !prev[cat.id]
+                        }));
+                      } else {
+                        handleSelect(cat.name);
+                        setIsMobileMenuOpen(false);
+                      }
+                    }}
                   >
-                    All {activeTopCat.name}
+                    <div className="flex items-center gap-sm">
+                      <span className="material-symbols-outlined text-[20px] text-secondary/70">
+                        {cat.symbol || 'category'}
+                      </span>
+                      <span className={`text-[13px] font-semibold uppercase tracking-wider ${
+                        isSelected ? 'text-primary font-bold' : 'text-on-surface'
+                      }`}>
+                        {cat.name}
+                      </span>
+                    </div>
+                    {hasChildren ? (
+                      <span className={`material-symbols-outlined text-[20px] text-secondary/60 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
+                        keyboard_arrow_down
+                      </span>
+                    ) : (
+                      cat.name === 'SELL' && (
+                        <span className="text-[10px] bg-tertiary-fixed text-on-tertiary-fixed px-sm py-[2px] rounded-full font-bold uppercase tracking-wider">
+                          HOT
+                        </span>
+                      )
+                    )}
                   </div>
 
-                  {activeTopCat.children.map(subCat => {
-                    const isSubSelected = selectedCategory.toLowerCase() === subCat.name.toLowerCase();
-                    const isSubActive = activeLevel2Id === subCat.id;
-
-                    return (
-                      <div
-                        key={subCat.id}
-                        onClick={() => {
-                          setActiveLevel2Id(subCat.id);
-                          if (!subCat.children || subCat.children.length === 0) {
-                            handleSelect(subCat.name);
-                          }
-                        }}
-                        className={`px-sm py-[8px] mx-xs rounded-lg font-label-sm text-[13px] cursor-pointer transition-all ${
-                          isSubActive
-                            ? 'bg-primary/10 text-primary font-bold shadow-sm'
-                            : isSubSelected
-                              ? 'bg-primary-fixed text-primary font-bold'
-                              : 'text-secondary hover:bg-surface-container-low'
+                  {/* Level 2 Sub-items */}
+                  {hasChildren && isExpanded && (
+                    <div className="flex flex-col bg-surface-container-low/20 border-t border-outline-variant/5">
+                      {/* Option to select All Level 1 */}
+                      <div 
+                        className={`flex items-center px-[32px] py-[12px] cursor-pointer hover:bg-surface-container-low/50 transition-all ${
+                          isSelected ? 'text-primary font-bold bg-primary-fixed/10' : 'text-secondary'
                         }`}
+                        onClick={() => {
+                          handleSelect(cat.name);
+                          setIsMobileMenuOpen(false);
+                        }}
                       >
-                        <div className="truncate text-center">{subCat.name}</div>
+                        <span className="text-[10px] mr-sm opacity-60">▪</span>
+                        <span className="text-[12px] font-medium uppercase tracking-wide">
+                          ALL {cat.name}
+                        </span>
                       </div>
-                    );
-                  })}
-                </div>
 
-                {/* Right column (Level 3 subcategories) */}
-                <div className="w-[60%] overflow-y-auto p-sm bg-surface-container-lowest">
-                  {activeLevel2Id !== null ? (() => {
-                    const activeSubCat = activeTopCat.children.find(c => c.id === activeLevel2Id);
-                    const level3Items = activeSubCat?.children || [];
+                      {cat.children.map(subCat => {
+                        const hasSubChildren = subCat.children && subCat.children.length > 0;
+                        const isSubExpanded = !!expandedCategories[subCat.id];
+                        const isSubSelected = selectedCategory.toLowerCase() === subCat.name.toLowerCase();
 
-                    return (
-                      <div className="flex flex-col gap-sm">
-                        {activeSubCat && (
-                          <div className="flex justify-between items-center border-b border-outline-variant/10 pb-xs">
-                            <span className="text-[10px] font-bold text-secondary/60 uppercase tracking-wider">
-                              {activeSubCat.name} Sub-items
-                            </span>
-                            <button
-                              onClick={() => handleSelect(activeSubCat.name)}
-                              className="text-[11px] font-semibold text-primary hover:underline"
+                        return (
+                          <div key={subCat.id} className="flex flex-col border-t border-outline-variant/5">
+                            {/* Level 2 Item */}
+                            <div 
+                              className={`flex items-center justify-between px-[32px] py-[12px] cursor-pointer transition-all duration-150 ${
+                                isSubExpanded ? 'bg-surface-container/30' : 'hover:bg-surface-container-low/30'
+                              }`}
+                              onClick={() => {
+                                if (hasSubChildren) {
+                                  setExpandedCategories(prev => ({
+                                    ...prev,
+                                    [subCat.id]: !prev[subCat.id]
+                                  }));
+                                } else {
+                                  handleSelect(subCat.name);
+                                  setIsMobileMenuOpen(false);
+                                }
+                              }}
                             >
-                              All
-                            </button>
-                          </div>
-                        )}
+                              <div className="flex items-center">
+                                <span className="text-[10px] mr-sm opacity-60">▪</span>
+                                <span className={`text-[12px] font-medium uppercase tracking-wide ${
+                                  isSubSelected ? 'text-primary font-bold' : 'text-secondary'
+                                }`}>
+                                  {subCat.name}
+                                </span>
+                              </div>
+                              {hasSubChildren && (
+                                <span className={`material-symbols-outlined text-[18px] text-secondary/50 transition-transform duration-200 ${isSubExpanded ? 'rotate-180' : ''}`}>
+                                  keyboard_arrow_down
+                                </span>
+                              )}
+                            </div>
 
-                        {level3Items.length > 0 ? (
-                          <div className="flex flex-col gap-[2px]">
-                            {level3Items.map(level3 => {
-                              const isL3Selected = selectedCategory.toLowerCase() === level3.name.toLowerCase();
-                              return (
-                                <div
-                                  key={level3.id}
-                                  onClick={() => handleSelect(level3.name)}
-                                  className={`flex items-center gap-sm px-sm py-[8px] rounded-lg font-body-sm text-[13px] cursor-pointer transition-all ${
-                                    isL3Selected
-                                      ? 'bg-primary-fixed text-primary font-semibold'
-                                      : 'text-secondary hover:text-primary hover:bg-surface-container-low/40'
+                            {/* Level 3 Sub-items */}
+                            {hasSubChildren && isSubExpanded && (
+                              <div className="flex flex-col bg-surface-container/20 border-t border-outline-variant/5">
+                                {/* Option to select All Level 2 */}
+                                <div 
+                                  className={`flex items-center px-[48px] py-[10px] cursor-pointer hover:bg-surface-container-high/30 transition-all ${
+                                    isSubSelected ? 'text-primary font-bold bg-primary-fixed/10' : 'text-secondary/85'
                                   }`}
+                                  onClick={() => {
+                                    handleSelect(subCat.name);
+                                    setIsMobileMenuOpen(false);
+                                  }}
                                 >
-                                  <span className="material-symbols-outlined text-[16px] text-secondary/50">
-                                    {level3.symbol || 'category'}
+                                  <span className="text-[10px] mr-sm opacity-50">•</span>
+                                  <span className="text-[11px] font-medium uppercase tracking-wide">
+                                    ALL {subCat.name}
                                   </span>
-                                  <span className="truncate">{level3.name}</span>
                                 </div>
-                              );
-                            })}
+
+                                {subCat.children.map(level3 => {
+                                  const isL3Selected = selectedCategory.toLowerCase() === level3.name.toLowerCase();
+
+                                  return (
+                                    <div 
+                                      key={level3.id}
+                                      className={`flex items-center px-[48px] py-[10px] cursor-pointer hover:bg-surface-container-high/30 transition-all border-t border-outline-variant/5 last:border-b-0 ${
+                                        isL3Selected ? 'text-primary font-bold bg-primary-fixed/10' : 'text-secondary/85'
+                                      }`}
+                                      onClick={() => {
+                                        handleSelect(level3.name);
+                                        setIsMobileMenuOpen(false);
+                                      }}
+                                    >
+                                      <span className="text-[10px] mr-sm opacity-50">•</span>
+                                      <span className="text-[11px] font-medium uppercase tracking-wide truncate">
+                                        {level3.name}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
-                        ) : (
-                          <div className="flex flex-col items-center justify-center text-center text-secondary/35 py-xl gap-sm">
-                            <span className="material-symbols-outlined text-[28px]">category</span>
-                            <span className="text-[11px]">Tap options on left to load parts</span>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })() : (
-                    <div className="flex items-center justify-center text-center text-secondary/35 h-full py-xl">
-                      Select subcategory
+                        );
+                      })}
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
-          </>
-        );
-      })()}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
