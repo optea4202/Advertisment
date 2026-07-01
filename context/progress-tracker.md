@@ -12,6 +12,8 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Modified the advertisement card title typography and layout in [AdCard.tsx](file:///x:/Advertisment/client/src/components/AdCard.tsx): reduced the title text size from `text-[14px]` to `text-[12px]` on mobile viewports, and from `md:text-headline-md` (24px) to `md:text-[14px]` on desktop/tablet viewports; increased visibility from 1 line to up to 3 lines (`line-clamp-3`), and adjusted the line-height styling to `leading-tight md:leading-snug` to optimize grid readability.
+
 - Configured mobile featured listings layout on the homepage in [FeedPage.tsx](file:///x:/Advertisment/client/src/pages/FeedPage.tsx) to display exactly 2 items per row on mobile viewports: dynamically adjusts the featured ads rotation/group size to 2 items when screen size is less than 640px (desktop/tablet stays at 5), and updated the grid columns layout from `grid-cols-4` to `grid-cols-2` on mobile screens. The text, padding, margins, and badges have been scaled up for readability.
 
 - Configured responsive pagination feed sizes: set the pagination limit to 15 ads per page on desktop screens to align with the 5-column grids, and dynamically set it to 12 ads per page on mobile viewports (checks window size reactive state in `useFeed` custom hook in [useAds.ts](file:///x:/Advertisment/client/src/hooks/useAds.ts), passes `limit` dynamically to backend query and Algolia search, and updates start/end indices calculation inside [SearchPage.tsx](file:///x:/Advertisment/client/src/pages/SearchPage.tsx) using the returned dynamic limit value).

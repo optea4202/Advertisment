@@ -235,7 +235,7 @@ export const AdCard: React.FC<AdCardProps> = ({
         </div>
 
         {/* Title */}
-        <h3 className="font-semibold text-[14px] md:text-headline-md text-on-surface line-clamp-1 leading-tight md:leading-normal">
+        <h3 className="font-semibold text-[12px] md:text-[14px] text-on-surface line-clamp-3 leading-tight md:leading-snug">
           {ad.title}
         </h3>
 
