@@ -12,6 +12,8 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Resized and centered the search bar: made the search bar longer (up to `1100px` max-width), centered it beautifully in the navbar with `mx-auto px-md`, made it more compact by shrinking vertical padding to `py-[5px]` and adjusting text/icon sizes, and set the logo/search wrapper to `flex-grow` to allow proper centering between the logo and user actions.
+
 - Removed the text "(Amazon Style Carousel)" from the Hero Banners section heading in the Admin page pages management editor (`AdminPage.tsx`).
 
 - Replaced the home page hero showcase with a smaller, Amazon-style horizontal banner image carousel (`FeedPage.tsx`). The carousel is 140px tall on mobile and 260px on desktop, auto-advances every 5 seconds with left/right navigation arrows and dot indicators. When no banners are uploaded, a compact branded fallback is shown. Added admin-side banner management to the Pages tab in `AdminPage.tsx` (Home page editor): admins can view all existing banners (with a hover-to-reveal delete button), upload new banners via a file picker, preview them before saving, and compress them automatically using the existing `imageCompressor` utility (500KB enforced). New banners and kept/removed banners are submitted to the server as `multipart/form-data`. Backend changes include: new DB migration `020_add_banner_images_to_pages.sql` adding a `banner_images TEXT[]` column, updated `db/pages.ts`, `services/pages.ts` (Cloudinary upload/delete logic), `controllers/pages.ts` (multipart form parsing), and `routes/pages.ts` (multer middleware). Frontend API client `api/pages.ts` updated to use `FormData` for page updates.

@@ -82,26 +82,26 @@ export const Navbar: React.FC = () => {
             ? 'fixed left-0 h-screen w-[240px] border-r border-b-0 shadow-md bg-surface-container-high'
             : 'sticky w-full'
         }`}>
-        <div className={`flex w-full px-sm py-xs gap-md ${
+        <div className={`flex w-full px-xs py-[6px] gap-sm ${
           user?.is_admin
             ? 'flex-col justify-start items-stretch h-full gap-lg px-md py-lg'
-            : 'justify-between items-center md:px-md lg:px-lg md:py-md max-w-container-max mx-auto'
+            : 'items-center md:px-sm lg:px-md md:py-[6px] max-w-container-max mx-auto'
         }`}>
           
-          <div className={`flex items-center gap-md lg:gap-xl overflow-x-auto md:overflow-visible scrollbar-none py-xs flex-grow ${
-            user?.is_admin ? 'flex-col items-stretch gap-lg w-full overflow-visible' : ''
+          <div className={`flex items-center gap-sm lg:gap-md overflow-x-auto md:overflow-visible scrollbar-none py-[2px] ${
+            user?.is_admin ? 'flex-col items-stretch gap-lg w-full overflow-visible' : 'flex-grow'
           }`}>
             {/* Brand / Logo */}
-            <Link to={user?.is_admin ? "/admin" : "/"} className="flex items-center gap-xs md:gap-sm shrink-0">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-lg flex items-center justify-center text-on-primary">
-                <span className="material-symbols-outlined text-[18px] md:text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
+            <Link to={user?.is_admin ? "/admin" : "/"} className="flex items-center gap-xs shrink-0">
+              <div className="w-7 h-7 md:w-8 md:h-8 bg-primary rounded-md flex items-center justify-center text-on-primary">
+                <span className="material-symbols-outlined text-[16px] md:text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
               </div>
-              <span className="text-body-lg md:text-headline-md font-bold text-primary tracking-tight">Fakna</span>
+              <span className="text-body-md md:text-body-lg font-bold text-primary tracking-tight">Fakna</span>
             </Link>
 
             {/* Global Search Bar (resizing it to be larger/flex-grow next to Fakna logo) */}
             {!user?.is_admin && (location.pathname === '/' || location.pathname === '/search') && (
-              <div className="hidden md:flex items-center flex-grow max-w-[800px] mx-lg">
+              <div className="hidden md:flex items-center flex-grow max-w-[1100px] mx-auto px-md">
                 <SearchBar initialSearch={search} onSearchChange={handleSearchChange} onSelectCategory={handleCategorySelect} />
               </div>
             )}
@@ -212,160 +212,174 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* User Info / Actions */}
-          <div className={`flex items-center gap-xs shrink-0 ${
+          {/* User Info / Actions — all items flat in one top-right row */}
+          <div className={`flex items-center gap-[2px] shrink-0 ml-auto ${
             user?.is_admin
               ? 'flex-col items-stretch w-full mt-auto pt-md border-t border-outline-variant/20'
-              : 'md:gap-md'
+              : ''
           }`}>
-            {/* Inbox Button */}
-            {user && !user.is_admin && (
-              <Link
-                to="/inbox"
-                className={`relative text-secondary hover:text-primary transition-colors px-xs py-xs flex items-center gap-xs rounded-md ${
-                  isActive('/inbox') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
-                }`}
-                title="Inbox"
-              >
-                <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActive('/inbox') ? "'FILL' 1" : "'FILL' 0" }}>inbox</span>
-                {hasUnreadMessages && (
-                  <span className="absolute top-[4px] right-[4px] flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+
+            {user && !user.is_admin ? (
+              <>
+                {/* Post Ad CTA */}
+                <Link 
+                  to="/ads/create" 
+                  className="hidden sm:flex bg-primary text-on-primary font-label-md text-label-md px-sm py-[5px] rounded-md shadow-sm btn-primary-inner hover:brightness-110 active:scale-[0.98] transition-all items-center gap-xs text-[13px] mr-1"
+                >
+                  <span className="material-symbols-outlined text-[16px]">add</span>
+                  Post Ad
+                </Link>
+
+                {/* Inbox */}
+                <Link
+                  to="/inbox"
+                  className={`relative text-secondary hover:text-primary transition-colors px-[6px] py-[4px] flex items-center rounded-md ${
+                    isActive('/inbox') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
+                  }`}
+                  title="Inbox"
+                >
+                  <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: isActive('/inbox') ? "'FILL' 1" : "'FILL' 0" }}>inbox</span>
+                  {hasUnreadMessages && (
+                    <span className="absolute top-[2px] right-[2px] flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                  )}
+                </Link>
+
+                {/* Dark Mode Toggle */}
+                <button
+                  onClick={toggleTheme}
+                  className="text-secondary hover:text-primary transition-colors px-[6px] py-[4px] flex items-center rounded-md hover:bg-surface-container-low"
+                  title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                >
+                  <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: theme === 'dark' ? "'FILL' 1" : "'FILL' 0" }}>
+                    {theme === 'dark' ? 'light_mode' : 'dark_mode'}
                   </span>
-                )}
-              </Link>
-            )}
+                </button>
 
-            {/* Theme Toggle Button */}
-            <button
-              onClick={toggleTheme}
-              className={`text-secondary hover:text-primary transition-colors px-xs py-xs flex items-center gap-xs rounded-md hover:bg-surface-container-low text-left ${
-                user?.is_admin ? 'w-full px-md py-sm gap-sm rounded-lg' : ''
-              }`}
-              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            >
-              <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: theme === 'dark' ? "'FILL' 1" : "'FILL' 0" }}>
-                {theme === 'dark' ? 'light_mode' : 'dark_mode'}
-              </span>
-              {user?.is_admin && (
-                <span className="text-body-sm font-bold">
-                  {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-                </span>
-              )}
-            </button>
-
-
-
-            {/* Create Ad Button */}
-            {user && !user.is_admin && (
-              <Link 
-                to="/ads/create" 
-                className="hidden sm:flex bg-primary text-on-primary font-label-md text-label-md px-md py-[8px] rounded-lg shadow-sm btn-primary-inner hover:brightness-110 active:scale-[0.98] transition-all items-center gap-xs"
-              >
-                <span className="material-symbols-outlined text-[18px]">add</span>
-                Post Ad
-              </Link>
-            )}
-
-            {/* User Profile / Auth State Actions */}
-            {user ? (
-              <div className={`flex items-center gap-sm ${
-                user?.is_admin ? 'flex-col items-stretch w-full gap-xs' : ''
-              }`}>
-                {!user.is_admin ? (
-                  <>
-                    <div className="flex items-center gap-sm">
-                      <Link
-                        to={`/profile/${user.id}`}
-                        className="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-primary/40 transition-all"
-                        title="View my profile"
-                      >
-                        {user.photo_url ? (
-                          <img src={user.photo_url} alt={user.username} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full bg-primary-fixed flex items-center justify-center text-primary font-bold uppercase">
-                            {user.username?.substring(0, 2)}
-                          </div>
-                        )}
-                      </Link>
+                {/* Profile Avatar */}
+                <Link
+                  to={`/profile/${user.id}`}
+                  className="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-primary/40 transition-all shrink-0"
+                  title="View my profile"
+                >
+                  {user.photo_url ? (
+                    <img src={user.photo_url} alt={user.username} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-primary-fixed flex items-center justify-center text-primary font-bold uppercase text-[11px]">
+                      {user.username?.substring(0, 2)}
                     </div>
+                  )}
+                </Link>
 
-                    <Link
-                      to="/settings"
-                      className={`text-secondary hover:text-primary transition-colors px-xs py-xs flex items-center gap-xs rounded-md ${
-                        isActive('/settings') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
-                      }`}
-                      title="Settings"
-                    >
-                      <span className="material-symbols-outlined text-[20px]">settings</span>
-                    </Link>
+                {/* Settings */}
+                <Link
+                  to="/settings"
+                  className={`text-secondary hover:text-primary transition-colors px-[6px] py-[4px] flex items-center rounded-md ${
+                    isActive('/settings') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
+                  }`}
+                  title="Settings"
+                >
+                  <span className="material-symbols-outlined text-[18px]">settings</span>
+                </Link>
 
-                    <button
-                      onClick={() => signOut()}
-                      className="text-secondary hover:text-error transition-colors px-xs py-xs flex items-center gap-xs rounded-md hover:bg-surface-container-low"
-                      title="Sign Out"
-                    >
-                      <span className="material-symbols-outlined text-[20px]">logout</span>
-                    </button>
+                {/* About */}
+                <Link
+                  to="/dashboard"
+                  className={`text-secondary hover:text-primary transition-colors px-[6px] py-[4px] flex items-center rounded-md ${
+                    isActive('/dashboard') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
+                  }`}
+                  title="About"
+                >
+                  <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: isActive('/dashboard') ? "'FILL' 1" : "'FILL' 0" }}>info</span>
+                </Link>
 
-                    <Link
-                      to="/dashboard"
-                      className={`text-secondary hover:text-primary transition-colors px-xs py-xs flex items-center gap-xs rounded-md ${
-                        isActive('/dashboard') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
-                      }`}
-                      title="About"
-                    >
-                      <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActive('/dashboard') ? "'FILL' 1" : "'FILL' 0" }}>info</span>
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-sm flex-row items-center justify-start w-full gap-sm mb-xs px-sm">
-                      <div className="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden shrink-0" title="Administrator">
-                        {user.photo_url ? (
-                          <img src={user.photo_url} alt={user.username} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full bg-primary-fixed flex items-center justify-center text-primary font-bold uppercase">
-                            {user.username?.substring(0, 2)}
-                          </div>
-                        )}
+                {/* Sign Out */}
+                <button
+                  onClick={() => signOut()}
+                  className="text-secondary hover:text-error transition-colors px-[6px] py-[4px] flex items-center rounded-md hover:bg-surface-container-low"
+                  title="Sign Out"
+                >
+                  <span className="material-symbols-outlined text-[18px]">logout</span>
+                </button>
+              </>
+            ) : user?.is_admin ? (
+              <>
+                {/* Admin: Theme Toggle */}
+                <button
+                  onClick={toggleTheme}
+                  className="text-secondary hover:text-primary transition-colors w-full px-md py-sm flex items-center gap-sm rounded-lg hover:bg-surface-container-low text-left"
+                  title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                >
+                  <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: theme === 'dark' ? "'FILL' 1" : "'FILL' 0" }}>
+                    {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+                  </span>
+                  <span className="text-body-sm font-bold">
+                    {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                  </span>
+                </button>
+
+                {/* Admin: Profile row */}
+                <div className="flex items-center flex-row justify-start w-full gap-sm mb-xs px-sm">
+                  <div className="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden shrink-0" title="Administrator">
+                    {user.photo_url ? (
+                      <img src={user.photo_url} alt={user.username} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-primary-fixed flex items-center justify-center text-primary font-bold uppercase">
+                        {user.username?.substring(0, 2)}
                       </div>
-                      <div className="flex flex-col items-start min-w-0">
-                        <span className="text-body-sm font-bold text-on-surface truncate block">{user.username}</span>
-                        <span className="text-[10px] bg-secondary-fixed text-on-secondary-fixed px-sm py-[1px] rounded-full font-bold uppercase tracking-wider mt-[2px] inline-block">Admin</span>
-                      </div>
-                    </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-start min-w-0">
+                    <span className="text-body-sm font-bold text-on-surface truncate block">{user.username}</span>
+                    <span className="text-[10px] bg-secondary-fixed text-on-secondary-fixed px-sm py-[1px] rounded-full font-bold uppercase tracking-wider mt-[2px] inline-block">Admin</span>
+                  </div>
+                </div>
 
-                    <button
-                      onClick={() => signOut()}
-                      className="text-secondary hover:text-error transition-colors px-md py-sm flex items-center gap-sm rounded-lg w-full text-left hover:bg-surface-container-low"
-                      title="Sign Out"
-                    >
-                      <span className="material-symbols-outlined text-[20px]">logout</span>
-                      <span className="text-body-sm font-bold">Sign Out</span>
-                    </button>
-                  </>
-                )}
-              </div>
+                {/* Admin: Sign Out */}
+                <button
+                  onClick={() => signOut()}
+                  className="text-secondary hover:text-error transition-colors px-md py-sm flex items-center gap-sm rounded-lg w-full text-left hover:bg-surface-container-low"
+                  title="Sign Out"
+                >
+                  <span className="material-symbols-outlined text-[20px]">logout</span>
+                  <span className="text-body-sm font-bold">Sign Out</span>
+                </button>
+              </>
             ) : (
-              <div className="flex items-center gap-xs md:gap-md">
+              /* Logged-out state */
+              <>
+                {/* Dark Mode Toggle */}
+                <button
+                  onClick={toggleTheme}
+                  className="text-secondary hover:text-primary transition-colors px-[6px] py-[4px] flex items-center rounded-md hover:bg-surface-container-low"
+                  title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                >
+                  <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: theme === 'dark' ? "'FILL' 1" : "'FILL' 0" }}>
+                    {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+                  </span>
+                </button>
+
+                {/* About */}
+                <Link
+                  to="/dashboard"
+                  className={`text-secondary hover:text-primary transition-colors px-[6px] py-[4px] flex items-center rounded-md ${
+                    isActive('/dashboard') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
+                  }`}
+                  title="About"
+                >
+                  <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: isActive('/dashboard') ? "'FILL' 1" : "'FILL' 0" }}>info</span>
+                </Link>
+
+                {/* Sign In */}
                 <Link
                   to="/login"
-                  className="bg-primary text-on-primary font-label-md text-label-md px-md py-[8px] rounded-lg shadow-sm btn-primary-inner hover:brightness-110 active:scale-[0.98] transition-all text-center block"
+                  className="bg-primary text-on-primary font-label-md text-label-md px-sm py-[5px] rounded-md shadow-sm btn-primary-inner hover:brightness-110 active:scale-[0.98] transition-all text-center block text-[13px] ml-[4px]"
                 >
                   Sign In
                 </Link>
-                <Link
-                  to="/dashboard"
-                  className={`text-secondary hover:text-primary transition-colors px-xs py-xs flex items-center gap-xs rounded-md ${
-                    isActive('/dashboard') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
-                      }`}
-                  title="About"
-                >
-                  <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActive('/dashboard') ? "'FILL' 1" : "'FILL' 0" }}>info</span>
-                </Link>
-              </div>
+              </>
             )}
           </div>
         </div>

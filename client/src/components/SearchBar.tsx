@@ -269,7 +269,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   return (
     <div ref={containerRef} className="relative w-full" onKeyDown={handleKeyDown}>
       {/* Search Icon */}
-      <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-secondary pointer-events-none z-10">
+      <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-secondary pointer-events-none z-10 text-[18px]">
         search
       </span>
 
@@ -282,7 +282,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         autoComplete="off"
         spellCheck="false"
         placeholder="Search ads by keyword..."
-        className="w-full bg-surface-container border border-outline-variant rounded-xl pl-[44px] pr-[44px] py-md font-body-md text-body-md text-on-surface placeholder:text-secondary/60 focus:border-primary focus:bg-surface-container-lowest focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-200"
+        className="w-full bg-surface-container border border-outline-variant rounded-xl pl-[40px] pr-[40px] py-[5px] font-body-md text-body-sm text-on-surface placeholder:text-secondary/60 focus:border-primary focus:bg-surface-container-lowest focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-200"
       />
 
       {/* Right-side controls: spinner + clear button */}
