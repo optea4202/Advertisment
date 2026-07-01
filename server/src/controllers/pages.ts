@@ -146,6 +146,12 @@ export const handleUpdatePage = async (req: Request, res: Response, next: NextFu
     const newFiles = req.files as Express.Multer.File[] | undefined;
     const newFilesArray = newFiles || [];
 
+    if ((keepBanners ? keepBanners.length : 0) + newFilesArray.length > 5) {
+      return res.status(400).json({
+        error: { message: 'A page may have a maximum of 5 banner images.', code: 'BANNER_LIMIT_EXCEEDED' }
+      });
+    }
+
     const updated = await updatePage(
       id,
       parseResult.data.slug,

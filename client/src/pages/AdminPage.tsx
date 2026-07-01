@@ -1301,6 +1301,11 @@ export const AdminPage: React.FC = () => {
                                         const validFiles = files.filter(file => file.type.startsWith('image/'));
                                         if (validFiles.length === 0) return;
                                         
+                                        if (editingKeepBanners.length + selectedBannerFiles.length + validFiles.length > 5) {
+                                          showFeedback(null, 'You can upload a maximum of 5 banner images in total.');
+                                          return;
+                                        }
+                                        
                                         setSelectedBannerFiles(prev => [...prev, ...validFiles]);
                                         
                                         const newPreviews = validFiles.map(file => URL.createObjectURL(file));

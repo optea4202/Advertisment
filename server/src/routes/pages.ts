@@ -30,7 +30,7 @@ router.get('/:slug', handleGetPageBySlug);
 router.post('/', requireAuth, requireAdmin, handleCreatePage);
 
 // PUT /api/pages/:id - Update a page (Admin only)
-router.put('/:id', requireAuth, requireAdmin, upload.array('banners', 10), handleUpdatePage);
+router.put('/:id', requireAuth, requireAdmin, upload.array('banners', 5), handleUpdatePage);
 
 // DELETE /api/pages/:id - Delete a page (Admin only)
 router.delete('/:id', requireAuth, requireAdmin, handleDeletePage);
