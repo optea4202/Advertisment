@@ -19,7 +19,7 @@ const pageSchema = z.object({
   content: z.string({
     required_error: 'Page content is required',
   }).min(1, 'Page content must not be empty'),
-  featured_ad_ids: z.array(z.number()).max(12).optional().nullable(),
+  featured_ad_ids: z.array(z.number()).max(10).optional().nullable(),
   keep_banners: z.array(z.string()).optional().nullable()
 });
 

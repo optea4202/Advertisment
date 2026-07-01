@@ -133,7 +133,18 @@ export const useMyAds = () => {
 };
 
 export const useFeed = (category?: string, search?: string, page: number = 1) => {
-  const cacheKey = `${category || ''}_${search || ''}_${page}`;
+  const [limit, setLimit] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768 ? 12 : 15);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleResize = () => {
+      setLimit(window.innerWidth < 768 ? 12 : 15);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const cacheKey = `${category || ''}_${search || ''}_${page}_${limit}`;
 
   // Load persisted data immediately so offline refresh shows stale ads instantly
   const storedFeed = feedCache[cacheKey] || loadFeedFromStorage(cacheKey);
@@ -166,7 +177,7 @@ export const useFeed = (category?: string, search?: string, page: number = 1) =>
           searchParams: {
             query: search,
             filters: algoliaFilters,
-            hitsPerPage: 12,
+            hitsPerPage: limit,
             page: page - 1
           }
         });
@@ -205,7 +216,7 @@ export const useFeed = (category?: string, search?: string, page: number = 1) =>
         setFromCache(false);
       } else {
         // Fall back to category/search database feed if no search query, or Algolia unavailable
-        const data = await getAds({ category, search, page, limit: 12 });
+        const data = await getAds({ category, search, page, limit });
         const item: FeedCacheItem = { ads: data.ads, total: data.total, totalPages: data.totalPages };
         setAds(data.ads);
         setTotal(data.total);
@@ -234,13 +245,13 @@ export const useFeed = (category?: string, search?: string, page: number = 1) =>
     } finally {
       setLoading(false);
     }
-  }, [category, search, page, cacheKey]);
+  }, [category, search, page, limit, cacheKey]);
 
   useEffect(() => {
     fetchAds();
   }, [fetchAds]);
 
-  return { ads, total, totalPages, loading, error, fromCache, refresh: fetchAds };
+  return { ads, total, totalPages, loading, error, fromCache, limit, refresh: fetchAds };
 };
 
 export const useAd = (id: number) => {

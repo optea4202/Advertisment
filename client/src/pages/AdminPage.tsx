@@ -1339,10 +1339,10 @@ export const AdminPage: React.FC = () => {
 
                             <div className="md:col-span-12 flex flex-col gap-sm border-t border-outline-variant/20 pt-md mt-xs">
                               <h4 className="font-label-sm text-[12px] font-semibold text-secondary uppercase tracking-wider">
-                                Select Featured Ads (Up to 8)
+                                Select Featured Ads (Up to 10)
                               </h4>
-                              <div className="grid grid-cols-1 sm:grid-cols-4 gap-md">
-                              {Array.from({ length: 8 }).map((_, index) => (
+                              <div className="grid grid-cols-1 sm:grid-cols-5 gap-md">
+                              {Array.from({ length: 10 }).map((_, index) => (
                                 <div key={index} className="flex flex-col gap-xs">
                                   <label className="font-label-sm text-secondary text-[12px]">
                                     Slot {index + 1}
@@ -1414,13 +1414,13 @@ export const AdminPage: React.FC = () => {
                             if (p.slug === 'home') {
                               const ids = p.featured_ad_ids || [];
                               setEditingFeaturedAdIds(
-                                Array.from({ length: 8 }, (_, i) => ids[i] || 0)
+                                Array.from({ length: 10 }, (_, i) => ids[i] || 0)
                               );
                               setEditingKeepBanners(p.banner_images || []);
                               setSelectedBannerFiles([]);
                               setBannerPreviews([]);
                             } else {
-                              setEditingFeaturedAdIds(Array(8).fill(0));
+                              setEditingFeaturedAdIds(Array(10).fill(0));
                               setEditingKeepBanners([]);
                               setSelectedBannerFiles([]);
                               setBannerPreviews([]);
@@ -1475,7 +1475,7 @@ export const AdminPage: React.FC = () => {
                         Featured Ads — Home Page
                       </h3>
                       <p className="text-secondary text-body-sm mt-xs">
-                        Select up to <span className="font-semibold text-primary">8 ads</span> to showcase in the Featured Listings section on the home page.
+                        Select up to <span className="font-semibold text-primary">10 ads</span> to showcase in the Featured Listings section on the home page.
                       </p>
                     </div>
                     <button
@@ -1501,7 +1501,7 @@ export const AdminPage: React.FC = () => {
                   <div className="flex flex-col gap-sm">
                     <h4 className="font-label-sm text-[12px] font-semibold text-secondary uppercase tracking-wider flex items-center gap-xs">
                       <span className="material-symbols-outlined text-[14px]">format_list_numbered</span>
-                      Current Featured Slots ({featuredAdIds.length}/8)
+                      Current Featured Slots ({featuredAdIds.length}/10)
                     </h4>
 
                     {featuredAdIds.length === 0 ? (
@@ -1510,7 +1510,7 @@ export const AdminPage: React.FC = () => {
                         No featured ads selected yet. Pick ads from the list below.
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-sm">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-sm">
                         {featuredAdIds.map((id, idx) => {
                           const ad = ads.find((a) => a.id === id);
                           if (!ad) return null;
@@ -1591,7 +1591,7 @@ export const AdminPage: React.FC = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-sm max-h-[520px] overflow-y-auto pr-xs">
                           {filtered.map((ad) => {
                             const isFeatured = featuredAdIds.includes(ad.id);
-                            const atLimit = featuredAdIds.length >= 8 && !isFeatured;
+                            const atLimit = featuredAdIds.length >= 10 && !isFeatured;
                             const thumb = ad.images?.[0]?.cloudinary_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop';
                             const slotNumber = featuredAdIds.indexOf(ad.id) + 1;
                             return (
@@ -1601,7 +1601,7 @@ export const AdminPage: React.FC = () => {
                                 onClick={() => {
                                   if (isFeatured) {
                                     setFeaturedAdIds((prev) => prev.filter((id) => id !== ad.id));
-                                  } else if (featuredAdIds.length < 8) {
+                                  } else if (featuredAdIds.length < 10) {
                                     setFeaturedAdIds((prev) => [...prev, ad.id]);
                                   }
                                 }}
@@ -1612,7 +1612,7 @@ export const AdminPage: React.FC = () => {
                                     ? 'border-outline-variant/20 bg-surface-container-low/30 opacity-40 cursor-not-allowed'
                                     : 'border-outline-variant/20 bg-surface-container-lowest hover:border-primary/40 hover:bg-primary-fixed/5 hover:shadow-sm active:scale-[0.99]'
                                 }`}
-                                title={atLimit ? 'Maximum 8 featured ads reached' : isFeatured ? 'Click to remove from featured' : 'Click to add to featured'}
+                                title={atLimit ? 'Maximum 10 featured ads reached' : isFeatured ? 'Click to remove from featured' : 'Click to add to featured'}
                               >
                                 {/* Featured badge / slot number */}
                                 {isFeatured && (
@@ -1652,9 +1652,9 @@ export const AdminPage: React.FC = () => {
                         </div>
                       );
                     })()}
-                    {featuredAdIds.length >= 8 && (
+                    {featuredAdIds.length >= 10 && (
                       <p className="text-[12px] text-secondary text-center bg-surface-container-low border border-outline-variant/20 rounded-lg px-md py-sm">
-                        Maximum of 8 featured ads reached. Remove a slot above to add a different ad.
+                        Maximum of 10 featured ads reached. Remove a slot above to add a different ad.
                       </p>
                     )}
                   </div>

@@ -12,6 +12,12 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Configured responsive pagination feed sizes: set the pagination limit to 15 ads per page on desktop screens to align with the 5-column grids, and dynamically set it to 12 ads per page on mobile viewports (checks window size reactive state in `useFeed` custom hook in [useAds.ts](file:///x:/Advertisment/client/src/hooks/useAds.ts), passes `limit` dynamically to backend query and Algolia search, and updates start/end indices calculation inside [SearchPage.tsx](file:///x:/Advertisment/client/src/pages/SearchPage.tsx) using the returned dynamic limit value).
+
+- Increased the home page's chronological "Recent Post" feed and the "Search results" page ads listings grid layout columns from 4 to 5 on desktop viewports (updating `lg:grid-cols-4` to `lg:grid-cols-5` in [FeedPage.tsx](file:///x:/Advertisment/client/src/pages/FeedPage.tsx) and [SearchPage.tsx](file:///x:/Advertisment/client/src/pages/SearchPage.tsx)).
+
+- Increased home page featured ads group rotation display size from 4 to 5 cards (updated layout grid to `sm:grid-cols-5` and updated cycling logic to group/shift by 5 ads), and raised the maximum featured ads slot limit from 8 to 10 (modified slots select arrays, limit alerts, slot numbers, and labels in `AdminPage.tsx`, and updated pages validation constraints in `pages.ts` controllers to `.max(10)`).
+
 - Resized category text sizes for PC/desktop view: introduced custom category typography design tokens (`--type-category-l1-size` and `--type-category-sub-size`) set to 13px in `variables.css`, mapped them to the `category-l1` and `category-sub` classes in `tailwind.config.js`, and updated `CategoryFilter.tsx` to use these smaller text sizes for Level 1, Level 2, and Level 3 category items when rendered on PC/desktop viewports.
 
 - Resized and centered the search bar: made the search bar longer (up to `1100px` max-width), centered it beautifully in the navbar with `mx-auto px-md`, made it more compact by shrinking vertical padding to `py-[5px]` and adjusting text/icon sizes, and set the logo/search wrapper to `flex-grow` to allow proper centering between the logo and user actions. Also resized the search bar in mobile view to be smaller and more compact: reduced mobile vertical padding to `py-[3.5px]`, input font size to `text-[13px]`, icon sizes to `text-[16px]`, and wrapped it in a container with wider horizontal margins (`px-md`) and tighter bottom padding (`pb-xs`).

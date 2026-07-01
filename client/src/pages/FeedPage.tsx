@@ -34,19 +34,19 @@ export const FeedPage: React.FC = () => {
     }
     const pool = pageData.featured_ads;
     
-    if (pool.length <= 4) {
+    if (pool.length <= 5) {
       return {
         visibleFeaturedAds: pool,
         featuredIndex: featuredTick % pool.length
       };
     }
     
-    const featuredIndex = featuredTick % 4;
-    const pageNumber = Math.floor(featuredTick / 4);
-    const groupOffset = (pageNumber * 4) % pool.length;
+    const featuredIndex = featuredTick % 5;
+    const pageNumber = Math.floor(featuredTick / 5);
+    const groupOffset = (pageNumber * 5) % pool.length;
     
     const visible = [];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 5; i++) {
       const idx = (groupOffset + i) % pool.length;
       visible.push(pool[idx]);
     }
@@ -229,7 +229,7 @@ export const FeedPage: React.FC = () => {
               <span className="material-symbols-outlined text-[16px] animate-pulse">star</span>
               <span>Featured Listings</span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-sm">
               {visibleFeaturedAds.map((ad, idx) => {
                 const isActive = idx === featuredIndex;
                 const thumb = ad.images?.[0]?.cloudinary_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop';
@@ -311,7 +311,7 @@ export const FeedPage: React.FC = () => {
                   <span className="material-symbols-outlined text-[18px]">schedule</span>
                   <span>Recent Post</span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-sm md:gap-gutter">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-sm md:gap-gutter">
                   {ads.map((ad, idx) => (
                     <div key={ad.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 75, 450)}ms` }}>
                       <AdCard ad={ad} isFeatured={pageData?.featured_ad_ids?.includes(ad.id)} />

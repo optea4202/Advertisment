@@ -43,7 +43,7 @@ export const SearchPage: React.FC = () => {
     }
   }, [category, search, navigate]);
 
-  const { ads, total, totalPages, loading, error, refresh } = useFeed(category, search, page);
+  const { ads, total, totalPages, loading, error, limit, refresh } = useFeed(category, search, page);
 
   const setCategory = (cat: string) => {
     setSearchParams((prev) => {
@@ -113,8 +113,8 @@ export const SearchPage: React.FC = () => {
     return rangeWithDots;
   };
 
-  const startIndex = (page - 1) * 12 + 1;
-  const endIndex = Math.min(page * 12, total);
+  const startIndex = (page - 1) * limit + 1;
+  const endIndex = Math.min(page * limit, total);
 
   return (
     <div className="bg-surface text-on-surface min-h-screen flex flex-col">
@@ -230,7 +230,7 @@ export const SearchPage: React.FC = () => {
                 <div className="text-body-md font-medium text-secondary/90">
                   Showing {startIndex}-{endIndex} of {total} results
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-sm md:gap-gutter">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-sm md:gap-gutter">
                   {ads.map((ad, idx) => (
                     <div key={ad.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 75, 450)}ms` }}>
                       <AdCard ad={ad} isFeatured={featuredAdIds.includes(ad.id)} />

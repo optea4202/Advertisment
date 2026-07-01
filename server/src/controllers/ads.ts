@@ -219,7 +219,7 @@ const getAdsQuerySchema = z.object({
   category: z.string().optional(),
   search: z.string().optional(),
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().default(12)
+  limit: z.coerce.number().int().positive().default(15)
 });
 
 export const handleGetAds = async (req: Request, res: Response, next: NextFunction) => {
