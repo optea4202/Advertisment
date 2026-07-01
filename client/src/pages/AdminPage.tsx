@@ -1254,7 +1254,7 @@ export const AdminPage: React.FC = () => {
                             <div className="md:col-span-12 flex flex-col gap-md border-t border-outline-variant/20 pt-md mt-xs">
                               <h4 className="font-label-sm text-[12px] font-semibold text-secondary uppercase tracking-wider flex items-center gap-xs">
                                 <span className="material-symbols-outlined text-[18px]">photo_library</span>
-                                Hero Banners (Amazon Style Carousel)
+                                Hero Banners
                               </h4>
                               
                               {/* Existing Banners */}
