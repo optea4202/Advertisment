@@ -12,6 +12,8 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Added 4-column (`lg:grid-cols-4`) grid layout at the desktop viewport size breakpoint (1024px to 1279px) and shifted the 5-column layout to the extra-large viewport size breakpoint (`xl:grid-cols-5`) in [FeedPage.tsx](file:///x:/Advertisment/client/src/pages/FeedPage.tsx) and [SearchPage.tsx](file:///x:/Advertisment/client/src/pages/SearchPage.tsx). Correspondingly updated the dynamic pagination limit inside [useAds.ts](file:///x:/Advertisment/client/src/hooks/useAds.ts) to load 12 ads for screens under 1280px wide (perfectly divisible by 2, 3, and 4 columns) and 15 ads for screens 1280px and wider (perfectly divisible by 5 columns).
+
 - Modified the advertisement card title typography and layout in [AdCard.tsx](file:///x:/Advertisment/client/src/components/AdCard.tsx): reduced the title text size from `text-[14px]` to `text-[12px]` on mobile viewports, and from `md:text-headline-md` (24px) to `md:text-[14px]` on desktop/tablet viewports; increased visibility from 1 line to up to 3 lines (`line-clamp-3`), and adjusted the line-height styling to `leading-tight md:leading-snug` to optimize grid readability.
 
 - Configured mobile featured listings layout on the homepage in [FeedPage.tsx](file:///x:/Advertisment/client/src/pages/FeedPage.tsx) to display exactly 2 items per row on mobile viewports: dynamically adjusts the featured ads rotation/group size to 2 items when screen size is less than 640px (desktop/tablet stays at 5), and updated the grid columns layout from `grid-cols-4` to `grid-cols-2` on mobile screens. The text, padding, margins, and badges have been scaled up for readability.
