@@ -25,7 +25,7 @@ const upload = multer({
 });
 
 // POST /api/ads - Create a new advertisement (supports up to 5 images)
-router.post('/', requireAuth, requireNotBanned, upload.array('images', 10), handleCreateAd);
+router.post('/', requireAuth, requireNotBanned, upload.array('images', 5), handleCreateAd);
 
 // GET /api/ads - Retrieve all ads matching optional search and category filters
 router.get('/', optionalAuth, requireNotBanned, handleGetAds);
@@ -40,7 +40,7 @@ router.get('/suggestions', optionalAuth, requireNotBanned, handleGetSuggestions)
 router.get('/:id', optionalAuth, requireNotBanned, handleGetAdById);
 
 // PUT /api/ads/:id - Update advertisement details and images
-router.put('/:id', requireAuth, requireNotBanned, upload.array('images', 10), handleUpdateAd);
+router.put('/:id', requireAuth, requireNotBanned, upload.array('images', 5), handleUpdateAd);
 
 // DELETE /api/ads/:id - Delete an advertisement and cleanup assets
 router.delete('/:id', requireAuth, requireNotBanned, handleDeleteAd);

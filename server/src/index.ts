@@ -63,13 +63,23 @@ app.get('/health', async (req: Request, res: Response, next: NextFunction) => {
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('Unhandled Server Error:', err);
   
-  if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
-    return res.status(400).json({
-      error: {
-        message: 'File size limit exceeded. Maximum allowed upload size is 20MB per image.',
-        code: 'FILE_SIZE_LIMIT_EXCEEDED'
-      }
-    });
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        error: {
+          message: 'File size limit exceeded. Maximum allowed upload size is 20MB per image.',
+          code: 'FILE_SIZE_LIMIT_EXCEEDED'
+        }
+      });
+    }
+    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      return res.status(400).json({
+        error: {
+          message: 'An advertisement may have a maximum of 5 images.',
+          code: 'IMAGE_LIMIT_EXCEEDED'
+        }
+      });
+    }
   }
 
   res.status(500).json({
