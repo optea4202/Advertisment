@@ -386,7 +386,7 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Search Bar Row (Row 2 - Mobile Only, Admin Excluded) */}
         {!user?.is_admin && (location.pathname === '/' || location.pathname === '/search') && (
-          <div className="block md:hidden w-full px-sm pb-sm bg-surface-container-lowest">
+          <div className="block md:hidden w-full px-md pb-xs bg-surface-container-lowest">
             <SearchBar initialSearch={search} onSearchChange={handleSearchChange} onSelectCategory={handleCategorySelect} />
           </div>
         )}

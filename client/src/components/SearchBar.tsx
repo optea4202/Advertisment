@@ -269,7 +269,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   return (
     <div ref={containerRef} className="relative w-full" onKeyDown={handleKeyDown}>
       {/* Search Icon */}
-      <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-secondary pointer-events-none z-10 text-[18px]">
+      <span className="material-symbols-outlined absolute left-sm md:left-md top-1/2 -translate-y-1/2 text-secondary pointer-events-none z-10 text-[16px] md:text-[18px]">
         search
       </span>
 
@@ -282,13 +282,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         autoComplete="off"
         spellCheck="false"
         placeholder="Search ads by keyword..."
-        className="w-full bg-surface-container border border-outline-variant rounded-xl pl-[40px] pr-[40px] py-[5px] font-body-md text-body-sm text-on-surface placeholder:text-secondary/60 focus:border-primary focus:bg-surface-container-lowest focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-200"
+        className="w-full bg-surface-container border border-outline-variant rounded-xl pl-[32px] md:pl-[40px] pr-[32px] md:pr-[40px] py-[3.5px] md:py-[5px] font-body-md text-[13px] md:text-body-sm text-on-surface placeholder:text-secondary/60 focus:border-primary focus:bg-surface-container-lowest focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-200"
       />
 
       {/* Right-side controls: spinner + clear button */}
-      <div className="absolute right-md top-1/2 -translate-y-1/2 flex items-center gap-xs">
+      <div className="absolute right-sm md:right-md top-1/2 -translate-y-1/2 flex items-center gap-xs">
         {loading && (
-          <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+          <div className="w-3.5 h-3.5 md:w-4 md:h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
         )}
         {searchTerm && (
           <button
@@ -296,7 +296,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             className="text-secondary hover:text-on-surface transition-colors p-xs rounded-full hover:bg-surface-container"
             title="Clear search"
           >
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <span className="material-symbols-outlined text-[16px] md:text-[20px]">close</span>
           </button>
         )}
       </div>
