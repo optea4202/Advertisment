@@ -93,7 +93,9 @@ export default {
         "body-md": ["Inter", "sans-serif"],
         "body-sm": ["Inter", "sans-serif"],
         "label-md": ["Inter", "sans-serif"],
-        "label-sm": ["Inter", "sans-serif"]
+        "label-sm": ["Inter", "sans-serif"],
+        "category-l1": ["Inter", "sans-serif"],
+        "category-sub": ["Inter", "sans-serif"]
       },
       fontSize: {
         "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
@@ -104,7 +106,9 @@ export default {
         "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
         "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
         "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
-        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }]
+        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+        "category-l1": ["var(--type-category-l1-size)", { "lineHeight": "18px", "letterSpacing": "0.03em", "fontWeight": "500" }],
+        "category-sub": ["var(--type-category-sub-size)", { "lineHeight": "18px", "fontWeight": "500" }]
       },
       keyframes: {
         "fade-in-up": {

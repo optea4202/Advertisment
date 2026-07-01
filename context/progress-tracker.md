@@ -12,6 +12,8 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Resized category text sizes for PC/desktop view: introduced custom category typography design tokens (`--type-category-l1-size` and `--type-category-sub-size`) set to 13px in `variables.css`, mapped them to the `category-l1` and `category-sub` classes in `tailwind.config.js`, and updated `CategoryFilter.tsx` to use these smaller text sizes for Level 1, Level 2, and Level 3 category items when rendered on PC/desktop viewports.
+
 - Resized and centered the search bar: made the search bar longer (up to `1100px` max-width), centered it beautifully in the navbar with `mx-auto px-md`, made it more compact by shrinking vertical padding to `py-[5px]` and adjusting text/icon sizes, and set the logo/search wrapper to `flex-grow` to allow proper centering between the logo and user actions. Also resized the search bar in mobile view to be smaller and more compact: reduced mobile vertical padding to `py-[3.5px]`, input font size to `text-[13px]`, icon sizes to `text-[16px]`, and wrapped it in a container with wider horizontal margins (`px-md`) and tighter bottom padding (`pb-xs`).
 
 - Removed the text "(Amazon Style Carousel)" from the Hero Banners section heading in the Admin page pages management editor (`AdminPage.tsx`).

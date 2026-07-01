@@ -106,6 +106,10 @@
   --type-label-sm-weight: 600;
   --type-label-sm-line-height: 16px;
 
+  /* Category PC Font Sizes */
+  --type-category-l1-size: 13px;
+  --type-category-sub-size: 13px;
+
   /* Border Radius */
   --radius-sm: 0.25rem;
   --radius-default: 0.5rem;

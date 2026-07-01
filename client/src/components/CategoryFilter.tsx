@@ -78,7 +78,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
                 >
                   <button
                     onClick={() => handleSelect(cat.name)}
-                    className={`flex items-center gap-xs px-sm py-[8px] rounded-lg font-label-md text-label-md uppercase tracking-wider transition-all duration-150 ${
+                    className={`flex items-center gap-xs px-sm py-[8px] rounded-lg font-category-l1 text-category-l1 uppercase tracking-wider transition-all duration-150 ${
                       isSelected
                         ? 'text-primary font-bold bg-primary-fixed/15'
                         : 'text-secondary hover:text-primary hover:bg-surface-container-low/50'
@@ -117,7 +117,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
                             >
                               <button
                                 onClick={() => handleSelect(subCat.name)}
-                                className={`flex items-center justify-between px-md py-sm w-full text-left text-body-sm font-medium transition-colors ${
+                                className={`flex items-center justify-between px-md py-sm w-full text-left text-category-sub font-medium transition-colors ${
                                   isHovered
                                     ? 'text-primary bg-surface-container-low'
                                     : 'text-secondary hover:text-primary hover:bg-surface-container-low'
@@ -157,7 +157,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
                               <button
                                 key={level3.id}
                                 onClick={() => handleSelect(level3.name)}
-                                className="flex items-center gap-xs px-md py-sm text-left text-body-sm text-secondary hover:text-primary hover:bg-surface-container-low transition-colors"
+                                className="flex items-center gap-xs px-md py-sm text-left text-category-sub text-secondary hover:text-primary hover:bg-surface-container-low transition-colors"
                               >
                                 <span className="material-symbols-outlined text-[16px] text-secondary/40 shrink-0">
                                   {level3.symbol || 'category'}
