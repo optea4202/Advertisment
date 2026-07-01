@@ -8,6 +8,7 @@ export interface PageContent {
   content: string;
   featured_ad_ids?: number[] | null;
   featured_ads?: Ad[] | null;
+  banner_images?: string[] | null;
   created_at: string;
   updated_at: string;
 }
@@ -42,13 +43,33 @@ export const updatePage = async (
   slug: string, 
   title: string, 
   content: string, 
-  featuredAdIds?: number[] | null
+  featuredAdIds?: number[] | null,
+  keepBanners?: string[] | null,
+  bannerFiles?: File[] | null
 ): Promise<PageContent> => {
-  const res = await api.put<{ data: PageContent }>(`/api/pages/${id}`, { 
-    slug, 
-    title, 
-    content, 
-    featured_ad_ids: featuredAdIds 
+  const formData = new FormData();
+  formData.append('slug', slug);
+  formData.append('title', title);
+  formData.append('content', content);
+  
+  if (featuredAdIds) {
+    formData.append('featured_ad_ids', JSON.stringify(featuredAdIds));
+  }
+  
+  if (keepBanners) {
+    formData.append('keep_banners', JSON.stringify(keepBanners));
+  }
+  
+  if (bannerFiles && bannerFiles.length > 0) {
+    bannerFiles.forEach((file) => {
+      formData.append('banners', file);
+    });
+  }
+
+  const res = await api.put<{ data: PageContent }>(`/api/pages/${id}`, formData, { 
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
   });
   return res.data.data;
 };

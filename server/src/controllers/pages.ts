@@ -19,7 +19,8 @@ const pageSchema = z.object({
   content: z.string({
     required_error: 'Page content is required',
   }).min(1, 'Page content must not be empty'),
-  featured_ad_ids: z.array(z.number()).max(12).optional().nullable()
+  featured_ad_ids: z.array(z.number()).max(12).optional().nullable(),
+  keep_banners: z.array(z.string()).optional().nullable()
 });
 
 export const handleGetPages = async (req: Request, res: Response, next: NextFunction) => {
@@ -105,6 +106,33 @@ export const handleUpdatePage = async (req: Request, res: Response, next: NextFu
       });
     }
 
+    // Parse array fields from body if they are stringified
+    if (req.body.featured_ad_ids) {
+      try {
+        req.body.featured_ad_ids = typeof req.body.featured_ad_ids === 'string'
+          ? JSON.parse(req.body.featured_ad_ids)
+          : req.body.featured_ad_ids;
+      } catch (err) {
+        req.body.featured_ad_ids = Array.isArray(req.body.featured_ad_ids)
+          ? req.body.featured_ad_ids.map((x: any) => parseInt(x, 10))
+          : [parseInt(req.body.featured_ad_ids, 10)];
+      }
+    }
+
+    let keepBanners: string[] | null = null;
+    if (req.body.keep_banners) {
+      try {
+        keepBanners = typeof req.body.keep_banners === 'string'
+          ? JSON.parse(req.body.keep_banners)
+          : req.body.keep_banners;
+      } catch (err) {
+        keepBanners = Array.isArray(req.body.keep_banners)
+          ? req.body.keep_banners
+          : [req.body.keep_banners];
+      }
+      req.body.keep_banners = keepBanners;
+    }
+
     const parseResult = pageSchema.safeParse(req.body);
     if (!parseResult.success) {
       return res.status(400).json({
@@ -115,12 +143,17 @@ export const handleUpdatePage = async (req: Request, res: Response, next: NextFu
       });
     }
 
+    const newFiles = req.files as Express.Multer.File[] | undefined;
+    const newFilesArray = newFiles || [];
+
     const updated = await updatePage(
       id,
       parseResult.data.slug,
       parseResult.data.title,
       parseResult.data.content,
-      parseResult.data.featured_ad_ids ?? null
+      parseResult.data.featured_ad_ids ?? null,
+      keepBanners,
+      newFilesArray
     );
     return res.status(200).json({
       data: updated

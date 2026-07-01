@@ -33,6 +33,7 @@ import {
 import { ConfirmModal } from '../components/ConfirmModal.js';
 import { Link, useSearchParams } from 'react-router-dom';
 import { buildCategoryTree, flattenCategoryTree, isDescendantOf } from '../utils/categoryTree.js';
+import { compressImage } from '../utils/imageCompressor.js';
 
 const AVAILABLE_SYMBOLS = [
   'category', 'devices', 'chair', 'directions_car', 'build', 
@@ -78,6 +79,9 @@ export const AdminPage: React.FC = () => {
   const [editingPageTitle, setEditingPageTitle] = useState('');
   const [editingPageContent, setEditingPageContent] = useState('');
   const [editingFeaturedAdIds, setEditingFeaturedAdIds] = useState<number[]>(Array(8).fill(0));
+  const [editingKeepBanners, setEditingKeepBanners] = useState<string[]>([]);
+  const [selectedBannerFiles, setSelectedBannerFiles] = useState<File[]>([]);
+  const [bannerPreviews, setBannerPreviews] = useState<string[]>([]);
 
   // Featured Ads tab state
   const [featuredAdIds, setFeaturedAdIds] = useState<number[]>([]);
@@ -250,13 +254,39 @@ export const AdminPage: React.FC = () => {
       const featuredIds = editingPageSlug === 'home' 
         ? editingFeaturedAdIds.filter(id => id > 0) 
         : null;
-      await updatePage(editingPage.id, editingPageSlug, editingPageTitle, editingPageContent, featuredIds);
+
+      // Compress banner images before uploading
+      let compressedFiles: File[] | null = null;
+      if (selectedBannerFiles.length > 0) {
+        const compressedFilesPromises = selectedBannerFiles.map((file) => compressImage(file, 1200, 0.8));
+        compressedFiles = await Promise.all(compressedFilesPromises);
+
+        // Verify size limit (500KB)
+        const overSized = compressedFiles.some(f => f.size > 500 * 1024);
+        if (overSized) {
+          showFeedback(null, 'One or more banner images exceed the 500KB size limit after compression.');
+          return;
+        }
+      }
+
+      await updatePage(
+        editingPage.id, 
+        editingPageSlug, 
+        editingPageTitle, 
+        editingPageContent, 
+        featuredIds,
+        editingKeepBanners,
+        compressedFiles
+      );
       showFeedback(`Successfully updated page "${editingPageTitle}".`);
       setEditingPage(null);
       setEditingPageSlug('');
       setEditingPageTitle('');
       setEditingPageContent('');
       setEditingFeaturedAdIds(Array(8).fill(0));
+      setEditingKeepBanners([]);
+      setSelectedBannerFiles([]);
+      setBannerPreviews([]);
       fetchData('pages');
     } catch (err: any) {
       console.error('Failed to update page:', err);
@@ -1219,11 +1249,94 @@ export const AdminPage: React.FC = () => {
                         </div>
                         
                         {editingPageSlug === 'home' && (
-                          <div className="md:col-span-12 flex flex-col gap-sm border-t border-outline-variant/20 pt-md mt-xs">
-                            <h4 className="font-label-sm text-[12px] font-semibold text-secondary uppercase tracking-wider">
-                              Select Featured Ads (Up to 8)
-                            </h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-md">
+                          <>
+                            {/* Hero Banners Management */}
+                            <div className="md:col-span-12 flex flex-col gap-md border-t border-outline-variant/20 pt-md mt-xs">
+                              <h4 className="font-label-sm text-[12px] font-semibold text-secondary uppercase tracking-wider flex items-center gap-xs">
+                                <span className="material-symbols-outlined text-[18px]">photo_library</span>
+                                Hero Banners (Amazon Style Carousel)
+                              </h4>
+                              
+                              {/* Existing Banners */}
+                              {editingKeepBanners.length > 0 && (
+                                <div className="flex flex-col gap-xs">
+                                  <span className="font-label-sm text-secondary text-[12px]">Current Banners</span>
+                                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-md">
+                                    {editingKeepBanners.map((url, index) => (
+                                      <div key={url} className="relative aspect-[3/1] rounded-lg overflow-hidden border border-outline-variant/30 group">
+                                        <img src={url} alt={`Banner ${index + 1}`} className="w-full h-full object-cover" />
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setEditingKeepBanners(prev => prev.filter(u => u !== url));
+                                          }}
+                                          className="absolute top-xs right-xs bg-error/90 hover:bg-error text-on-error rounded-full p-[4px] shadow-sm active:scale-90 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                          title="Delete banner"
+                                        >
+                                          <span className="material-symbols-outlined text-[14px]">delete</span>
+                                        </button>
+                                        <div className="absolute bottom-0 left-0 right-0 bg-black/40 text-white font-mono text-[9px] px-xs py-[2px] truncate">
+                                          Slot {index + 1}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Upload New Banners */}
+                              <div className="flex flex-col gap-xs">
+                                <span className="font-label-sm text-secondary text-[12px]">Add New Banners</span>
+                                <div className="flex flex-wrap gap-md items-center">
+                                  <label className="cursor-pointer border-2 border-dashed border-outline-variant/50 hover:border-primary/50 rounded-xl p-md flex flex-col items-center justify-center gap-xs bg-surface-bright/50 hover:bg-primary/5 transition-all text-center min-h-[100px] w-full sm:w-[200px]">
+                                    <span className="material-symbols-outlined text-[28px] text-secondary">cloud_upload</span>
+                                    <span className="font-label-sm text-primary text-[12px] font-semibold">Upload Banner</span>
+                                    <input
+                                      type="file"
+                                      multiple
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const files = Array.from(e.target.files || []);
+                                        const validFiles = files.filter(file => file.type.startsWith('image/'));
+                                        if (validFiles.length === 0) return;
+                                        
+                                        setSelectedBannerFiles(prev => [...prev, ...validFiles]);
+                                        
+                                        const newPreviews = validFiles.map(file => URL.createObjectURL(file));
+                                        setBannerPreviews(prev => [...prev, ...newPreviews]);
+                                      }}
+                                    />
+                                  </label>
+
+                                  {bannerPreviews.map((preview, index) => (
+                                    <div key={preview} className="relative aspect-[3/1] rounded-lg overflow-hidden border border-primary/30 w-full sm:w-[200px]">
+                                      <img src={preview} alt="New Banner Preview" className="w-full h-full object-cover" />
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setSelectedBannerFiles(prev => prev.filter((_, i) => i !== index));
+                                          setBannerPreviews(prev => prev.filter((_, i) => i !== index));
+                                          URL.revokeObjectURL(preview);
+                                        }}
+                                        className="absolute top-xs right-xs bg-error/90 hover:bg-error text-on-error rounded-full p-[4px] shadow-sm active:scale-90 transition"
+                                      >
+                                        <span className="material-symbols-outlined text-[14px]">close</span>
+                                      </button>
+                                      <div className="absolute bottom-0 left-0 right-0 bg-primary/60 text-white font-mono text-[9px] px-xs py-[2px] truncate">
+                                        New
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="md:col-span-12 flex flex-col gap-sm border-t border-outline-variant/20 pt-md mt-xs">
+                              <h4 className="font-label-sm text-[12px] font-semibold text-secondary uppercase tracking-wider">
+                                Select Featured Ads (Up to 8)
+                              </h4>
+                              <div className="grid grid-cols-1 sm:grid-cols-4 gap-md">
                               {Array.from({ length: 8 }).map((_, index) => (
                                 <div key={index} className="flex flex-col gap-xs">
                                   <label className="font-label-sm text-secondary text-[12px]">
@@ -1252,7 +1365,8 @@ export const AdminPage: React.FC = () => {
                               ))}
                             </div>
                           </div>
-                        )}
+                        </>
+                      )}
                         
                         <div className="md:col-span-12 flex items-center gap-sm justify-end mt-xs">
                           <button
@@ -1297,8 +1411,14 @@ export const AdminPage: React.FC = () => {
                               setEditingFeaturedAdIds(
                                 Array.from({ length: 8 }, (_, i) => ids[i] || 0)
                               );
+                              setEditingKeepBanners(p.banner_images || []);
+                              setSelectedBannerFiles([]);
+                              setBannerPreviews([]);
                             } else {
                               setEditingFeaturedAdIds(Array(8).fill(0));
+                              setEditingKeepBanners([]);
+                              setSelectedBannerFiles([]);
+                              setBannerPreviews([]);
                             }
                           }}
                           className={`aspect-square flex flex-col justify-between p-lg rounded-2xl border border-outline-variant/30 bg-surface-container-low hover:bg-surface-container-high/85 cursor-pointer transition-all shadow-sm active:scale-[0.98] select-none ${

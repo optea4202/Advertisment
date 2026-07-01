@@ -6,13 +6,14 @@ export interface DbPage {
   title: string;
   content: string;
   featured_ad_ids: number[] | null;
+  banner_images: string[] | null;
   created_at: Date;
   updated_at: Date;
 }
 
 export const getPages = async (): Promise<DbPage[]> => {
   const sql = `
-    SELECT id, slug, title, content, featured_ad_ids, created_at, updated_at
+    SELECT id, slug, title, content, featured_ad_ids, banner_images, created_at, updated_at
     FROM pages
     ORDER BY slug ASC
   `;
@@ -22,7 +23,7 @@ export const getPages = async (): Promise<DbPage[]> => {
 
 export const getPageById = async (id: number): Promise<DbPage | null> => {
   const sql = `
-    SELECT id, slug, title, content, featured_ad_ids, created_at, updated_at
+    SELECT id, slug, title, content, featured_ad_ids, banner_images, created_at, updated_at
     FROM pages
     WHERE id = $1
   `;
@@ -32,7 +33,7 @@ export const getPageById = async (id: number): Promise<DbPage | null> => {
 
 export const getPageBySlug = async (slug: string): Promise<DbPage | null> => {
   const sql = `
-    SELECT id, slug, title, content, featured_ad_ids, created_at, updated_at
+    SELECT id, slug, title, content, featured_ad_ids, banner_images, created_at, updated_at
     FROM pages
     WHERE LOWER(slug) = LOWER($1)
   `;
@@ -44,18 +45,20 @@ export const createPage = async (
   slug: string, 
   title: string, 
   content: string, 
-  featuredAdIds: number[] | null = null
+  featuredAdIds: number[] | null = null,
+  bannerImages: string[] | null = null
 ): Promise<DbPage> => {
   const sql = `
-    INSERT INTO pages (slug, title, content, featured_ad_ids)
-    VALUES ($1, $2, $3, $4)
-    RETURNING id, slug, title, content, featured_ad_ids, created_at, updated_at
+    INSERT INTO pages (slug, title, content, featured_ad_ids, banner_images)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING id, slug, title, content, featured_ad_ids, banner_images, created_at, updated_at
   `;
   const res = await query(sql, [
     slug.toLowerCase().trim(), 
     title.trim(), 
     content.trim(), 
-    featuredAdIds || []
+    featuredAdIds || [],
+    bannerImages || []
   ]);
   return res.rows[0];
 };
@@ -65,19 +68,21 @@ export const updatePage = async (
   slug: string, 
   title: string, 
   content: string, 
-  featuredAdIds: number[] | null = null
+  featuredAdIds: number[] | null = null,
+  bannerImages: string[] | null = null
 ): Promise<DbPage> => {
   const sql = `
     UPDATE pages
-    SET slug = $1, title = $2, content = $3, featured_ad_ids = $4, updated_at = CURRENT_TIMESTAMP
-    WHERE id = $5
-    RETURNING id, slug, title, content, featured_ad_ids, created_at, updated_at
+    SET slug = $1, title = $2, content = $3, featured_ad_ids = $4, banner_images = $5, updated_at = CURRENT_TIMESTAMP
+    WHERE id = $6
+    RETURNING id, slug, title, content, featured_ad_ids, banner_images, created_at, updated_at
   `;
   const res = await query(sql, [
     slug.toLowerCase().trim(), 
     title.trim(), 
     content.trim(), 
     featuredAdIds || [], 
+    bannerImages || [], 
     id
   ]);
   return res.rows[0];
