@@ -13,6 +13,17 @@ export const FeedPage: React.FC = () => {
   const navigate = useNavigate();
   const [pageData, setPageData] = useState<PageContent | null>(null);
   const [featuredTick, setFeaturedTick] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 640);
+
+  // Detect mobile viewport size changes (< 640px)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Reset tick when pageData loads
   useEffect(() => {
@@ -33,26 +44,27 @@ export const FeedPage: React.FC = () => {
       return { visibleFeaturedAds: [], featuredIndex: 0 };
     }
     const pool = pageData.featured_ads;
+    const groupSize = isMobile ? 2 : 5;
     
-    if (pool.length <= 5) {
+    if (pool.length <= groupSize) {
       return {
         visibleFeaturedAds: pool,
         featuredIndex: featuredTick % pool.length
       };
     }
     
-    const featuredIndex = featuredTick % 5;
-    const pageNumber = Math.floor(featuredTick / 5);
-    const groupOffset = (pageNumber * 5) % pool.length;
+    const featuredIndex = featuredTick % groupSize;
+    const pageNumber = Math.floor(featuredTick / groupSize);
+    const groupOffset = (pageNumber * groupSize) % pool.length;
     
     const visible = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < groupSize; i++) {
       const idx = (groupOffset + i) % pool.length;
       visible.push(pool[idx]);
     }
     
     return { visibleFeaturedAds: visible, featuredIndex };
-  }, [pageData?.featured_ads, featuredTick]);
+  }, [pageData?.featured_ads, featuredTick, isMobile]);
 
   useEffect(() => {
     const fetchPageContent = async () => {
@@ -229,7 +241,7 @@ export const FeedPage: React.FC = () => {
               <span className="material-symbols-outlined text-[16px] animate-pulse">star</span>
               <span>Featured Listings</span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-sm sm:gap-md">
               {visibleFeaturedAds.map((ad, idx) => {
                 const isActive = idx === featuredIndex;
                 const thumb = ad.images?.[0]?.cloudinary_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop';
@@ -237,7 +249,7 @@ export const FeedPage: React.FC = () => {
                   <Link
                     key={ad.id}
                     to={`/ads/${ad.id}`}
-                    className={`animate-fade-in flex flex-col gap-xs rounded-xl p-[6px] border transition-all duration-300 relative no-underline text-inherit cursor-pointer ${
+                    className={`animate-fade-in flex flex-col gap-xs rounded-xl p-sm sm:p-[6px] border transition-all duration-300 relative no-underline text-inherit cursor-pointer ${
                       isActive 
                         ? 'bg-surface-container-lowest border-primary shadow-lg scale-[1.03] ring-2 ring-primary/10' 
                         : 'bg-surface-container-lowest/50 border-outline-variant/20 opacity-80 hover:opacity-100'
@@ -248,14 +260,14 @@ export const FeedPage: React.FC = () => {
                       {isActive && <div className="absolute inset-0 bg-primary/5 animate-pulse pointer-events-none" />}
                       
                       {/* Featured Marker Overlay */}
-                      <div className="absolute bottom-xs left-xs bg-tertiary text-on-tertiary font-label-sm text-[9px] px-xs py-[1px] rounded-full uppercase tracking-wider flex items-center gap-[2px] shadow-sm z-10 animate-pulse">
-                        <span className="material-symbols-outlined text-[10px]">star</span>
+                      <div className="absolute bottom-xs left-xs bg-tertiary text-on-tertiary font-label-sm text-[10px] sm:text-[9px] px-xs py-[2px] sm:py-[1px] rounded-full uppercase tracking-wider flex items-center gap-[2px] shadow-sm z-10 animate-pulse">
+                        <span className="material-symbols-outlined text-[11px] sm:text-[10px]">star</span>
                         Featured
                       </div>
                     </div>
                     <div className="flex flex-col min-w-0 px-[2px]">
-                      <span className="text-[12px] font-bold truncate text-on-surface block leading-tight">{ad.title}</span>
-                      <span className="text-[11px] font-semibold text-primary block mt-[1px]">₹{ad.price}</span>
+                      <span className="text-[13px] sm:text-[12px] font-bold truncate text-on-surface block leading-tight">{ad.title}</span>
+                      <span className="text-body-sm sm:text-[11px] font-semibold text-primary block mt-[1px]">₹{ad.price}</span>
                     </div>
                   </Link>
                 );
