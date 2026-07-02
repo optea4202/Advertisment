@@ -345,16 +345,17 @@ export const UserProfilePage: React.FC = () => {
                     )}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
-                    {profile.ads.map((ad) => (
-                      <AdCard
-                        key={ad.id}
-                        ad={ad}
-                        showActions={isOwnProfile}
-                        onEditClick={handleEditClick}
-                        onDeleteClick={handleDeleteClick}
-                        isFeatured={featuredAdIds.includes(ad.id)}
-                      />
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-sm md:gap-gutter">
+                    {profile.ads.map((ad, idx) => (
+                      <div key={ad.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 75, 450)}ms` }}>
+                        <AdCard
+                          ad={ad}
+                          showActions={isOwnProfile}
+                          onEditClick={handleEditClick}
+                          onDeleteClick={handleDeleteClick}
+                          isFeatured={featuredAdIds.includes(ad.id)}
+                        />
+                      </div>
                     ))}
                   </div>
                 )
@@ -390,14 +391,15 @@ export const UserProfilePage: React.FC = () => {
                     </Link>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter animate-fade-in">
-                    {wishlistAds.map((ad) => (
-                      <AdCard
-                        key={ad.id}
-                        ad={ad}
-                        showActions={false}
-                        isFeatured={featuredAdIds.includes(ad.id)}
-                      />
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-sm md:gap-gutter animate-fade-in">
+                    {wishlistAds.map((ad, idx) => (
+                      <div key={ad.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 75, 450)}ms` }}>
+                        <AdCard
+                          ad={ad}
+                          showActions={false}
+                          isFeatured={featuredAdIds.includes(ad.id)}
+                        />
+                      </div>
                     ))}
                   </div>
                 )
