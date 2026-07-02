@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import multer from 'multer';
 import { config } from './config/index.js';
-import { query } from './db/index.js';
+import { query, useMockDb, dbConnectionError } from './db/index.js';
 import userRoutes from './routes/users.js';
 import adRoutes from './routes/ads.js';
 import reviewRoutes from './routes/reviews.js';
@@ -44,6 +44,14 @@ app.use('/og', ogRoutes);
 // Health check endpoint (checks database connectivity)
 app.get('/health', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    if (useMockDb) {
+      return res.status(200).json({
+        status: 'MOCK',
+        database: 'Mock Database Active (Fallback)',
+        error: dbConnectionError || 'Unknown connection error',
+        timestamp: new Date().toISOString(),
+      });
+    }
     const dbCheck = await query('SELECT 1 + 1 AS result');
     if (dbCheck && dbCheck.rows && dbCheck.rows[0].result === 2) {
       res.status(200).json({

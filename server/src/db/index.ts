@@ -9,7 +9,8 @@ export const pool = new Pool({
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
 });
 
-let useMockDb = false;
+export let useMockDb = false;
+export let dbConnectionError: string | null = null;
 
 // Test the connection at startup
 pool.connect()
@@ -20,6 +21,7 @@ pool.connect()
   .catch((err) => {
     console.warn('⚠️ PostgreSQL connection failed. Falling back to In-Memory Mock Database for ads and categories.', err.message);
     useMockDb = true;
+    dbConnectionError = err.message;
   });
 
 pool.on('error', (err) => {
