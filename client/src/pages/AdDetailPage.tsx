@@ -22,6 +22,13 @@ export const AdDetailPage: React.FC = () => {
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   const navigate = useNavigate();
+  const handleBack = () => {
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
   const [startingChat, setStartingChat] = useState(false);
   const [showShareSheet, setShowShareSheet] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -116,13 +123,14 @@ export const AdDetailPage: React.FC = () => {
       <main className="flex-grow w-full max-w-container-max mx-auto px-md md:px-xl py-xl flex flex-col gap-lg">
         {/* Back Link */}
         <div className="py-xs">
-          <Link 
-            to="/" 
-            className="inline-flex items-center gap-xs text-secondary hover:text-primary transition-colors font-label-md text-label-md"
+          <button 
+            type="button"
+            onClick={handleBack}
+            className="inline-flex items-center gap-xs text-secondary hover:text-primary transition-colors font-label-md text-label-md bg-transparent p-0 border-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-md"
           >
             <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-            Back to Home
-          </Link>
+            Back
+          </button>
         </div>
 
         {/* Error State */}
