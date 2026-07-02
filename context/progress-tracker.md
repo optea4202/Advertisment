@@ -12,6 +12,8 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Improved the `/health` endpoint in the backend ([index.ts](file:///x:/Advertisment/server/src/index.ts)) and database connector ([index.ts](file:///x:/Advertisment/server/src/db/index.ts)) to accurately check and report when the server falls back to the in-memory mock database or encounters database connection errors during startup.
+
 - Replaced the "Back to Home" link on the advertisement detail page ([AdDetailPage.tsx](file:///x:/Advertisment/client/src/pages/AdDetailPage.tsx)) with a "Back" button that uses browser/router history (`navigate(-1)`) when available, and falls back to navigating to the Home page (`/`) when direct-linked or refreshed. Added custom ring focus states to satisfy the design system's interactive elements standard.
 
 - Configured the user profile page advertisement grid and wishlist grid to display in 5 columns on PC (`xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3`) and 2 columns on mobile viewports (`grid-cols-2 sm:grid-cols-2`), matching the layout configuration, column gutters, and entrance animation transitions of the home page feed in [UserProfilePage.tsx](file:///x:/Advertisment/client/src/pages/UserProfilePage.tsx).
