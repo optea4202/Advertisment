@@ -269,7 +269,7 @@ export const SettingsPage: React.FC = () => {
             <div className="flex flex-col gap-xs">
               <h2 className="font-headline-md text-[18px] text-error font-semibold flex items-center gap-xs m-0">
                 <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
-                Danger Zone
+                Terminate Account!
               </h2>
               <p className="font-body-md text-body-sm text-secondary m-0">
                 Permanently delete your account and all associated data. This action is irreversible.
