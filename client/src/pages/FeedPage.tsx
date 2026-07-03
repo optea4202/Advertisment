@@ -172,7 +172,12 @@ export const FeedPage: React.FC = () => {
 
         {/* Banner/Header - Premium Hero Showcase (page 1 only) */}
         {page === 1 && (
-          <div className="relative overflow-hidden rounded-3xl border border-outline-variant/20 shadow-md w-full h-[140px] sm:h-[200px] md:h-[260px] bg-gradient-moving select-none">
+          <div
+            className={`relative overflow-hidden rounded-3xl border border-outline-variant/20 shadow-md w-full bg-gradient-moving select-none ${
+              banners.length > 0 ? '' : 'h-[140px] sm:h-[200px] md:h-[260px]'
+            }`}
+            style={banners.length > 0 ? { aspectRatio: '1216 / 260' } : undefined}
+          >
             {banners.length > 0 ? (
               <>
                 {banners.map((url, idx) => (

@@ -1263,7 +1263,7 @@ export const AdminPage: React.FC = () => {
                                   <span className="font-label-sm text-secondary text-[12px]">Current Banners</span>
                                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-md">
                                     {editingKeepBanners.map((url, index) => (
-                                      <div key={url} className="relative aspect-[3/1] rounded-lg overflow-hidden border border-outline-variant/30 group">
+                                      <div key={url} className="relative rounded-lg overflow-hidden border border-outline-variant/30 group" style={{ aspectRatio: '1216 / 260' }}>
                                         <img src={url} alt={`Banner ${index + 1}`} className="w-full h-full object-cover" />
                                         <button
                                           type="button"
@@ -1315,7 +1315,7 @@ export const AdminPage: React.FC = () => {
                                   </label>
 
                                   {bannerPreviews.map((preview, index) => (
-                                    <div key={preview} className="relative aspect-[3/1] rounded-lg overflow-hidden border border-primary/30 w-full sm:w-[200px]">
+                                    <div key={preview} className="relative rounded-lg overflow-hidden border border-primary/30 w-full sm:w-[200px]" style={{ aspectRatio: '1216 / 260' }}>
                                       <img src={preview} alt="New Banner Preview" className="w-full h-full object-cover" />
                                       <button
                                         type="button"
