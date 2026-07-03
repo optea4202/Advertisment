@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { getOrCreateUser, updateProfile, getPublicProfile, searchUsers } from '../services/users.js';
+import { getOrCreateUser, updateProfile, getPublicProfile, searchUsers, terminateUserAccount } from '../services/users.js';
 import { uploadImage } from '../utils/cloudinary.js';
 
 // Input validation schema for updating user profile
@@ -131,6 +131,25 @@ export const searchUsersHandler = async (req: Request, res: Response, next: Next
 
     const results = await searchUsers(q, req.user.id);
     return res.status(200).json({ data: results });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteMe = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user || !req.clerkId) {
+      return res.status(401).json({
+        error: { message: 'Unauthorized: Profile must be fetched first.', code: 'UNAUTHORIZED' }
+      });
+    }
+
+    console.log(`⚠️ User #${req.user.id} requested account deletion...`);
+    await terminateUserAccount(req.user.id, req.clerkId);
+
+    return res.status(200).json({
+      data: { message: 'Account terminated successfully.' }
+    });
   } catch (error) {
     next(error);
   }

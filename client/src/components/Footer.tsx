@@ -1,9 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.js';
 
 export const Footer: React.FC = () => {
-  const { user } = useAuth();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -83,81 +81,60 @@ export const Footer: React.FC = () => {
 
           {/* Column 2: Explore */}
           <div className="flex flex-col gap-sm">
-            <h3 className="font-semibold text-on-surface text-label-md uppercase tracking-wider">Explore</h3>
+            <h3 className="font-semibold text-on-surface text-label-sm uppercase tracking-wider">Explore</h3>
             <ul className="flex flex-col gap-xs p-0 m-0 list-none">
               <li>
-                <Link to="/" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
-                  <span className="material-symbols-outlined text-[16px]">home</span>
+                <Link to="/" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-[13px] no-underline">
+                  <span className="material-symbols-outlined text-[15px]">home</span>
                   Home Marketplace
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
-                  <span className="material-symbols-outlined text-[16px]">info</span>
+                <Link to="/dashboard" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-[13px] no-underline">
+                  <span className="material-symbols-outlined text-[15px]">info</span>
                   About Platform
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
-                  <span className="material-symbols-outlined text-[16px]">search</span>
+                <Link to="/" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-[13px] no-underline">
+                  <span className="material-symbols-outlined text-[15px]">search</span>
                   Search Advertisements
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 3: Members Section */}
-          <div className="flex flex-col gap-sm">
-            <h3 className="font-semibold text-on-surface text-label-md uppercase tracking-wider">Community</h3>
+          {/* Column 3: Legal Section */}
+          <div className="flex flex-col gap-sm lg:-ml-16">
+            <h3 className="font-semibold text-on-surface text-label-sm uppercase tracking-wider">
+              Terms &amp; condition and Privacy policy
+            </h3>
             <ul className="flex flex-col gap-xs p-0 m-0 list-none">
               <li>
-                <Link to="/ads/create" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
-                  <span className="material-symbols-outlined text-[16px]">add_box</span>
-                  Post an Ad
+                <Link to="/terms" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-[13px] no-underline">
+                  <span className="material-symbols-outlined text-[15px]">gavel</span>
+                  Terms & Conditions
                 </Link>
               </li>
-              {user ? (
-                <>
-                  <li>
-                    <Link to={`/profile/${user.id}`} className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
-                      <span className="material-symbols-outlined text-[16px]">person</span>
-                      My Profile
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/inbox" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
-                      <span className="material-symbols-outlined text-[16px]">inbox</span>
-                      Inbox Messages
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/settings" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
-                      <span className="material-symbols-outlined text-[16px]">settings</span>
-                      Account Settings
-                    </Link>
-                  </li>
-                </>
-              ) : (
-                <li>
-                  <Link to="/login" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-body-sm no-underline">
-                    <span className="material-symbols-outlined text-[16px]">login</span>
-                    Sign In / Sign Up
-                  </Link>
-                </li>
-              )}
+              <li>
+                <Link to="/policy" className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:translate-x-1 inline-flex items-center gap-xs text-[13px] no-underline">
+                  <span className="material-symbols-outlined text-[15px]">policy</span>
+                  Privacy Policy
+                </Link>
+              </li>
             </ul>
           </div>
 
           {/* Column 4: Contact & Reliability Badge */}
           <div className="flex flex-col gap-sm">
-            <h3 className="font-semibold text-on-surface text-label-md uppercase tracking-wider">Support</h3>
+            <h3 className="font-semibold text-on-surface text-label-sm uppercase tracking-wider">Support</h3>
             <ul className="flex flex-col gap-xs p-0 m-0 list-none mb-sm">
-              <li className="text-on-surface-variant text-body-sm flex items-center gap-xs">
-                <span className="material-symbols-outlined text-[16px] text-primary">mail</span>
+              <li className="text-on-surface-variant text-[13px] flex items-center gap-xs">
+                <span className="material-symbols-outlined text-[15px] text-primary">mail</span>
                 support@fakna.com
               </li>
-              <li className="text-on-surface-variant text-body-sm flex items-center gap-xs">
-                <span className="material-symbols-outlined text-[16px] text-primary">contact_support</span>
+              <li className="text-on-surface-variant text-[13px] flex items-center gap-xs">
+                <span className="material-symbols-outlined text-[15px] text-primary">contact_support</span>
                 Help Center
               </li>
             </ul>

@@ -55,3 +55,8 @@ export const searchUsers = async (q: string): Promise<PublicUserProfile[]> => {
   });
   return res.data.data;
 };
+
+export const deleteMe = async (): Promise<void> => {
+  await api.delete('/api/users/me');
+};
+

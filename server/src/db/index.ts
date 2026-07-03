@@ -93,6 +93,8 @@ const mockAds = [
   }
 ];
 
+let mockVisitCount = 1250;
+
 export const query = async (text: string, params?: any[]): Promise<pg.QueryResult<any>> => {
   const start = Date.now();
 
@@ -118,6 +120,11 @@ export const query = async (text: string, params?: any[]): Promise<pg.QueryResul
       rows = [];
     } else if (textLower.includes('from reviews') || textLower.includes('from comments')) {
       rows = [];
+    } else if (textLower.includes('update site_visits')) {
+      mockVisitCount++;
+      rows = [{ count: mockVisitCount }];
+    } else if (textLower.includes('from site_visits')) {
+      rows = [{ count: mockVisitCount }];
     }
 
     return { 

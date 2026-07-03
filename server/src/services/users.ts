@@ -1,9 +1,21 @@
 import { clerkClient } from '@clerk/clerk-sdk-node';
-import { getUserByClerkId, createUser, updateUser, getPublicUserById, searchUsers as dbSearchUsers, type DbUser, type PublicUser } from '../db/users.js';
+import {
+  getUserByClerkId,
+  createUser,
+  updateUser,
+  getPublicUserById,
+  getUserById,
+  deleteUser,
+  searchUsers as dbSearchUsers,
+  type DbUser,
+  type PublicUser
+} from '../db/users.js';
 import { getAdsByOwner } from '../db/ads.js';
 import type { DbAd } from '../db/ads.js';
 import { getUserReviewsStats } from '../db/user_reviews.js';
-import { syncUserToAlgolia } from '../utils/algolia.js';
+import { syncUserToAlgolia, deleteUserFromAlgolia, deleteAdFromAlgolia } from '../utils/algolia.js';
+import { deleteImageByUrl } from '../utils/cloudinary.js';
+import { getConversationsForUser, getMessageImageUrlsForConversation } from '../db/chats.js';
 
 /**
  * Gets the local database user by Clerk ID. If the user does not exist yet,
@@ -86,3 +98,58 @@ export const getPublicProfile = async (userId: number): Promise<PublicProfileRes
 export const searchUsers = async (q: string, excludeId: number): Promise<PublicUser[]> => {
   return await dbSearchUsers(q, excludeId);
 };
+
+/**
+ * Permanently terminates a user account and deletes all associated resources.
+ */
+export const terminateUserAccount = async (userId: number, clerkId: string): Promise<void> => {
+  console.log(`⚠️ Initiating account termination for User #${userId} (Clerk ID: ${clerkId})...`);
+  
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // 1. Clean up user's advertisements and ad images
+  const ads = await getAdsByOwner(userId);
+  console.log(`🖼️ Cleaning up ${ads.length} ads for User #${userId}...`);
+  for (const ad of ads) {
+    if (ad.images && ad.images.length > 0) {
+      const deletePromises = ad.images.map((img) => deleteImageByUrl(img.cloudinary_url));
+      await Promise.all(deletePromises);
+    }
+    await deleteAdFromAlgolia(ad.id);
+  }
+
+  // 2. Clean up message images in all conversations the user is in
+  const conversations = await getConversationsForUser(userId);
+  console.log(`💬 Cleaning up message images from ${conversations.length} conversations for User #${userId}...`);
+  for (const conv of conversations) {
+    const imageUrls = await getMessageImageUrlsForConversation(conv.id);
+    if (imageUrls.length > 0) {
+      await Promise.all(imageUrls.map((url) => deleteImageByUrl(url)));
+    }
+  }
+
+  // 3. Clean up profile photo
+  if (user.photo_url) {
+    console.log(`👤 Deleting profile photo for User #${userId}...`);
+    await deleteImageByUrl(user.photo_url);
+  }
+
+  // 4. Delete user search object from Algolia
+  await deleteUserFromAlgolia(userId);
+
+  // 5. Delete user from Clerk (non-blocking if it fails)
+  try {
+    await clerkClient.users.deleteUser(clerkId);
+    console.log(`✅ Deleted user ${clerkId} from Clerk.`);
+  } catch (clerkErr) {
+    console.error(`❌ Failed to delete user ${clerkId} from Clerk:`, clerkErr);
+  }
+
+  // 6. Delete user from database (cascades ads, ad_images, comments, reports, chats, messages)
+  await deleteUser(userId);
+  console.log(`✅ User #${userId} database record deleted successfully.`);
+};
+

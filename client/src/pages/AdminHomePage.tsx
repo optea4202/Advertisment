@@ -5,7 +5,8 @@ import { useAuth } from '../context/AuthContext.js';
 import { 
   adminGetAds, 
   adminGetReviews, 
-  adminGetUsers 
+  adminGetUsers,
+  adminGetVisits
 } from '../api/admin.js';
 import { getReports, type Report } from '../api/reports.js';
 import { type Ad } from '../api/ads.js';
@@ -20,6 +21,7 @@ export const AdminHomePage: React.FC = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
+  const [visits, setVisits] = useState<number>(0);
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -29,18 +31,20 @@ export const AdminHomePage: React.FC = () => {
       setLoading(true);
       setErrorMsg(null);
       try {
-        const [adsData, reviewsData, usersData, reportsData, categoriesData] = await Promise.all([
+        const [adsData, reviewsData, usersData, reportsData, categoriesData, visitsCount] = await Promise.all([
           adminGetAds(),
           adminGetReviews(),
           adminGetUsers(),
           getReports(),
-          getCategories()
+          getCategories(),
+          adminGetVisits()
         ]);
         setAds(adsData);
         setReviews(reviewsData);
         setUsers(usersData);
         setReports(reportsData);
         setCategories(categoriesData.map(c => c.name));
+        setVisits(visitsCount);
       } catch (err: any) {
         console.error('Error fetching admin dashboard data:', err);
         setErrorMsg('Failed to load dashboard metrics. Please try refreshing.');
@@ -84,16 +88,26 @@ export const AdminHomePage: React.FC = () => {
       <main className="flex-grow w-full max-w-container-max mx-auto px-md md:px-xl py-xl flex flex-col gap-lg animate-fade-in-up">
         
         {/* Welcome Header */}
-        <div className="flex flex-col gap-xs">
-          <div className="flex items-center gap-xs">
-            <span className="material-symbols-outlined text-[32px] text-primary">dashboard</span>
-            <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
-              Dashboard Overview
-            </h1>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-md border-b border-outline-variant/10 pb-md">
+          <div className="flex flex-col gap-xs">
+            <div className="flex items-center gap-xs">
+              <span className="material-symbols-outlined text-[32px] text-primary">dashboard</span>
+              <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+                Dashboard Overview
+              </h1>
+            </div>
+            <p className="font-body-md text-body-md text-secondary">
+              Welcome back, <span className="font-semibold text-on-surface">@{currentUser?.username || 'Admin'}</span>. Here's a high-level summary of your platform's activity.
+            </p>
           </div>
-          <p className="font-body-md text-body-md text-secondary">
-            Welcome back, <span className="font-semibold text-on-surface">@{currentUser?.username || 'Admin'}</span>. Here's a high-level summary of your platform's activity.
-          </p>
+          {/* Quick visits overview in the header bar */}
+          <div className="flex items-center gap-sm bg-primary-fixed/20 text-primary px-lg py-sm rounded-xl border border-primary-fixed/30 self-start md:self-auto shadow-sm">
+            <span className="material-symbols-outlined text-[24px]">visibility</span>
+            <div className="flex flex-col">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-on-primary-fixed-variant">Total Visits</span>
+              <span className="font-bold text-headline-md text-on-surface leading-none mt-[2px]">{visits}</span>
+            </div>
+          </div>
         </div>
 
         {errorMsg && (
@@ -111,7 +125,7 @@ export const AdminHomePage: React.FC = () => {
           <div className="flex flex-col gap-xl">
             
             {/* Stats Bento Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-md">
               
               {/* Active Ads Card */}
               <Link to="/admin?tab=ads" className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-lg shadow-sm hover:border-primary/30 transition-all group flex flex-col justify-between min-h-[140px]">
@@ -152,6 +166,24 @@ export const AdminHomePage: React.FC = () => {
                   )}
                 </div>
               </Link>
+
+              {/* Total Visits Card */}
+              <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-lg shadow-sm group flex flex-col justify-between min-h-[140px]">
+                <div className="flex justify-between items-start">
+                  <div className="flex flex-col">
+                    <span className="text-secondary font-label-sm text-label-sm uppercase tracking-wider">Total Visits</span>
+                    <span className="font-headline-lg text-[36px] font-bold text-on-surface mt-xs leading-none">
+                      {visits}
+                    </span>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl bg-primary-fixed/20 text-primary flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[24px]">visibility</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-xs mt-md text-secondary text-body-sm">
+                  <span>Unique browser sessions</span>
+                </div>
+              </div>
 
               {/* Comments */}
               <Link to="/admin?tab=reviews" className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-lg shadow-sm hover:border-primary/30 transition-all group flex flex-col justify-between min-h-[140px]">

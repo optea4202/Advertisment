@@ -153,3 +153,9 @@ export const searchUsers = async (q: string, excludeId: number): Promise<PublicU
   const res = await query(sql, [`%${q}%`, excludeId]);
   return res.rows;
 };
+
+export const deleteUser = async (id: number): Promise<void> => {
+  const sql = `DELETE FROM users WHERE id = $1`;
+  await query(sql, [id]);
+};
+

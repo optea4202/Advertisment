@@ -5,7 +5,8 @@ import {
   handleAdminGetReviews, 
   handleAdminDeleteReview, 
   handleAdminGetUsers, 
-  handleAdminBanUser 
+  handleAdminBanUser,
+  handleAdminGetVisits
 } from '../controllers/admin.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 import { requireAdmin } from '../middleware/requireAdmin.js';
@@ -27,5 +28,8 @@ router.delete('/reviews/:id', handleAdminDeleteReview);
 // Users moderation
 router.get('/users', handleAdminGetUsers);
 router.post('/users/:id/ban', handleAdminBanUser);
+
+// Visits statistics
+router.get('/visits', handleAdminGetVisits);
 
 export default router;

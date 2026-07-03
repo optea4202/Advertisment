@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { getMe, updateMe, getPublicUser, searchUsersHandler } from '../controllers/users.js';
+import { getMe, updateMe, getPublicUser, searchUsersHandler, deleteMe } from '../controllers/users.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 import { optionalAuth } from '../middleware/optionalAuth.js';
 import { requireNotBanned } from '../middleware/requireNotBanned.js';
@@ -22,6 +22,9 @@ router.get('/me', requireAuth, getMe);
 // Runs requireAuth first. Note: requireNotBanned is also run to block banned accounts.
 router.put('/me', requireAuth, requireNotBanned, upload.single('photo'), updateMe);
 
+// DELETE /api/users/me - Terminate current authenticated user account
+router.delete('/me', requireAuth, requireNotBanned, deleteMe);
+
 // GET /api/users/search?q=... - Search users by username (must be before /:id to avoid parameter clash)
 router.get('/search', requireAuth, requireNotBanned, searchUsersHandler);
 
@@ -29,3 +32,4 @@ router.get('/search', requireAuth, requireNotBanned, searchUsersHandler);
 router.get('/:id', optionalAuth, requireNotBanned, getPublicUser);
 
 export default router;
+

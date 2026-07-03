@@ -14,6 +14,7 @@ import categoryRoutes from './routes/categories.js';
 import userReviewRoutes from './routes/user_reviews.js';
 import ogRoutes from './routes/og.js';
 import pageRoutes from './routes/pages.js';
+import visitsRoutes from './routes/visits.js';
 import { configureIndexSettings } from './utils/algolia.js';
 
 const app = express();
@@ -36,6 +37,7 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/pages', pageRoutes);
+app.use('/api/visits', visitsRoutes);
 
 // OG preview endpoint — used by social bot rewrites (Vercel edge)
 // Returns minimal HTML with Open Graph / Twitter Card meta tags for link previews

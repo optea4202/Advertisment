@@ -4,6 +4,7 @@ import { adminDeleteAd, adminDeleteReview, adminBanUser } from '../services/admi
 import { getAllAds } from '../db/ads.js';
 import { getAllReviews } from '../db/reviews.js';
 import { getAllUsers } from '../db/users.js';
+import { getVisitCount } from '../db/visits.js';
 
 const banUserSchema = z.object({
   is_banned: z.boolean({ required_error: 'is_banned boolean is required' })
@@ -107,6 +108,15 @@ export const handleAdminBanUser = async (req: Request, res: Response, next: Next
     return res.status(200).json({
       data: { message: 'User ban status updated successfully.' }
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const handleAdminGetVisits = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const count = await getVisitCount();
+    return res.status(200).json({ data: { count } });
   } catch (error) {
     next(error);
   }

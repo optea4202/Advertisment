@@ -2,12 +2,38 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar.js';
 import { Footer } from '../components/Footer.js';
 import { useAuth } from '../context/AuthContext.js';
-import { updateProfile } from '../api/users.js';
+import { updateProfile, deleteMe } from '../api/users.js';
 import { compressImage } from '../utils/imageCompressor.js';
+import { useClerk } from '@clerk/clerk-react';
+import { ConfirmModal } from '../components/ConfirmModal.js';
 
 export const SettingsPage: React.FC = () => {
   const { user, syncUser } = useAuth();
+  const { signOut } = useClerk();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Deletion states
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    try {
+      setIsDeleting(true);
+      setErrorMsg(null);
+      setSuccessMsg(null);
+      await deleteMe();
+      setIsDeleteModalOpen(false);
+      await signOut();
+      window.location.href = '/';
+    } catch (err: any) {
+      console.error('Failed to delete account:', err);
+      const apiError = err.response?.data?.error?.message || 'Failed to delete account. Please try again.';
+      setErrorMsg(apiError);
+      setIsDeleteModalOpen(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Form states
   const [username, setUsername] = useState('');
@@ -236,8 +262,46 @@ export const SettingsPage: React.FC = () => {
             </div>
           </form>
         </div>
+
+        {/* Danger Zone */}
+        <div className="bg-surface-container-lowest rounded-2xl shadow-1 p-lg md:p-xl border border-error-container/30 relative overflow-hidden mt-md">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-md">
+            <div className="flex flex-col gap-xs">
+              <h2 className="font-headline-md text-[18px] text-error font-semibold flex items-center gap-xs m-0">
+                <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
+                Danger Zone
+              </h2>
+              <p className="font-body-md text-body-sm text-secondary m-0">
+                Permanently delete your account and all associated data. This action is irreversible.
+              </p>
+            </div>
+            <div>
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="w-full md:w-auto bg-error text-white rounded-lg px-md py-sm font-label-sm text-label-sm shadow-sm hover:brightness-110 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-xs"
+              >
+                <span className="material-symbols-outlined text-[16px]">delete_forever</span>
+                Delete Account
+              </button>
+            </div>
+          </div>
+        </div>
       </main>
       <Footer />
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        title="Delete Account?"
+        message="Are you sure you want to permanently delete your account? This will immediately purge your profile, listings, messages, reviews, and images. This action cannot be undone."
+        confirmText={isDeleting ? 'Deleting...' : 'Yes, Delete Account'}
+        cancelText="Cancel"
+        isDestructive={true}
+        onConfirm={handleDeleteAccount}
+        onCancel={() => {
+          if (!isDeleting) setIsDeleteModalOpen(false);
+        }}
+      />
     </div>
   );
 };

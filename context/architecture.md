@@ -68,6 +68,7 @@ Everything that needs querying, filtering, joining, or enforcing integrity lives
 | `ad_images` | Cloudinary CDN URLs for each ad image, display order, foreign key to `ads` |
 | `reviews` | Star rating, review text, reviewer reference, ad reference, timestamp |
 | `wishlist` | Join table tracking which ads are wishlisted by which users |
+| `site_visits` | Site visit metrics counter (single row tracking global unique sessions) |
 
 **PostgreSQL is the source of truth for all application data.**
 

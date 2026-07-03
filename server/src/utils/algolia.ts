@@ -160,3 +160,20 @@ export const syncUserToAlgolia = async (user: { id: number; username: string; ph
     console.error(`❌ Algolia sync failed for User #${user.id}:`, error);
   }
 };
+
+export const deleteUserFromAlgolia = async (userId: number) => {
+  try {
+    if (!client) {
+      console.warn('Algolia client is not initialized, skipping user deletion.');
+      return;
+    }
+    await client.deleteObject({
+      indexName: usersIndexName,
+      objectID: userId.toString(),
+    });
+    console.log(`📡 Deleted User #${userId} from Algolia index.`);
+  } catch (error) {
+    console.error(`❌ Algolia delete failed for User #${userId}:`, error);
+  }
+};
+

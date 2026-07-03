@@ -29,3 +29,8 @@ export const adminGetUsers = async (): Promise<UserProfile[]> => {
 export const adminBanUser = async (id: number, isBanned: boolean): Promise<void> => {
   await api.post(`/api/admin/users/${id}/ban`, { is_banned: isBanned });
 };
+
+export const adminGetVisits = async (): Promise<number> => {
+  const res = await api.get<{ data: { count: number } }>('/api/admin/visits');
+  return res.data.data.count;
+};

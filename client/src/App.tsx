@@ -19,9 +19,13 @@ import { AdminPage } from './pages/AdminPage.js';
 import { AdminHomePage } from './pages/AdminHomePage.js';
 import { AdminRoute } from './components/AdminRoute.js';
 import { InboxPage } from './pages/InboxPage.js';
+import { TermsPage } from './pages/TermsPage.js';
+import { PolicyPage } from './pages/PolicyPage.js';
 import { WishlistProvider } from './context/WishlistContext.js';
 import { OfflineBanner } from './components/OfflineBanner.js';
 import { ScrollToTop } from './components/ScrollToTop.js';
+import { useEffect } from 'react';
+import { incrementVisits } from './api/visits.js';
 
 // Get publishable key from environment
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -31,6 +35,21 @@ if (!clerkPublishableKey) {
 }
 
 function App() {
+  useEffect(() => {
+    const recordVisit = async () => {
+      try {
+        const visitedThisSession = sessionStorage.getItem('fakna_visited_session');
+        if (!visitedThisSession) {
+          await incrementVisits();
+          sessionStorage.setItem('fakna_visited_session', 'true');
+        }
+      } catch (err) {
+        console.error('Failed to increment visits count:', err);
+      }
+    };
+    recordVisit();
+  }, []);
+
   return (
     <ThemeProvider>
       <ClerkProvider publishableKey={clerkPublishableKey}>
@@ -134,6 +153,18 @@ function App() {
               <Route
                 path="/"
                 element={<FeedPage />}
+              />
+
+              {/* Terms and Conditions Page */}
+              <Route
+                path="/terms"
+                element={<TermsPage />}
+              />
+
+              {/* Privacy Policy Page */}
+              <Route
+                path="/policy"
+                element={<PolicyPage />}
               />
 
               {/* Catch-all Redirect */}
