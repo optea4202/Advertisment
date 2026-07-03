@@ -171,9 +171,30 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom copyright notice */}
-        <div className="border-t border-outline-variant/15 mt-xl pt-lg flex flex-col md:flex-row justify-between items-center gap-sm">
-          <p className="font-body-sm text-body-sm text-on-surface-variant text-center md:text-left m-0">
+        {/* Bottom copyright & attribution */}
+        <div className="border-t border-outline-variant/15 mt-xl pt-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+          {/* Bottom Left: Powered by */}
+          <div className="flex flex-col items-start gap-xs">
+            <span className="text-[10px] text-on-surface-variant uppercase tracking-wider font-semibold">
+              Powered by
+            </span>
+            <a
+              href="https://www.lushaitech.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block transition-transform hover:scale-[1.03] active:scale-[0.98]"
+              title="Visit LushAITech website"
+            >
+              <img
+                src="/powered-by.png"
+                alt="LushAITech Logo"
+                className="h-8 md:h-9 object-contain rounded bg-white px-2 py-[3px] shadow-sm border border-outline-variant/20 cursor-pointer"
+              />
+            </a>
+          </div>
+
+          {/* Bottom Right: Copyright */}
+          <p className="font-body-sm text-body-sm text-on-surface-variant text-left md:text-right m-0">
             &copy; {currentYear} <span className="font-semibold">zobazar</span>. All rights reserved.
           </p>
         </div>
