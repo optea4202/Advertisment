@@ -12,6 +12,10 @@ Update this file after every meaningful implementation change.
 
 ## Completed
 
+- Aligned the branding across all sections of the application by updating placeholder logos and references in the footer ([Footer.tsx](file:///x:/Advertisment/client/src/components/Footer.tsx)), login page ([LoginPage.tsx](file:///x:/Advertisment/client/src/pages/LoginPage.tsx)), and signup page ([SignUpPage.tsx](file:///x:/Advertisment/client/src/pages/SignUpPage.tsx)) to use the official ZoBazar image logo (`/Project.png`) and styled wordmark to match the navigation bar. Replaced all remaining occurrences of the old "Fakna" name in the entry template ([index.html](file:///x:/Advertisment/client/index.html)), PWA manifest ([manifest.webmanifest](file:///x:/Advertisment/client/public/manifest.webmanifest)), robots configuration ([robots.txt](file:///x:/Advertisment/client/public/robots.txt)), and created/ran a database migration ([022_update_pages_branding.sql](file:///x:/Advertisment/db/migrations/022_update_pages_branding.sql)) to replace "Fakna" with "ZoBazar" in the seeded homepage and about page contents.
+
+- Corrected the currency symbol prefix from a question mark (`?`) to Indian Rupees (`₹`) across all client ad post price displays (in [AdCard.tsx](file:///x:/Advertisment/client/src/components/AdCard.tsx), [FeedPage.tsx](file:///x:/Advertisment/client/src/pages/FeedPage.tsx), and [AdDetailPage.tsx](file:///x:/Advertisment/client/src/pages/AdDetailPage.tsx)) to ensure consistent currency rendering across the application.
+
 - Configured the project logo `Project.png` as the application's favicon by copying it to `client/public/favicon.png` and updating the link element in `client/index.html`.
 
 - Updated the brand wordmark "ZoBazar" in the navigation bar ([Navbar.tsx](file:///x:/Advertisment/client/src/components/Navbar.tsx)) to change the color of the "Zo" prefix to dark green (`#00685f`), satisfying the design system's primary color usage.

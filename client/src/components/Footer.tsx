@@ -11,11 +11,32 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-xl">
           {/* Column 1: Brand Info */}
           <div className="flex flex-col gap-md">
-            <Link to="/" className="flex items-center gap-xs shrink-0 self-start group">
-              <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center text-on-primary group-hover:rotate-6 transition-transform duration-300">
-                <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
-              </div>
-              <span className="text-headline-md font-bold text-primary tracking-tight">zobazar</span>
+            <Link to="/" className="flex items-center gap-[-12px] shrink-0 self-start group transition-transform duration-200 hover:scale-[1.02]">
+              {/* Logo image */}
+              <img
+                src="/Project.png"
+                alt="ZoBazar logo"
+                width="56"
+                height="56"
+                className="flex-shrink-0 w-[56px] h-[56px] object-contain ml-3"
+              />
+
+              {/* Wordmark stacked to the right */}
+              <span className="flex flex-col leading-tight select-none">
+                <span
+                  className="font-black tracking-widest text-[14px] md:text-[15px]"
+                  style={{ letterSpacing: '0.12em' }}
+                >
+                  <span style={{ color: '#00685f' }}>Zo</span>
+                  <span style={{ color: '#1A3E8C' }}>Bazar</span>
+                </span>
+                <span
+                  className="font-semibold tracking-wider text-[8px] uppercase"
+                  style={{ color: '#1A6FAB', letterSpacing: '0.1em' }}
+                >
+                  Mizoram Marketplace
+                </span>
+              </span>
             </Link>
             
             <p className="text-on-surface-variant text-body-sm leading-relaxed max-w-[280px]">

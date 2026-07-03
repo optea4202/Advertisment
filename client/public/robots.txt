@@ -9,4 +9,4 @@ Disallow: /inbox
 Disallow: /profile-setup
 
 # Sitemap (uncomment and update when you add one)
-# Sitemap: https://fakna.vercel.app/sitemap.xml
+# Sitemap: https://zobazar.vercel.app/sitemap.xml

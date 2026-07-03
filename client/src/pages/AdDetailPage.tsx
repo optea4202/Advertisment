@@ -223,7 +223,7 @@ export const AdDetailPage: React.FC = () => {
                   <div className="flex flex-col gap-xs border-y border-outline-variant/10 py-md">
                     <span className="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Price</span>
                     <span className="font-display-lg text-headline-lg text-primary font-bold">
-                      ?{ad.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      ₹{ad.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                   </div>
 

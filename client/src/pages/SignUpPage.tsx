@@ -123,11 +123,29 @@ export const SignUpPage: React.FC = () => {
         
         {/* Branding Header */}
         <div className="relative z-10">
-          <div className="flex items-center gap-sm">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-              <span className="material-symbols-outlined text-on-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
-            </div>
-            <h1 className="font-headline-lg text-headline-lg text-primary tracking-tight">zobazar</h1>
+          <div className="flex items-center gap-[-12px] shrink-0 select-none">
+            <img
+              src="/Project.png"
+              alt="ZoBazar logo"
+              width="70"
+              height="70"
+              className="flex-shrink-0 w-[70px] h-[70px] object-contain ml-3"
+            />
+            <span className="flex flex-col leading-tight">
+              <span
+                className="font-black tracking-widest text-[15px] md:text-[17px]"
+                style={{ letterSpacing: '0.12em' }}
+              >
+                <span style={{ color: '#00685f' }}>Zo</span>
+                <span style={{ color: '#1A3E8C' }}>Bazar</span>
+              </span>
+              <span
+                className="font-semibold tracking-wider text-[8px] md:text-[9px] uppercase"
+                style={{ color: '#1A6FAB', letterSpacing: '0.1em' }}
+              >
+                Mizoram Marketplace
+              </span>
+            </span>
           </div>
           <p className="font-body-lg text-body-lg text-secondary mt-sm max-w-sm">
             The high-performance marketplace for premium digital advertising inventory.
@@ -138,7 +156,7 @@ export const SignUpPage: React.FC = () => {
         <div className="relative z-10 flex-grow flex items-center justify-center my-xl">
           <div className="w-full max-w-[480px] aspect-square rounded-2xl bg-surface-container-highest shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] overflow-hidden relative border border-outline-variant/50">
             <img 
-              alt="zobazar Interface" 
+              alt="ZoBazar Interface" 
               className="w-full h-full object-cover opacity-90 mix-blend-multiply" 
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGqEgEEyCJ1buKkgNxQQovVL6RzIlYh5edZP0tYOoUgNWOtEZTJy5mB_HmZFPHdBWUjCDDANbk1SK1RxGbr2aIOCDk6YJOr9QWlU0NV5KPyBoDNWfiOdhZdy-6Gm7GSjcW0fSDoHDhJtw-siqQPLrmc46lJEoNdQlCDoK3dt4I_CHvejFaka6nE04KP9yv0REBHtH_Se7CgfVyKfJVPXvr8hUh3rb0H2ZKKE0C4tYereWHguXeDCUP0f8bkuwDDd_TJYaa6z040oo"
             />
@@ -167,11 +185,29 @@ export const SignUpPage: React.FC = () => {
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
             Back to Home
           </Link>
-          <div className="flex items-center gap-sm">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-              <span className="material-symbols-outlined text-on-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
-            </div>
-            <h1 className="font-headline-md text-headline-md text-primary tracking-tight">zobazar</h1>
+          <div className="flex items-center gap-[-10px] shrink-0 select-none">
+            <img
+              src="/Project.png"
+              alt="ZoBazar logo"
+              width="50"
+              height="50"
+              className="flex-shrink-0 w-[50px] h-[50px] object-contain ml-2"
+            />
+            <span className="flex flex-col leading-tight">
+              <span
+                className="font-black tracking-widest text-[14px]"
+                style={{ letterSpacing: '0.12em' }}
+              >
+                <span style={{ color: '#00685f' }}>Zo</span>
+                <span style={{ color: '#1A3E8C' }}>Bazar</span>
+              </span>
+              <span
+                className="font-semibold tracking-wider text-[8px] uppercase"
+                style={{ color: '#1A6FAB', letterSpacing: '0.1em' }}
+              >
+                Mizoram Marketplace
+              </span>
+            </span>
           </div>
         </div>
 
@@ -272,7 +308,7 @@ export const SignUpPage: React.FC = () => {
                     <input 
                       className="w-full pl-10 pr-10 py-[10px] bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface font-body-md placeholder-secondary focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 transition-all shadow-sm" 
                       id="password" 
-                      placeholder="��������" 
+                      placeholder="••••••••" 
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}

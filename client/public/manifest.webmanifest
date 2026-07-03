@@ -1,7 +1,7 @@
 {
-  "name": "Fakna - Advertisement Platform",
-  "short_name": "Fakna",
-  "description": "Browse, post, and manage advertisements on Fakna.",
+  "name": "ZoBazar - Advertisement Platform",
+  "short_name": "ZoBazar",
+  "description": "Browse, post, and manage advertisements on ZoBazar.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
