@@ -48,7 +48,7 @@ export const AdDetailPage: React.FC = () => {
   }, [showShareSheet]);
 
   const pageUrl = window.location.href;
-  const pageTitle = encodeURIComponent(ad?.title ?? 'Check out this ad on Fakna');
+  const pageTitle = encodeURIComponent(ad?.title ?? 'Check out this ad on zobazar');
   const encodedUrl = encodeURIComponent(pageUrl);
 
   const shareTargets = [
@@ -106,7 +106,7 @@ export const AdDetailPage: React.FC = () => {
         }
       });
     } catch {
-      // Silently fail — user stays on page
+      // Silently fail � user stays on page
     } finally {
       setStartingChat(false);
     }
@@ -171,7 +171,7 @@ export const AdDetailPage: React.FC = () => {
               <div className="lg:col-span-7 flex flex-col gap-lg w-full">
                 <ImageGallery images={ad.images} title={ad.title} />
 
-                {/* Description Block — below the image */}
+                {/* Description Block � below the image */}
                 <div className="bg-surface-container-lowest rounded-2xl elevation-1 border border-outline-variant/20 p-xl flex flex-col gap-md">
                   <h3 className="font-headline-md text-[20px] font-semibold text-on-surface border-b border-outline-variant/10 pb-sm">
                     Description
@@ -223,7 +223,7 @@ export const AdDetailPage: React.FC = () => {
                   <div className="flex flex-col gap-xs border-y border-outline-variant/10 py-md">
                     <span className="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Price</span>
                     <span className="font-display-lg text-headline-lg text-primary font-bold">
-                      ₹{ad.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      ?{ad.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                   </div>
 
@@ -343,7 +343,7 @@ export const AdDetailPage: React.FC = () => {
 
                 </div>
 
-                {/* Publisher info card — links to the owner's public profile */}
+                {/* Publisher info card � links to the owner's public profile */}
                 <Link
                   to={`/profile/${ad.owner_id}`}
                   className="bg-surface-container-lowest rounded-2xl elevation-1 border border-outline-variant/20 p-lg flex items-center gap-md hover:border-primary/30 hover:shadow-2 transition-all group"
@@ -364,7 +364,7 @@ export const AdDetailPage: React.FC = () => {
                   <span className="material-symbols-outlined text-[18px] text-secondary group-hover:text-primary transition-colors">chevron_right</span>
                 </Link>
 
-                {/* Chat with Seller CTA — hidden for the ad owner */}
+                {/* Chat with Seller CTA � hidden for the ad owner */}
                 {!isOwner && (
                   <button
                     id="chat-with-seller-btn"
@@ -377,7 +377,7 @@ export const AdDetailPage: React.FC = () => {
                     ) : (
                       <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span>
                     )}
-                    {startingChat ? 'Opening chat…' : 'Chat with Seller'}
+                    {startingChat ? 'Opening chat�' : 'Chat with Seller'}
                   </button>
                 )}
 

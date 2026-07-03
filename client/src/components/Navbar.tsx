@@ -77,29 +77,47 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      <header className={`bg-surface-container-lowest border-b border-outline-variant top-0 z-50 shadow-sm ${
-          user?.is_admin
-            ? 'fixed left-0 h-screen w-[240px] border-r border-b-0 shadow-md bg-surface-container-high'
-            : 'sticky w-full'
+      <header className={`bg-surface-container-lowest border-b border-outline-variant top-0 z-50 shadow-sm ${user?.is_admin
+        ? 'fixed left-0 h-screen w-[240px] border-r border-b-0 shadow-md bg-surface-container-high'
+        : 'sticky w-full'
         }`}>
-        <div className={`flex w-full px-xs py-[6px] gap-sm ${
-          user?.is_admin
-            ? 'flex-col justify-start items-stretch h-full gap-lg px-md py-lg'
-            : 'items-center md:px-sm lg:px-md md:py-[6px] max-w-container-max mx-auto'
-        }`}>
-          
-          <div className={`flex items-center gap-sm lg:gap-md overflow-x-auto md:overflow-visible scrollbar-none py-[2px] ${
-            user?.is_admin ? 'flex-col items-stretch gap-lg w-full overflow-visible' : 'flex-grow'
+        <div className={`flex w-full px-xs py-[6px] gap-sm ${user?.is_admin
+          ? 'flex-col justify-start items-stretch h-full gap-lg px-md py-lg'
+          : 'items-center md:px-sm lg:px-md md:py-[6px] max-w-container-max mx-auto'
           }`}>
+
+          <div className={`flex items-center gap-sm lg:gap-md overflow-x-auto md:overflow-visible scrollbar-none py-[2px] ${user?.is_admin ? 'flex-col items-stretch gap-lg w-full overflow-visible' : 'flex-grow'
+            }`}>
             {/* Brand / Logo */}
-            <Link to={user?.is_admin ? "/admin" : "/"} className="flex items-center gap-xs shrink-0">
-              <div className="w-7 h-7 md:w-8 md:h-8 bg-primary rounded-md flex items-center justify-center text-on-primary">
-                <span className="material-symbols-outlined text-[16px] md:text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
-              </div>
-              <span className="text-body-md md:text-body-lg font-bold text-primary tracking-tight">Fakna</span>
+            <Link to={user?.is_admin ? "/admin" : "/"} className="flex items-center gap-[-12px] shrink-0 group transition-transform duration-200 hover:scale-[1.02]">
+              {/* Logo image */}
+              <img
+                src="/Project.png"
+                alt="Zobazar logo"
+                width="70"
+                height="70"
+                className="flex-shrink-0 w-[70px] h-[70px] md:w-[70px] md:h-[70px] object-contain ml-3"
+              />
+
+              {/* Wordmark stacked to the right */}
+              <span className="flex flex-col leading-tight select-none">
+                <span
+                  className="font-black tracking-widest text-[15px] md:text-[17px]"
+                  style={{ letterSpacing: '0.12em' }}
+                >
+                  <span style={{ color: '#00685f' }}>Zo</span>
+                  <span style={{ color: '#1A3E8C' }}>Bazar</span>
+                </span>
+                <span
+                  className="font-semibold tracking-wider text-[8px] md:text-[9px] uppercase"
+                  style={{ color: '#1A6FAB', letterSpacing: '0.1em' }}
+                >
+                  Mizoram Marketplace
+                </span>
+              </span>
             </Link>
 
-            {/* Global Search Bar (resizing it to be larger/flex-grow next to Fakna logo) */}
+            {/* Global Search Bar (resizing it to be larger/flex-grow next to zobazar logo) */}
             {!user?.is_admin && (location.pathname === '/' || location.pathname === '/search') && (
               <div className="hidden md:flex items-center flex-grow max-w-[1100px] mx-auto px-md">
                 <SearchBar initialSearch={search} onSearchChange={handleSearchChange} onSelectCategory={handleCategorySelect} />
@@ -109,101 +127,92 @@ export const Navbar: React.FC = () => {
             {/* Navigation Links */}
             {user?.is_admin && (
               <nav className="flex flex-col items-stretch gap-sm w-full overflow-visible">
-                <Link 
-                  to="/admin/home" 
-                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${
-                    isActive('/admin/home') 
-                      ? 'bg-primary-fixed text-primary drop-shadow-sm' 
-                      : 'text-secondary hover:text-primary hover:bg-surface-container-low'
-                  }`}
+                <Link
+                  to="/admin/home"
+                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${isActive('/admin/home')
+                    ? 'bg-primary-fixed text-primary drop-shadow-sm'
+                    : 'text-secondary hover:text-primary hover:bg-surface-container-low'
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActive('/admin/home') ? "'FILL' 1" : "'FILL' 0" }}>home</span>
                   <span>Home</span>
                 </Link>
-                <Link 
-                  to="/admin?tab=ads" 
-                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${
-                    isActiveTab('ads') 
-                      ? 'bg-primary-fixed text-primary drop-shadow-sm' 
-                      : 'text-secondary hover:text-primary hover:bg-surface-container-low'
-                  }`}
+                <Link
+                  to="/admin?tab=ads"
+                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${isActiveTab('ads')
+                    ? 'bg-primary-fixed text-primary drop-shadow-sm'
+                    : 'text-secondary hover:text-primary hover:bg-surface-container-low'
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActiveTab('ads') ? "'FILL' 1" : "'FILL' 0" }}>campaign</span>
                   <span>Ads</span>
                 </Link>
-                <Link 
-                  to="/admin?tab=reviews" 
-                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${
-                    isActiveTab('reviews') 
-                      ? 'bg-primary-fixed text-primary drop-shadow-sm' 
-                      : 'text-secondary hover:text-primary hover:bg-surface-container-low'
-                  }`}
+                <Link
+                  to="/admin?tab=reviews"
+                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${isActiveTab('reviews')
+                    ? 'bg-primary-fixed text-primary drop-shadow-sm'
+                    : 'text-secondary hover:text-primary hover:bg-surface-container-low'
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActiveTab('reviews') ? "'FILL' 1" : "'FILL' 0" }}>chat</span>
                   <span>Comments</span>
                 </Link>
-                <Link 
-                  to="/admin?tab=users" 
-                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${
-                    isActiveTab('users') 
-                      ? 'bg-primary-fixed text-primary drop-shadow-sm' 
-                      : 'text-secondary hover:text-primary hover:bg-surface-container-low'
-                  }`}
+                <Link
+                  to="/admin?tab=users"
+                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${isActiveTab('users')
+                    ? 'bg-primary-fixed text-primary drop-shadow-sm'
+                    : 'text-secondary hover:text-primary hover:bg-surface-container-low'
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActiveTab('users') ? "'FILL' 1" : "'FILL' 0" }}>group</span>
                   <span>Users</span>
                 </Link>
-                <Link 
-                  to="/admin?tab=reports" 
-                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${
-                    isActiveTab('reports') 
-                      ? 'bg-primary-fixed text-primary drop-shadow-sm' 
-                      : 'text-secondary hover:text-primary hover:bg-surface-container-low'
-                  }`}
+                <Link
+                  to="/admin?tab=reports"
+                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${isActiveTab('reports')
+                    ? 'bg-primary-fixed text-primary drop-shadow-sm'
+                    : 'text-secondary hover:text-primary hover:bg-surface-container-low'
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActiveTab('reports') ? "'FILL' 1" : "'FILL' 0" }}>flag</span>
                   <span>Reports</span>
                 </Link>
-                <Link 
-                  to="/admin?tab=categories" 
-                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${
-                    isActiveTab('categories') 
-                      ? 'bg-primary-fixed text-primary drop-shadow-sm' 
-                      : 'text-secondary hover:text-primary hover:bg-surface-container-low'
-                  }`}
+                <Link
+                  to="/admin?tab=categories"
+                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${isActiveTab('categories')
+                    ? 'bg-primary-fixed text-primary drop-shadow-sm'
+                    : 'text-secondary hover:text-primary hover:bg-surface-container-low'
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActiveTab('categories') ? "'FILL' 1" : "'FILL' 0" }}>category</span>
                   <span>Categories</span>
                 </Link>
-                <Link 
-                  to="/admin?tab=profile_reviews" 
-                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${
-                    isActiveTab('profile_reviews') 
-                      ? 'bg-primary-fixed text-primary drop-shadow-sm' 
-                      : 'text-secondary hover:text-primary hover:bg-surface-container-low'
-                  }`}
+                <Link
+                  to="/admin?tab=profile_reviews"
+                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${isActiveTab('profile_reviews')
+                    ? 'bg-primary-fixed text-primary drop-shadow-sm'
+                    : 'text-secondary hover:text-primary hover:bg-surface-container-low'
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActiveTab('profile_reviews') ? "'FILL' 1" : "'FILL' 0" }}>rate_review</span>
                   <span>Profile Reviews</span>
                 </Link>
-                <Link 
-                  to="/admin?tab=pages" 
-                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${
-                    isActiveTab('pages') 
-                      ? 'bg-primary-fixed text-primary drop-shadow-sm' 
-                      : 'text-secondary hover:text-primary hover:bg-surface-container-low'
-                  }`}
+                <Link
+                  to="/admin?tab=pages"
+                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${isActiveTab('pages')
+                    ? 'bg-primary-fixed text-primary drop-shadow-sm'
+                    : 'text-secondary hover:text-primary hover:bg-surface-container-low'
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActiveTab('pages') ? "'FILL' 1" : "'FILL' 0" }}>description</span>
                   <span>Pages</span>
                 </Link>
-                <Link 
-                  to="/admin?tab=featured" 
-                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${
-                    isActiveTab('featured') 
-                      ? 'bg-primary-fixed text-primary drop-shadow-sm' 
-                      : 'text-secondary hover:text-primary hover:bg-surface-container-low'
-                  }`}
+                <Link
+                  to="/admin?tab=featured"
+                  className={`transition-all duration-200 px-sm lg:px-md py-xs rounded-md text-body-sm lg:text-body-md font-bold tracking-wider lg:tracking-widest uppercase flex items-center gap-xs md:gap-sm md:px-md md:py-sm md:rounded-lg ${isActiveTab('featured')
+                    ? 'bg-primary-fixed text-primary drop-shadow-sm'
+                    : 'text-secondary hover:text-primary hover:bg-surface-container-low'
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isActiveTab('featured') ? "'FILL' 1" : "'FILL' 0" }}>star</span>
                   <span>Featured</span>
@@ -213,17 +222,16 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* User Info / Actions — all items flat in one top-right row */}
-          <div className={`flex items-center gap-[2px] shrink-0 ml-auto ${
-            user?.is_admin
-              ? 'flex-col items-stretch w-full mt-auto pt-md border-t border-outline-variant/20'
-              : ''
-          }`}>
+          <div className={`flex items-center gap-[2px] shrink-0 ml-auto ${user?.is_admin
+            ? 'flex-col items-stretch w-full mt-auto pt-md border-t border-outline-variant/20'
+            : ''
+            }`}>
 
             {user && !user.is_admin ? (
               <>
                 {/* Post Ad CTA */}
-                <Link 
-                  to="/ads/create" 
+                <Link
+                  to="/ads/create"
                   className="hidden sm:flex bg-primary text-on-primary font-label-md text-label-md px-sm py-[5px] rounded-md shadow-sm btn-primary-inner hover:brightness-110 active:scale-[0.98] transition-all items-center gap-xs text-[13px] mr-1"
                 >
                   <span className="material-symbols-outlined text-[16px]">add</span>
@@ -233,9 +241,8 @@ export const Navbar: React.FC = () => {
                 {/* Inbox */}
                 <Link
                   to="/inbox"
-                  className={`relative text-secondary hover:text-primary transition-colors px-[6px] py-[4px] flex items-center rounded-md ${
-                    isActive('/inbox') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
-                  }`}
+                  className={`relative text-secondary hover:text-primary transition-colors px-[6px] py-[4px] flex items-center rounded-md ${isActive('/inbox') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
+                    }`}
                   title="Inbox"
                 >
                   <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: isActive('/inbox') ? "'FILL' 1" : "'FILL' 0" }}>inbox</span>
@@ -276,9 +283,8 @@ export const Navbar: React.FC = () => {
                 {/* Settings */}
                 <Link
                   to="/settings"
-                  className={`text-secondary hover:text-primary transition-colors px-[6px] py-[4px] flex items-center rounded-md ${
-                    isActive('/settings') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
-                  }`}
+                  className={`text-secondary hover:text-primary transition-colors px-[6px] py-[4px] flex items-center rounded-md ${isActive('/settings') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
+                    }`}
                   title="Settings"
                 >
                   <span className="material-symbols-outlined text-[18px]">settings</span>
@@ -287,9 +293,8 @@ export const Navbar: React.FC = () => {
                 {/* About */}
                 <Link
                   to="/dashboard"
-                  className={`text-secondary hover:text-primary transition-colors px-[6px] py-[4px] flex items-center rounded-md ${
-                    isActive('/dashboard') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
-                  }`}
+                  className={`text-secondary hover:text-primary transition-colors px-[6px] py-[4px] flex items-center rounded-md ${isActive('/dashboard') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
+                    }`}
                   title="About"
                 >
                   <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: isActive('/dashboard') ? "'FILL' 1" : "'FILL' 0" }}>info</span>
@@ -364,9 +369,8 @@ export const Navbar: React.FC = () => {
                 {/* About */}
                 <Link
                   to="/dashboard"
-                  className={`text-secondary hover:text-primary transition-colors px-[6px] py-[4px] flex items-center rounded-md ${
-                    isActive('/dashboard') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
-                  }`}
+                  className={`text-secondary hover:text-primary transition-colors px-[6px] py-[4px] flex items-center rounded-md ${isActive('/dashboard') ? 'text-primary bg-primary-fixed' : 'hover:bg-surface-container-low'
+                    }`}
                   title="About"
                 >
                   <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: isActive('/dashboard') ? "'FILL' 1" : "'FILL' 0" }}>info</span>
@@ -402,8 +406,8 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Floating Action Buttons (FABs) */}
       {user && !user.is_admin && location.pathname !== '/ads/create' && !location.pathname.startsWith('/ads/edit/') && location.pathname !== '/inbox' && (
-        <Link 
-          to="/ads/create" 
+        <Link
+          to="/ads/create"
           className="fixed bottom-6 right-6 z-50 flex sm:hidden w-14 h-14 bg-primary text-on-primary rounded-full items-center justify-center shadow-lg hover:brightness-110 active:scale-95 transition-all elevation-2 animate-bounce-short"
           title="Post Ad"
         >

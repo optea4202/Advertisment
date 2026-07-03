@@ -233,7 +233,7 @@ export const FeedPage: React.FC = () => {
                   {pageData ? pageData.title : 'Discover & Promote Advertisements Instantly'}
                 </h1>
                 <p className="text-secondary text-body-sm md:text-body-md max-w-[600px] mt-xs">
-                  {pageData ? pageData.content : 'Browse local services, premium products, and verified stores posted by the Fakna community.'}
+                  {pageData ? pageData.content : 'Browse local services, premium products, and verified stores posted by the zobazar community.'}
                 </p>
               </div>
             )}
@@ -272,7 +272,7 @@ export const FeedPage: React.FC = () => {
                     </div>
                     <div className="flex flex-col min-w-0 px-[2px]">
                       <span className="text-[13px] sm:text-[12px] font-bold truncate text-on-surface block leading-tight">{ad.title}</span>
-                      <span className="text-body-sm sm:text-[11px] font-semibold text-primary block mt-[1px]">₹{ad.price}</span>
+                      <span className="text-body-sm sm:text-[11px] font-semibold text-primary block mt-[1px]">?{ad.price}</span>
                     </div>
                   </Link>
                 );

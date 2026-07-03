@@ -45,7 +45,7 @@ export const TermsPage: React.FC = () => {
         {/* Main T&C Content Card */}
         <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-lg md:p-xl shadow-1 flex flex-col gap-lg leading-relaxed">
           <p className="text-body-md m-0">
-            By accessing or using Fakna (the "Platform"), you agree to these Terms. If you do not agree, do not use the Platform.
+            By accessing or using zobazar (the "Platform"), you agree to these Terms. If you do not agree, do not use the Platform.
           </p>
 
           <hr className="border-t border-outline-variant/15 my-xs m-0" />
@@ -56,7 +56,7 @@ export const TermsPage: React.FC = () => {
               <span className="text-primary text-[20px] font-bold">1.</span> Nature of the Platform
             </h2>
             <p className="text-body-md text-on-surface-variant m-0">
-              Fakna is a peer-to-peer advertising and classifieds venue. We facilitate connections between buyers and sellers, but do not participate in any actual transactions, payments, or logistics.
+              zobazar is a peer-to-peer advertising and classifieds venue. We facilitate connections between buyers and sellers, but do not participate in any actual transactions, payments, or logistics.
             </p>
           </section>
 
@@ -67,10 +67,10 @@ export const TermsPage: React.FC = () => {
             </h2>
             <div className="flex flex-col gap-sm text-body-md text-on-surface-variant">
               <p className="m-0">
-                <strong>No Transaction Liability:</strong> Fakna takes no responsibility or liability for scams, fraud, financial losses, payment issues, or damaged/defective goods.
+                <strong>No Transaction Liability:</strong> zobazar takes no responsibility or liability for scams, fraud, financial losses, payment issues, or damaged/defective goods.
               </p>
               <p className="m-0">
-                <strong>No Dispute Resolution:</strong> Any transaction or agreement is strictly between the buyer and seller. Fakna is not a party to, and will not mediate or be held liable for, disputes between users.
+                <strong>No Dispute Resolution:</strong> Any transaction or agreement is strictly between the buyer and seller. zobazar is not a party to, and will not mediate or be held liable for, disputes between users.
               </p>
             </div>
           </section>
@@ -91,7 +91,7 @@ export const TermsPage: React.FC = () => {
               <span className="text-primary text-[20px] font-bold">4.</span> Limitation of Liability
             </h2>
             <p className="text-body-md text-on-surface-variant m-0">
-              To the maximum extent permitted by law, Fakna and its creators shall not be liable for any indirect, incidental, or consequential damages, or any financial or data losses arising from your use of the Platform.
+              To the maximum extent permitted by law, zobazar and its creators shall not be liable for any indirect, incidental, or consequential damages, or any financial or data losses arising from your use of the Platform.
             </p>
           </section>
 

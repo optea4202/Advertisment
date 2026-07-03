@@ -38,10 +38,10 @@ function App() {
   useEffect(() => {
     const recordVisit = async () => {
       try {
-        const visitedThisSession = sessionStorage.getItem('fakna_visited_session');
+        const visitedThisSession = sessionStorage.getItem('zobazar_visited_session');
         if (!visitedThisSession) {
           await incrementVisits();
-          sessionStorage.setItem('fakna_visited_session', 'true');
+          sessionStorage.setItem('zobazar_visited_session', 'true');
         }
       } catch (err) {
         console.error('Failed to increment visits count:', err);

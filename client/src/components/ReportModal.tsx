@@ -99,7 +99,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ type, itemId, onClose 
                   {getHeaderTitle()}
                 </h2>
                 <p className="font-body-sm text-[12px] text-on-surface-variant/70 mt-[2px]">
-                  Help us keep Fakna safe. Why are you reporting this?
+                  Help us keep zobazar safe. Why are you reporting this?
                 </p>
               </div>
             </div>
@@ -145,7 +145,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ type, itemId, onClose 
                 id="report-details"
                 value={customDetails}
                 onChange={(e) => setCustomDetails(e.target.value)}
-                placeholder={selectedReason === 'Other' ? 'Describe the issue in detail…' : 'Provide any additional context…'}
+                placeholder={selectedReason === 'Other' ? 'Describe the issue in detail�' : 'Provide any additional context�'}
                 rows={3}
                 required={selectedReason === 'Other'}
                 maxLength={500}
@@ -171,7 +171,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({ type, itemId, onClose 
                 {submitting ? (
                   <>
                     <div className="w-4 h-4 border-2 border-on-error/30 border-t-on-error rounded-full animate-spin" />
-                    Submitting…
+                    Submitting�
                   </>
                 ) : (
                   <>

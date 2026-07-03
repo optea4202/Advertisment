@@ -16,9 +16,9 @@ const configSchema = z.object({
   RESEND_API_KEY: z.string().min(1, { message: "RESEND_API_KEY is required" }),
   ALGOLIA_APP_ID: z.string().optional(),
   ALGOLIA_ADMIN_API_KEY: z.string().optional(),
-  ALGOLIA_ADS_INDEX_NAME: z.string().default('fakna_ads'),
-  ALGOLIA_USERS_INDEX_NAME: z.string().default('fakna_users'),
-  // The production frontend URL (e.g. https://fakna.vercel.app)
+  ALGOLIA_ADS_INDEX_NAME: z.string().default('zobazar_ads'),
+  ALGOLIA_USERS_INDEX_NAME: z.string().default('zobazar_users'),
+  // The production frontend URL (e.g. https://zobazar.vercel.app)
   // Used by the OG preview route to build absolute page and image URLs.
   FRONTEND_URL: z.string().url().optional(),
 });
@@ -27,7 +27,7 @@ const parseConfig = () => {
   const result = configSchema.safeParse(process.env);
   
   if (!result.success) {
-    console.error('❌ Invalid environment configuration:', result.error.format());
+    console.error('? Invalid environment configuration:', result.error.format());
     process.exit(1);
   }
   

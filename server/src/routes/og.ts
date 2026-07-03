@@ -15,7 +15,7 @@ router.get('/ads/:id', async (req: Request, res: Response) => {
     return res.status(400).send('Invalid ad ID');
   }
 
-  // FRONTEND_URL is the production Vercel URL (e.g. https://fakna.vercel.app)
+  // FRONTEND_URL is the production Vercel URL (e.g. https://zobazar.vercel.app)
   const frontendUrl = process.env.FRONTEND_URL ?? 'https://advertisment-delta.vercel.app';
   const defaultImage = `${frontendUrl}/og-default.png`;
   const pageUrl = `${frontendUrl}/ads/${adId}`;
@@ -26,7 +26,7 @@ router.get('/ads/:id', async (req: Request, res: Response) => {
     if (!ad) {
       // Still return valid OG tags so bots don't get an error page
       const html = buildOgHtml({
-        title: 'Ad not found — Fakna',
+        title: 'Ad not found � zobazar',
         description: 'This advertisement may have been removed.',
         image: defaultImage,
         url: pageUrl,
@@ -35,13 +35,13 @@ router.get('/ads/:id', async (req: Request, res: Response) => {
       return res.status(404).send(html);
     }
 
-    const title = ad.title ?? 'Fakna — Advertisement Platform';
+    const title = ad.title ?? 'zobazar � Advertisement Platform';
 
     // Truncate description to 200 chars for the og:description tag
     const rawDesc = ad.description ?? '';
     const description = rawDesc.length > 200
       ? rawDesc.slice(0, 197) + '...'
-      : rawDesc || 'Browse and post free advertisements on Fakna.';
+      : rawDesc || 'Browse and post free advertisements on zobazar.';
 
     // Use first image if available; images is DbAdImage[] with cloudinary_url field
     const firstImage = Array.isArray(ad.images) && ad.images.length > 0
@@ -59,10 +59,10 @@ router.get('/ads/:id', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('[OG] Preview generation error:', err);
 
-    // Fallback — still send valid OG tags even on DB error
+    // Fallback � still send valid OG tags even on DB error
     const html = buildOgHtml({
-      title: 'Fakna — Advertisement Platform',
-      description: 'Browse and post free advertisements on Fakna.',
+      title: 'zobazar � Advertisement Platform',
+      description: 'Browse and post free advertisements on zobazar.',
       image: defaultImage,
       url: pageUrl,
     });
@@ -85,7 +85,7 @@ interface OgData {
 function buildOgHtml({ title, description, image, url }: OgData): string {
   const t = escapeHtml(title);
   const d = escapeHtml(description);
-  // Image and URL are Cloudinary/internal URLs — escape for attribute safety
+  // Image and URL are Cloudinary/internal URLs � escape for attribute safety
   const img = escapeAttr(image);
   const u = escapeAttr(url);
 
@@ -93,12 +93,12 @@ function buildOgHtml({ title, description, image, url }: OgData): string {
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>${t} — Fakna</title>
+    <title>${t} � zobazar</title>
     <meta name="description" content="${d}" />
 
     <!-- Open Graph (Facebook, WhatsApp, LinkedIn, Discord) -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Fakna" />
+    <meta property="og:site_name" content="zobazar" />
     <meta property="og:url" content="${u}" />
     <meta property="og:title" content="${t}" />
     <meta property="og:description" content="${d}" />

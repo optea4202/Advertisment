@@ -1,7 +1,7 @@
 {
-  "name": "fakna-server",
+  "name": "zobazar-server",
   "version": "1.0.0",
-  "description": "Express backend for Fakna Advertisement Platform",
+  "description": "Express backend for zobazar Advertisement Platform",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

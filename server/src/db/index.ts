@@ -15,11 +15,11 @@ export let dbConnectionError: string | null = null;
 // Test the connection at startup
 pool.connect()
   .then((client) => {
-    console.log('🔌 Successfully connected to PostgreSQL database.');
+    console.log('?? Successfully connected to PostgreSQL database.');
     client.release();
   })
   .catch((err) => {
-    console.warn('⚠️ PostgreSQL connection failed. Falling back to In-Memory Mock Database for ads and categories.', err.message);
+    console.warn('?? PostgreSQL connection failed. Falling back to In-Memory Mock Database for ads and categories.', err.message);
     useMockDb = true;
     dbConnectionError = err.message;
   });
@@ -112,7 +112,7 @@ export const query = async (text: string, params?: any[]): Promise<pg.QueryResul
       rows = mockAds;
     } else if (textLower.includes('from users')) {
       rows = [
-        { id: 1, clerk_id: params?.[0] || 'user_placeholder', username: 'GuestUser', email: 'guest@fakna.com', photo_url: null, bio: 'Mock Guest User', is_admin: true, is_banned: false }
+        { id: 1, clerk_id: params?.[0] || 'user_placeholder', username: 'GuestUser', email: 'guest@zobazar.com', photo_url: null, bio: 'Mock Guest User', is_admin: true, is_banned: false }
       ];
     } else if (textLower.includes('from wishlist')) {
       rows = [];
@@ -145,7 +145,7 @@ export const query = async (text: string, params?: any[]): Promise<pg.QueryResul
     return res;
   } catch (error: any) {
     if (error.code === 'ECONNREFUSED' || error.message.includes('connect')) {
-      console.warn('⚠️ Database connection lost. Switching dynamically to In-Memory Mock Database.');
+      console.warn('?? Database connection lost. Switching dynamically to In-Memory Mock Database.');
       useMockDb = true;
       return query(text, params);
     }

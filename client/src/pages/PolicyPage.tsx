@@ -45,7 +45,7 @@ export const PolicyPage: React.FC = () => {
         {/* Main Content Card */}
         <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-lg md:p-xl shadow-1 flex flex-col gap-lg leading-relaxed">
           <p className="text-body-md m-0">
-            We value your privacy and aim to be transparent about how data is handled on Fakna (the "Platform"). This Privacy Policy explains what information is collected, how it is used, and what control you have over it.
+            We value your privacy and aim to be transparent about how data is handled on zobazar (the "Platform"). This Privacy Policy explains what information is collected, how it is used, and what control you have over it.
           </p>
 
           <hr className="border-t border-outline-variant/15 my-xs m-0" />
@@ -56,7 +56,7 @@ export const PolicyPage: React.FC = () => {
               <span className="text-primary text-[20px] font-bold">1.</span> Personal Data Disclaimer
             </h2>
             <p className="text-body-md text-on-surface-variant m-0">
-              Fakna is a public classifieds platform. We are not responsible for the security, exposure, misuse, or unauthorized access of any phone numbers, email addresses, photos, or other personal details you publish on your profile or listings. All information is shared at your own risk.
+              zobazar is a public classifieds platform. We are not responsible for the security, exposure, misuse, or unauthorized access of any phone numbers, email addresses, photos, or other personal details you publish on your profile or listings. All information is shared at your own risk.
             </p>
           </section>
 

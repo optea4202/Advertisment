@@ -15,7 +15,7 @@ export const Footer: React.FC = () => {
               <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center text-on-primary group-hover:rotate-6 transition-transform duration-300">
                 <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
               </div>
-              <span className="text-headline-md font-bold text-primary tracking-tight">Fakna</span>
+              <span className="text-headline-md font-bold text-primary tracking-tight">zobazar</span>
             </Link>
             
             <p className="text-on-surface-variant text-body-sm leading-relaxed max-w-[280px]">
@@ -131,7 +131,7 @@ export const Footer: React.FC = () => {
             <ul className="flex flex-col gap-xs p-0 m-0 list-none mb-sm">
               <li className="text-on-surface-variant text-[13px] flex items-center gap-xs">
                 <span className="material-symbols-outlined text-[15px] text-primary">mail</span>
-                support@fakna.com
+                support@zobazar.com
               </li>
               <li className="text-on-surface-variant text-[13px] flex items-center gap-xs">
                 <span className="material-symbols-outlined text-[15px] text-primary">contact_support</span>
@@ -153,7 +153,7 @@ export const Footer: React.FC = () => {
         {/* Bottom copyright notice */}
         <div className="border-t border-outline-variant/15 mt-xl pt-lg flex flex-col md:flex-row justify-between items-center gap-sm">
           <p className="font-body-sm text-body-sm text-on-surface-variant text-center md:text-left m-0">
-            &copy; {currentYear} <span className="font-semibold">Fakna</span>. All rights reserved.
+            &copy; {currentYear} <span className="font-semibold">zobazar</span>. All rights reserved.
           </p>
         </div>
       </div>

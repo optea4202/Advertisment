@@ -21,7 +21,7 @@ interface AlgoliaAdHit {
 
 // Initialize the Algolia client using Search-Only key (v5 client)
 let searchClient: ReturnType<typeof algoliasearch> | null = null;
-const adsIndexName = import.meta.env.VITE_ALGOLIA_ADS_INDEX_NAME || 'fakna_ads';
+const adsIndexName = import.meta.env.VITE_ALGOLIA_ADS_INDEX_NAME || 'zobazar_ads';
 
 try {
   const appId = import.meta.env.VITE_ALGOLIA_APP_ID || '';
@@ -40,7 +40,7 @@ interface FeedCacheItem {
 }
 
 // ----- localStorage persistence helpers -----
-const LS_FEED_PREFIX = 'fakna_feed_';
+const LS_FEED_PREFIX = 'zobazar_feed_';
 const LS_FEED_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 interface PersistedFeed {
@@ -99,7 +99,7 @@ export const clearAdsCache = () => {
     }
     toDelete.forEach(k => localStorage.removeItem(k));
   } catch { /* ignore */ }
-  console.log('🧹 Ads cache cleared.');
+  console.log('?? Ads cache cleared.');
 };
 
 
@@ -237,7 +237,7 @@ export const useFeed = (category?: string, search?: string, page: number = 1) =>
         feedCache[cacheKey] = persisted;
         setFromCache(true);
         setError(null);
-        console.log(`📦 Loaded ${persisted.ads.length} ads from offline cache.`);
+        console.log(`?? Loaded ${persisted.ads.length} ads from offline cache.`);
       } else {
         setError(err);
         setFromCache(false);

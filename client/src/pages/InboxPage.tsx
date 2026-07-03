@@ -18,7 +18,7 @@ interface AlgoliaUserHit {
 
 // Initialize the Algolia client using Search-Only key (v5 client) safely
 let searchClient: ReturnType<typeof algoliasearch> | null = null;
-const usersIndexName = import.meta.env.VITE_ALGOLIA_USERS_INDEX_NAME || 'fakna_users';
+const usersIndexName = import.meta.env.VITE_ALGOLIA_USERS_INDEX_NAME || 'zobazar_users';
 
 try {
   const appId = import.meta.env.VITE_ALGOLIA_APP_ID || '';
@@ -83,7 +83,7 @@ export const InboxPage: React.FC = () => {
   const [showDeleteConvModal, setShowDeleteConvModal] = useState(false);
   const [deletingConv, setDeletingConv] = useState(false);
 
-  // ── User search state ────────────────────────────────────────────
+  // -- User search state --------------------------------------------
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<PublicUserProfile[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -128,7 +128,7 @@ export const InboxPage: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // ── Debounced user search ────────────────────────────────────────
+  // -- Debounced user search ----------------------------------------
   useEffect(() => {
     if (!searchQuery.trim()) {
       setSearchResults([]);
@@ -202,7 +202,7 @@ export const InboxPage: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // ── Start chat from search result ────────────────────────────────
+  // -- Start chat from search result --------------------------------
   const handleSearchResultClick = useCallback(async (user: PublicUserProfile) => {
     if (startingChatFor === user.id) return;
     setStartingChatFor(user.id);
@@ -302,7 +302,7 @@ export const InboxPage: React.FC = () => {
     }
   };
 
-  // ── Edit handlers ──────────────────────────────────────────────
+  // -- Edit handlers ----------------------------------------------
   const startEditing = (messageId: number, currentText: string) => {
     setEditingMessageId(messageId);
     setEditingText(currentText);
@@ -336,13 +336,13 @@ export const InboxPage: React.FC = () => {
     }
   };
 
-  // ── Delete message handlers ────────────────────────────────────
+  // -- Delete message handlers ------------------------------------
   const handleConfirmDeleteMessage = async (messageId: number) => {
     await deleteMsg(messageId);
     setDeletingMessageId(null);
   };
 
-  // ── Delete conversation handlers ───────────────────────────────
+  // -- Delete conversation handlers -------------------------------
   const handleDeleteConversation = async () => {
     if (!activeConvId || deletingConv) return;
     setDeletingConv(true);
@@ -379,7 +379,7 @@ export const InboxPage: React.FC = () => {
       <Navbar />
 
       <main className="flex-grow w-full max-w-container-max mx-auto px-0 md:px-md lg:px-xl py-0 md:py-xl flex flex-col overflow-hidden md:overflow-visible">
-        {/* Page header — desktop only */}
+        {/* Page header � desktop only */}
         <div className="hidden md:flex items-center gap-sm mb-lg px-0">
           <span className="material-symbols-outlined text-primary text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>inbox</span>
           <h1 className="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">Inbox</h1>
@@ -388,7 +388,7 @@ export const InboxPage: React.FC = () => {
         {/* Main Panel */}
         <div className="flex flex-1 overflow-hidden bg-surface-container-lowest md:rounded-2xl md:border md:border-outline-variant/20 md:shadow-1 md:h-[calc(100vh-200px)] md:min-h-[calc(100vh-200px)] md:max-h-[calc(100vh-200px)]">
 
-          {/* ─── Left Panel: Conversation List ─── */}
+          {/* --- Left Panel: Conversation List --- */}
           <div className={`
             flex flex-col border-r border-outline-variant/20
             ${showMobileList ? 'flex' : 'hidden'} md:flex
@@ -401,7 +401,7 @@ export const InboxPage: React.FC = () => {
               <span className="font-headline-md text-[18px] font-bold text-on-surface">Messages</span>
             </div>
 
-            {/* ── Search Users Bar ── */}
+            {/* -- Search Users Bar -- */}
             <div className="relative px-md pt-md pb-sm">
               <div className={`flex items-center gap-xs bg-surface-container border rounded-xl px-md py-sm transition-all ${
                 searchFocused ? 'border-primary ring-1 ring-primary/20 bg-surface-container-lowest' : 'border-outline-variant/50'
@@ -425,7 +425,7 @@ export const InboxPage: React.FC = () => {
                       setSearchResults([]);
                     }
                   }}
-                  placeholder="Search people to message…"
+                  placeholder="Search people to message�"
                   autoComplete="off"
                   className="flex-grow bg-transparent text-body-sm font-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none min-w-0"
                 />
@@ -449,7 +449,7 @@ export const InboxPage: React.FC = () => {
                   {searchLoading && searchResults.length === 0 && (
                     <div className="flex items-center gap-sm px-md py-sm">
                       <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                      <span className="font-body-sm text-body-sm text-on-surface-variant">Searching…</span>
+                      <span className="font-body-sm text-body-sm text-on-surface-variant">Searching�</span>
                     </div>
                   )}
 
@@ -557,7 +557,7 @@ export const InboxPage: React.FC = () => {
                             conv.last_message
                           )
                         ) : (
-                          'Start the conversation…'
+                          'Start the conversation�'
                         )}
                       </span>
                     </div>
@@ -567,10 +567,10 @@ export const InboxPage: React.FC = () => {
             </div>
           </div>
 
-          {/* ─── Right Panel: Active Chat ─── */}
+          {/* --- Right Panel: Active Chat --- */}
           <div className={`flex flex-col flex-grow overflow-hidden ${!showMobileList ? 'flex' : 'hidden'} md:flex`}>
 
-            {/* Chat Header — sticky, never scrolls */}
+            {/* Chat Header � sticky, never scrolls */}
             {activeConversation ? (
               <div className="flex items-center gap-md px-lg py-md border-b border-outline-variant/20 bg-surface-container-lowest flex-shrink-0 z-10">
                 {/* Mobile back button */}
@@ -657,7 +657,7 @@ export const InboxPage: React.FC = () => {
               {activeConvId && loadingMsgs && messages.length === 0 && (
                 <div className="flex items-center justify-center py-xl gap-sm">
                   <div className="w-5 h-5 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                  <span className="font-label-sm text-label-sm text-on-surface-variant">Loading messages…</span>
+                  <span className="font-label-sm text-label-sm text-on-surface-variant">Loading messages�</span>
                 </div>
               )}
 
@@ -694,7 +694,7 @@ export const InboxPage: React.FC = () => {
 
                 return (
                   <div key={msg.id} className={`group flex items-end gap-sm ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-                    {/* Avatar — other user only */}
+                    {/* Avatar � other user only */}
                     {!isMe && (
                       <div className="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center overflow-hidden flex-shrink-0">
                         {msg.sender_photo ? (
@@ -736,7 +736,7 @@ export const InboxPage: React.FC = () => {
                               disabled={!editingText.trim() || savingEdit}
                               className="px-sm py-xs rounded-lg font-label-sm text-label-sm bg-primary text-on-primary hover:brightness-110 active:scale-95 transition-all disabled:opacity-40"
                             >
-                              {savingEdit ? 'Saving…' : 'Save'}
+                              {savingEdit ? 'Saving�' : 'Save'}
                             </button>
                           </div>
                         </div>
@@ -781,11 +781,11 @@ export const InboxPage: React.FC = () => {
                         </div>
                       )}
 
-                      {/* Action buttons — own messages only, shown on hover (desktop) or always (mobile) */}
+                      {/* Action buttons � own messages only, shown on hover (desktop) or always (mobile) */}
                       {isMe && !isEditing && (
                         <div className={`flex items-center gap-[2px] opacity-0 group-hover:opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity ${isMe ? 'flex-row-reverse' : 'flex-row'}`}
                           style={{ opacity: isConfirmingDelete ? 1 : undefined }}>
-                          {/* Edit button — only if message has text */}
+                          {/* Edit button � only if message has text */}
                           {canEdit && (
                             <button
                               id={`edit-msg-${msg.id}`}
@@ -833,7 +833,7 @@ export const InboxPage: React.FC = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area — locked to bottom, never scrolls */}
+            {/* Input Area � locked to bottom, never scrolls */}
             {activeConvId && (
               <div className="flex flex-col border-t border-outline-variant/20 bg-surface-container-lowest flex-shrink-0 z-10">
                 {/* Photo preview strip */}
@@ -894,7 +894,7 @@ export const InboxPage: React.FC = () => {
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Type a message… (Enter to send)"
+                    placeholder="Type a message� (Enter to send)"
                     rows={1}
                     className="flex-grow resize-none bg-surface-container border border-outline-variant rounded-xl px-md py-sm font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
                     style={{ maxHeight: '120px', overflowY: 'auto' }}
@@ -919,7 +919,7 @@ export const InboxPage: React.FC = () => {
         </div>
       </main>
 
-      {/* ─── Delete Conversation Confirmation Modal ─── */}
+      {/* --- Delete Conversation Confirmation Modal --- */}
       {showDeleteConvModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-inverse-surface/50 backdrop-blur-sm px-md"
@@ -954,7 +954,7 @@ export const InboxPage: React.FC = () => {
                 {deletingConv ? (
                   <>
                     <div className="w-4 h-4 border-2 border-on-error/30 border-t-on-error rounded-full animate-spin" />
-                    Deleting…
+                    Deleting�
                   </>
                 ) : (
                   <>

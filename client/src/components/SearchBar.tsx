@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { algoliasearch } from 'algoliasearch';
 import { getSearchSuggestions } from '../api/ads.js';
 
-// ── Algolia client (Search-Only key, mirrors useAds.ts pattern) ──────────────
+// -- Algolia client (Search-Only key, mirrors useAds.ts pattern) --------------
 let searchClient: ReturnType<typeof algoliasearch> | null = null;
-const adsIndexName = import.meta.env.VITE_ALGOLIA_ADS_INDEX_NAME || 'fakna_ads';
+const adsIndexName = import.meta.env.VITE_ALGOLIA_ADS_INDEX_NAME || 'zobazar_ads';
 
 try {
   const appId = import.meta.env.VITE_ALGOLIA_APP_ID || '';
@@ -21,7 +21,7 @@ try {
   console.warn('SearchBar: Algolia client init skipped:', err);
 }
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// -- Types --------------------------------------------------------------------
 interface SearchBarProps {
   initialSearch: string;
   onSearchChange: (search: string) => void;
@@ -29,7 +29,7 @@ interface SearchBarProps {
   debounceMs?: number;
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
+// -- Component ----------------------------------------------------------------
 export const SearchBar: React.FC<SearchBarProps> = ({
   initialSearch,
   onSearchChange,
@@ -50,9 +50,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
   const [history, setHistory] = useState<string[]>([]);
 
-  // ── Load history from localStorage on mount ──────────────────────────────
+  // -- Load history from localStorage on mount ------------------------------
   useEffect(() => {
-    const stored = localStorage.getItem('fakna_search_history');
+    const stored = localStorage.getItem('zobazar_search_history');
     if (stored) {
       try {
         setHistory(JSON.parse(stored));
@@ -62,12 +62,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     }
   }, []);
 
-  // ── History helpers ──────────────────────────────────────────────────────
+  // -- History helpers ------------------------------------------------------
   const saveToHistory = (term: string) => {
     const trimmed = term.trim();
     if (!trimmed) return;
 
-    const stored = localStorage.getItem('fakna_search_history');
+    const stored = localStorage.getItem('zobazar_search_history');
     let currentHistory: string[] = [];
     if (stored) {
       try {
@@ -77,14 +77,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       }
     }
     const updated = [trimmed, ...currentHistory.filter((item) => item !== trimmed)].slice(0, 5);
-    localStorage.setItem('fakna_search_history', JSON.stringify(updated));
+    localStorage.setItem('zobazar_search_history', JSON.stringify(updated));
     setHistory(updated);
   };
 
   const deleteHistoryItem = (e: React.MouseEvent, item: string) => {
     e.preventDefault();
     e.stopPropagation();
-    const stored = localStorage.getItem('fakna_search_history');
+    const stored = localStorage.getItem('zobazar_search_history');
     let currentHistory: string[] = [];
     if (stored) {
       try {
@@ -94,14 +94,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       }
     }
     const updated = currentHistory.filter((i) => i !== item);
-    localStorage.setItem('fakna_search_history', JSON.stringify(updated));
+    localStorage.setItem('zobazar_search_history', JSON.stringify(updated));
     setHistory(updated);
   };
 
   const clearAllHistory = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    localStorage.removeItem('fakna_search_history');
+    localStorage.removeItem('zobazar_search_history');
     setHistory([]);
     setIsOpen(false);
   };
@@ -109,12 +109,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const isFirstMount = useRef(true);
 
-  // ── Keep state in sync with prop if it changes externally ────────────────
+  // -- Keep state in sync with prop if it changes externally ----------------
   useEffect(() => {
     setSearchTerm(initialSearch);
   }, [initialSearch]);
 
-  // ── Main feed debounce — tells the parent what the current query is ───────
+  // -- Main feed debounce � tells the parent what the current query is -------
   useEffect(() => {
     if (isFirstMount.current) {
       isFirstMount.current = false;
@@ -126,7 +126,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     return () => clearTimeout(timer);
   }, [searchTerm, onSearchChange, debounceMs]);
 
-  // ── Suggestions effect ────────────────────────────────────────────────────
+  // -- Suggestions effect ----------------------------------------------------
   // Opens the dropdown immediately on first character, populates once fetch resolves.
   // Strategy: try Algolia directly (client-side) for ad title suggestions;
   //           always fetch categories from backend; fall back to backend titles if Algolia unavailable.
@@ -150,8 +150,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         let titles: string[] = [];
         let fromAlgolia = false;
 
-        // ── Step 1: Always fetch categories from backend (fast, few rows) ──
-        // ── Step 2: Try direct Algolia for ad title suggestions ────────────
+        // -- Step 1: Always fetch categories from backend (fast, few rows) --
+        // -- Step 2: Try direct Algolia for ad title suggestions ------------
         if (searchClient) {
           const [backendData, algoliaRes] = await Promise.allSettled([
             getSearchSuggestions(trimmed),
@@ -180,11 +180,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             titles = Array.from(uniqueTitles).slice(0, 6);
             fromAlgolia = true;
           } else if (backendData.status === 'fulfilled') {
-            // Algolia failed or returned nothing — use DB titles from backend
+            // Algolia failed or returned nothing � use DB titles from backend
             titles = backendData.value.titles;
           }
         } else {
-          // Algolia client not configured — fall back entirely to backend
+          // Algolia client not configured � fall back entirely to backend
           const backendData = await getSearchSuggestions(trimmed);
           categories = backendData.categories;
           titles = backendData.titles;
@@ -207,7 +207,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // ── Close on click outside ────────────────────────────────────────────────
+  // -- Close on click outside ------------------------------------------------
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -218,7 +218,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // ── Action handlers ───────────────────────────────────────────────────────
+  // -- Action handlers -------------------------------------------------------
   const handleClear = () => {
     setSearchTerm('');
     onSearchChange('');
@@ -265,7 +265,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const hasSuggestions = suggestions.categories.length > 0 || suggestions.titles.length > 0;
   const showHistory = !searchTerm.trim() && history.length > 0;
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // -- Render ----------------------------------------------------------------
   return (
     <div ref={containerRef} className="relative w-full" onKeyDown={handleKeyDown}>
       {/* Search Icon */}
@@ -301,13 +301,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         )}
       </div>
 
-      {/* ── Dropdown panel ──────────────────────────────────────────────────
+      {/* -- Dropdown panel --------------------------------------------------
           Visible as soon as isOpen=true. Shows skeleton while loading, then results. */}
       {isOpen && (!!searchTerm.trim() || history.length > 0) && (
         <div className="absolute left-0 right-0 mt-sm bg-surface-container-lowest border border-outline-variant/60 rounded-xl shadow-2 backdrop-blur-md z-50 max-h-[320px] overflow-y-auto animate-fade-in-up-sheet">
           <div className="p-xs flex flex-col">
 
-            {/* ── Recent Searches (Search History) ── */}
+            {/* -- Recent Searches (Search History) -- */}
             {showHistory && (
               <div className="flex flex-col">
                 <div className="flex items-center justify-between px-sm py-[6px] select-none border-b border-outline-variant/10 mb-xs">
@@ -350,7 +350,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               </div>
             )}
 
-            {/* ── Loading skeleton rows ── */}
+            {/* -- Loading skeleton rows -- */}
             {!!searchTerm.trim() && loading && (
               <div className="flex flex-col gap-xs px-sm py-sm">
                 {[1, 2, 3].map((i) => (
@@ -365,7 +365,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               </div>
             )}
 
-            {/* ── Category suggestions ── */}
+            {/* -- Category suggestions -- */}
             {!!searchTerm.trim() && !loading && suggestions.categories.length > 0 && (
               <div className="flex flex-col mb-xs">
                 <span className="font-label-sm text-[11px] text-secondary/70 uppercase tracking-wider px-sm py-[6px] select-none">
@@ -387,7 +387,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               </div>
             )}
 
-            {/* ── Divider between category and ad-title sections ── */}
+            {/* -- Divider between category and ad-title sections -- */}
             {!!searchTerm.trim() &&
               !loading &&
               suggestions.categories.length > 0 &&
@@ -395,7 +395,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                 <div className="h-[1px] bg-outline-variant/20 my-xs" />
               )}
 
-            {/* ── Ad title suggestions (Algolia or DB fallback) ── */}
+            {/* -- Ad title suggestions (Algolia or DB fallback) -- */}
             {!!searchTerm.trim() && !loading && suggestions.titles.length > 0 && (
               <div className="flex flex-col">
                 <div className="flex items-center justify-between px-sm py-[6px] select-none">
@@ -428,7 +428,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               </div>
             )}
 
-            {/* ── No results state ── */}
+            {/* -- No results state -- */}
             {!!searchTerm.trim() && !loading && !hasSuggestions && (
               <div className="flex items-center gap-sm px-sm py-md text-secondary font-body-sm text-body-sm">
                 <span className="material-symbols-outlined text-[18px]">search_off</span>

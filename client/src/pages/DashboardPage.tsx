@@ -10,7 +10,7 @@ const features = [
     icon: 'campaign',
     title: 'Post Ads Instantly',
     description:
-      'Publish your advertisement in seconds. Fill in the details, upload up to 5 photos, and your listing goes live immediately — no approval queue.',
+      'Publish your advertisement in seconds. Fill in the details, upload up to 5 photos, and your listing goes live immediately � no approval queue.',
     color: 'bg-primary-fixed text-primary',
   },
   {
@@ -38,7 +38,7 @@ const features = [
     icon: 'notifications',
     title: 'Email Notifications',
     description:
-      'Ad owners get instant email alerts whenever a new comment is posted on one of their listings — stay informed at all times.',
+      'Ad owners get instant email alerts whenever a new comment is posted on one of their listings � stay informed at all times.',
     color: 'bg-tertiary-fixed text-tertiary',
   },
   {
@@ -86,7 +86,7 @@ export const DashboardPage: React.FC = () => {
 
       <main className="flex-grow w-full">
 
-        {/* ── Hero Section ── */}
+        {/* -- Hero Section -- */}
         <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-surface to-tertiary-fixed/20 pt-xxl pb-[80px] px-md md:px-xl">
           {/* Decorative blobs */}
           <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
@@ -96,7 +96,7 @@ export const DashboardPage: React.FC = () => {
             {/* Brand badge */}
             <span className="inline-flex items-center gap-xs bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm px-md py-[6px] rounded-full">
               <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
-              Welcome to Fakna
+              Welcome to zobazar
             </span>
 
             <h1 className="font-headline-lg text-headline-lg md:text-[44px] md:leading-[54px] text-on-surface tracking-tight max-w-[700px] font-bold">
@@ -114,7 +114,7 @@ export const DashboardPage: React.FC = () => {
             </h1>
 
             <p className="font-body-lg text-body-lg text-secondary max-w-[560px]">
-              {pageData ? pageData.content : 'Fakna is a secure, community-driven advertisement platform where you can buy, sell, and discover goods and services posted by real people — all in one elegant feed.'}
+              {pageData ? pageData.content : 'zobazar is a secure, community-driven advertisement platform where you can buy, sell, and discover goods and services posted by real people � all in one elegant feed.'}
             </p>
 
             <div className="flex flex-wrap gap-md justify-center mt-sm">
@@ -136,7 +136,7 @@ export const DashboardPage: React.FC = () => {
           </div>
         </section>
 
-        {/* ── Stats Bar ── */}
+        {/* -- Stats Bar -- */}
         <section className="bg-surface-container-lowest border-y border-outline-variant/30 py-lg px-md md:px-xl">
           <div className="max-w-container-max mx-auto grid grid-cols-2 md:grid-cols-4 gap-lg text-center">
             {[
@@ -153,7 +153,7 @@ export const DashboardPage: React.FC = () => {
           </div>
         </section>
 
-        {/* ── Features Grid ── */}
+        {/* -- Features Grid -- */}
         <section className="py-xxl px-md md:px-xl bg-surface">
           <div className="max-w-container-max mx-auto flex flex-col gap-xl">
             <div className="text-center flex flex-col gap-sm">
@@ -191,7 +191,7 @@ export const DashboardPage: React.FC = () => {
           </div>
         </section>
 
-        {/* ── How It Works ── */}
+        {/* -- How It Works -- */}
         <section className="py-xxl px-md md:px-xl bg-surface-container-low">
           <div className="max-w-container-max mx-auto flex flex-col gap-xl">
             <div className="text-center flex flex-col gap-sm">
@@ -218,7 +218,7 @@ export const DashboardPage: React.FC = () => {
           </div>
         </section>
 
-        {/* ── Tech Stack ── */}
+        {/* -- Tech Stack -- */}
         <section className="py-xxl px-md md:px-xl bg-surface">
           <div className="max-w-container-max mx-auto flex flex-col items-center gap-xl text-center">
             <h2 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
@@ -249,7 +249,7 @@ export const DashboardPage: React.FC = () => {
           </div>
         </section>
 
-        {/* ── CTA Banner ── */}
+        {/* -- CTA Banner -- */}
         <section className="py-xxl px-md md:px-xl bg-gradient-to-br from-primary to-primary-container relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/10 blur-[60px]" />
@@ -262,7 +262,7 @@ export const DashboardPage: React.FC = () => {
             <p className="font-body-lg text-body-lg text-on-primary/80 max-w-[440px]">
               {user
                 ? `Welcome back, ${user.username}! Your next listing is just one click away.`
-                : 'Join thousands of users already sharing and discovering on Fakna.'}
+                : 'Join thousands of users already sharing and discovering on zobazar.'}
             </p>
             <div className="flex flex-wrap gap-md justify-center">
               <Link

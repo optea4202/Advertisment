@@ -39,7 +39,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/pages', pageRoutes);
 app.use('/api/visits', visitsRoutes);
 
-// OG preview endpoint — used by social bot rewrites (Vercel edge)
+// OG preview endpoint � used by social bot rewrites (Vercel edge)
 // Returns minimal HTML with Open Graph / Twitter Card meta tags for link previews
 app.use('/og', ogRoutes);
 
@@ -103,6 +103,6 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 // Start Express Server
 const PORT = config.PORT;
 app.listen(PORT, () => {
-  console.log(`🚀 Fakna Server running on port ${PORT}`);
+  console.log(`?? zobazar Server running on port ${PORT}`);
   configureIndexSettings();
 });

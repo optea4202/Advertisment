@@ -1,7 +1,7 @@
 {
-  "name": "fakna-root",
+  "name": "zobazar-root",
   "version": "1.0.0",
-  "description": "Fakna Advertisement Platform Monorepo",
+  "description": "zobazar Advertisement Platform Monorepo",
   "private": true,
   "scripts": {
     "dev:server": "npm run dev --prefix server",
