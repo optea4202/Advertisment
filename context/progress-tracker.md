@@ -18,7 +18,7 @@ Update this file after every meaningful implementation change.
 
 - Corrected the currency symbol prefix from a question mark (`?`) to Indian Rupees (`₹`) across all client ad post price displays (in [AdCard.tsx](file:///x:/Advertisment/client/src/components/AdCard.tsx), [FeedPage.tsx](file:///x:/Advertisment/client/src/pages/FeedPage.tsx), and [AdDetailPage.tsx](file:///x:/Advertisment/client/src/pages/AdDetailPage.tsx)) to ensure consistent currency rendering across the application.
 
-- Configured the project logo `Project.png` as the application's favicon by copying it to `client/public/favicon.png` and updating the link element in `client/index.html`.
+- Configured the project logo `Project.png` as the application's favicon and PWA assets by copying it to `client/public/favicon.png`, `client/public/icon-192.png`, and `client/public/icon-512.png`, updating the link elements in `client/index.html`, and regenerating `client/public/favicon.svg` to wrap the base64-encoded logo so browser tab icons correctly display the new ZoBazar branding.
 
 - Updated the brand wordmark "ZoBazar" in the navigation bar ([Navbar.tsx](file:///x:/Advertisment/client/src/components/Navbar.tsx)) to change the color of the "Zo" prefix to dark green (`#00685f`), satisfying the design system's primary color usage.
 
